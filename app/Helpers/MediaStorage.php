@@ -2,6 +2,7 @@
 
 namespace App\Helpers;
 
+use Cloudinary\Cloudinary;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 
@@ -15,13 +16,26 @@ class MediaStorage
     public static function uploadImage(UploadedFile $file, string $folder): string
     {
         $disk = self::disk();
-        $storedPath = $file->store(trim($folder, '/'), $disk);
-
         if ($disk === 'cloudinary') {
-            return Storage::disk($disk)->url($storedPath);
+            try {
+                $response = app(Cloudinary::class)->uploadApi()->upload($file->getRealPath(), [
+                    'folder' => trim($folder, '/'),
+                ]);
+
+                $secureUrl = (string) $response->offsetGet('secure_url');
+
+                if ($secureUrl !== '') {
+                    return $secureUrl;
+                }
+            } catch (\Throwable $e) {
+                report($e);
+            }
+
+            // Fallback: jika Cloudinary gagal, simpan sementara ke public agar proses tidak 500.
+            return $file->store(trim($folder, '/'), 'public');
         }
 
-        return $storedPath;
+        return $file->store(trim($folder, '/'), $disk);
     }
 
     public static function delete(?string $path): void
