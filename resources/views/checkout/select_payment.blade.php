@@ -222,7 +222,7 @@
                     <div class="mt-3" id="address-box">
                         <label class="form-label small fw-bold text-muted">Alamat Pengiriman</label>
                         <div class="address-input-wrapper">
-                            <input type="text" name="shipping_address" id="shipping_address" class="form-control" autocomplete="off" placeholder="Masukkan alamat lengkap rumah / tujuan pengiriman" value="{{ old('shipping_address') }}">
+                            <input type="text" name="shipping_address" id="shipping_address" class="form-control" autocomplete="off" placeholder="Masukkan alamat lengkap rumah / tujuan pengiriman" value="{{ old('shipping_address', $customerAddress ?? '') }}">
                         </div>
                         <small class="text-muted d-block mt-2">Alamat toko: {{ $storeAddress }}</small>
                         <small class="text-muted d-block">Tarif ongkir ditentukan dari pengaturan admin dan berlaku flat.</small>

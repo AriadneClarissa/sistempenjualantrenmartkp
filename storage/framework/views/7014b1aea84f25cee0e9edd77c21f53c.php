@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Trenmart - PT Tren Abadi Stationeri</title>
-    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta name="csrf-token" content="<?php echo e(csrf_token()); ?>">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
     
@@ -219,28 +219,28 @@
         @media (min-width: 992px) { .main-container { max-width: 960px; } }
         @media (min-width: 1200px) { .main-container { max-width: 1140px; } }
     </style>
-    @stack('styles')
+    <?php echo $__env->yieldPushContent('styles'); ?>
 </head>
 <body>
 
 <nav class="navbar navbar-expand-lg bg-white sticky-top shadow-sm">
     <div class="container">
-        <a class="navbar-brand" href="{{ route('beranda') }}">
-            <img src="{{ asset('images/logoTrenmart.png') }}" alt="Logo">
+        <a class="navbar-brand" href="<?php echo e(route('beranda')); ?>">
+            <img src="<?php echo e(asset('images/logoTrenmart.png')); ?>" alt="Logo">
         </a>
         
         <div class="d-flex d-lg-none ms-auto me-2 align-items-center">
-            @if(!Auth::check() || (Auth::check() && Auth::user()->isCustomer()))
+            <?php if(!Auth::check() || (Auth::check() && Auth::user()->isCustomer())): ?>
                 <?php $cartCount = Auth::check() ? \App\Models\Keranjang::where('user_id', Auth::id())->sum('jumlah') : 0; ?>
-                <a href="{{ route('cart.index') }}" class="me-3 icon-nav position-relative">
+                <a href="<?php echo e(route('cart.index')); ?>" class="me-3 icon-nav position-relative">
                     <i class="bi bi-cart3"></i>
-                    @if($cartCount > 0)
-                        <span class="cart-count notification-badge">{{ $cartCount > 99 ? '99+' : $cartCount }}</span>
-                    @else
-                        <span class="cart-count notification-badge" style="display:none">0</span>
-                    @endif
+                    <?php if($cartCount > 0): ?>
+                        <span id="cart-count" class="notification-badge"><?php echo e($cartCount > 99 ? '99+' : $cartCount); ?></span>
+                    <?php else: ?>
+                        <span id="cart-count" class="notification-badge" style="display:none">0</span>
+                    <?php endif; ?>
                 </a>
-            @endif
+            <?php endif; ?>
         </div>
 
         <button class="navbar-toggler border-0 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
@@ -250,133 +250,134 @@
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav">
                 <li class="nav-item">
-                    <a class="nav-link {{ Request::is('/') ? 'active' : '' }}" href="{{ route('beranda') }}">Beranda</a>
+                    <a class="nav-link <?php echo e(Request::is('/') ? 'active' : ''); ?>" href="<?php echo e(route('beranda')); ?>">Beranda</a>
                 </li>
                 <li class="nav-item">
-                    @auth
-                        @if(auth()->user()->isInternalStaff())
-                            <a class="nav-link {{ Request::is('admin/produk*') ? 'active' : '' }}" href="{{ route('produk.index') }}">Produk</a>
-                        @else
-                            <a class="nav-link {{ Request::is('katalog*') ? 'active' : '' }}" href="{{ route('katalog') }}">Produk</a>
-                        @endif
-                    @else
-                        <a class="nav-link {{ Request::is('katalog*') ? 'active' : '' }}" href="{{ route('katalog') }}">Produk</a>
-                    @endauth
+                    <?php if(auth()->guard()->check()): ?>
+                        <?php if(auth()->user()->isInternalStaff()): ?>
+                            <a class="nav-link <?php echo e(Request::is('admin/produk*') ? 'active' : ''); ?>" href="<?php echo e(route('produk.index')); ?>">Produk</a>
+                        <?php else: ?>
+                            <a class="nav-link <?php echo e(Request::is('katalog*') ? 'active' : ''); ?>" href="<?php echo e(route('katalog')); ?>">Produk</a>
+                        <?php endif; ?>
+                    <?php else: ?>
+                        <a class="nav-link <?php echo e(Request::is('katalog*') ? 'active' : ''); ?>" href="<?php echo e(route('katalog')); ?>">Produk</a>
+                    <?php endif; ?>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link {{ auth()->check() && auth()->user()->isInternalStaff() ? (Request::is('admin/orders*') ? 'active' : '') : (Request::is('pesanan*') ? 'active' : '') }}"
-                       href="{{ auth()->check() && auth()->user()->isInternalStaff() ? route('admin.orders.index') : route('pesanan.index') }}">
+                    <a class="nav-link <?php echo e(auth()->check() && auth()->user()->isInternalStaff() ? (Request::is('admin/orders*') ? 'active' : '') : (Request::is('pesanan*') ? 'active' : '')); ?>"
+                       href="<?php echo e(auth()->check() && auth()->user()->isInternalStaff() ? route('admin.orders.index') : route('pesanan.index')); ?>">
                         Pesanan
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link {{ Request::is('tentang*') ? 'active' : '' }}" href="{{ route('tentang') }}">Tentang Kami</a>
+                    <a class="nav-link <?php echo e(Request::is('tentang*') ? 'active' : ''); ?>" href="<?php echo e(route('tentang')); ?>">Tentang Kami</a>
                 </li>
             </ul>
 
             <div class="d-flex flex-column flex-lg-row align-items-lg-center ms-auto">
-                <form class="d-flex mb-3 mb-lg-0 me-lg-3 w-100" action="{{ Auth::check() && Auth::user()->isInternalStaff() ? route('produk.index') : route('katalog') }}" method="GET">
+                <form class="d-flex mb-3 mb-lg-0 me-lg-3 w-100" action="<?php echo e(Auth::check() && Auth::user()->isInternalStaff() ? route('produk.index') : route('katalog')); ?>" method="GET">
                     <div class="input-group w-100">
-                        <input name="search" class="form-control search-bar" type="search" placeholder="Cari produk..." value="{{ request('search') }}">
+                        <input name="search" class="form-control search-bar" type="search" placeholder="Cari produk..." value="<?php echo e(request('search')); ?>">
                         <button class="btn btn-search" type="submit"><i class="bi bi-search"></i></button>
                     </div>
                 </form>
 
                 <div class="d-flex align-items-center justify-content-between justify-content-lg-end">
-                    @if(!Auth::check() || (Auth::check() && Auth::user()->isCustomer()))
-                        <a href="{{ route('cart.index') }}" class="me-3 position-relative icon-nav d-none d-lg-flex">
+                    <?php if(!Auth::check() || (Auth::check() && Auth::user()->isCustomer())): ?>
+                        <a href="<?php echo e(route('cart.index')); ?>" class="me-3 position-relative icon-nav d-none d-lg-flex">
                             <i class="bi bi-cart3"></i>
-                            @if(isset($cartCount) && $cartCount > 0)
-                                <span class="cart-count notification-badge">{{ $cartCount > 99 ? '99+' : $cartCount }}</span>
-                            @else
-                                <span class="cart-count notification-badge" style="display:none">0</span>
-                            @endif
+                            <?php if(isset($cartCount) && $cartCount > 0): ?>
+                                <span id="cart-count" class="notification-badge"><?php echo e($cartCount > 99 ? '99+' : $cartCount); ?></span>
+                            <?php else: ?>
+                                <span id="cart-count" class="notification-badge" style="display:none">0</span>
+                            <?php endif; ?>
                         </a>
-                    @endif
+                    <?php endif; ?>
 
-                    @auth
+                    <?php if(auth()->guard()->check()): ?>
                     <div class="dropdown me-3 d-none d-lg-flex">
                         <a href="#" class="icon-nav notification-link" id="notificationMenu" data-bs-toggle="dropdown" aria-expanded="false" title="Notifikasi">
                             <i class="bi bi-bell"></i>
-                            @php 
+                            <?php 
                                 // Menghitung total notifikasi (Sistem + Peringatan Bundling)
                                 $totalNotif = ($notificationUnreadCount ?? 0) + (isset($bundling_warnings) ? $bundling_warnings->count() : 0);
-                            @endphp
-                            @if($totalNotif > 0)
-                                <span class="notification-badge">{{ $totalNotif > 9 ? '9+' : $totalNotif }}</span>
-                            @endif
+                            ?>
+                            <?php if($totalNotif > 0): ?>
+                                <span class="notification-badge"><?php echo e($totalNotif > 9 ? '9+' : $totalNotif); ?></span>
+                            <?php endif; ?>
                         </a>
                         
                         <div class="dropdown-menu dropdown-menu-end notification-menu shadow-sm" aria-labelledby="notificationMenu" style="min-width: 340px;">
                             
-                            {{-- Header Dropdown --}}
+                            
                             <div class="dropdown-header border-bottom d-flex justify-content-between align-items-center py-3 bg-light">
                                 <span class="fw-bold text-dark">Notifikasi</span>
-                                @if(($notificationUnreadCount ?? 0) > 0)
-                                    <form action="{{ route('notifications.mark_all_read') }}" method="POST" class="m-0">
-                                        @csrf
+                                <?php if(($notificationUnreadCount ?? 0) > 0): ?>
+                                    <form action="<?php echo e(route('notifications.mark_all_read')); ?>" method="POST" class="m-0">
+                                        <?php echo csrf_field(); ?>
                                         <button type="submit" class="btn btn-link p-0 text-decoration-none small text-primary" style="font-size: 0.8rem;">
                                             Tandai semua dibaca
                                         </button>
                                     </form>
-                                @endif
+                                <?php endif; ?>
                             </div>
 
-                            {{-- Body Dropdown --}}
+                            
                             <div class="dropdown-body p-2 custom-scrollbar" style="max-height: 380px; overflow-y: auto;">
                                 
-                                {{-- 1. Peringatan Harga Bundling (Khusus Admin) --}}
-                                @if(auth()->user()->isAdmin() && isset($bundling_warnings) && $bundling_warnings->count() > 0)
-                                    @foreach($bundling_warnings as $bw)
-                                        <a href="{{ route('bundling.show', $bw->id) }}" class="d-block text-decoration-none mb-2">
+                                
+                                <?php if(auth()->user()->isAdmin() && isset($bundling_warnings) && $bundling_warnings->count() > 0): ?>
+                                    <?php $__currentLoopData = $bundling_warnings; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $bw): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                        <a href="<?php echo e(route('bundling.show', $bw->id)); ?>" class="d-block text-decoration-none mb-2">
                                             <div class="p-2 rounded-3 border border-warning bg-warning-subtle text-wrap">
                                                 <div class="d-flex align-items-start gap-2">
                                                     <i class="bi bi-exclamation-triangle-fill text-warning fs-5 mt-1"></i>
                                                     <div>
                                                         <div class="fw-bold small text-dark">Harga Produk Berubah!</div>
-                                                        <div class="text-muted" style="font-size: 0.75rem;">Paket: {{ $bw->name }}</div>
+                                                        <div class="text-muted" style="font-size: 0.75rem;">Paket: <?php echo e($bw->name); ?></div>
                                                     </div>
                                                 </div>
                                             </div>
                                         </a>
-                                    @endforeach
-                                @endif
+                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                <?php endif; ?>
 
-                                {{-- 2. Notifikasi Sistem Lainnya --}}
-                                @forelse(($recentNotifications ?? collect()) as $notification)
-                                    @php
+                                
+                                <?php $__empty_1 = true; $__currentLoopData = ($recentNotifications ?? collect()); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $notification): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
+                                    <?php
                                         $payload = $notification->data ?? [];
                                         $isUnread = is_null($notification->read_at);
-                                    @endphp
-                                    <a href="{{ $payload['url'] ?? '#' }}" class="d-block text-decoration-none mb-2">
-                                        <div class="p-2 rounded-3 border {{ $isUnread ? 'border-primary bg-primary-subtle' : 'border-light bg-white hover-bg-light' }}">
+                                    ?>
+                                    <a href="<?php echo e($payload['url'] ?? '#'); ?>" class="d-block text-decoration-none mb-2">
+                                        <div class="p-2 rounded-3 border <?php echo e($isUnread ? 'border-primary bg-primary-subtle' : 'border-light bg-white hover-bg-light'); ?>">
                                             <div class="d-flex align-items-start justify-content-between gap-2">
                                                 <div>
-                                                    <div class="fw-semibold text-dark small">{{ $payload['title'] ?? 'Notifikasi' }}</div>
-                                                    <div class="text-muted" style="font-size: 0.8rem;">{{ $payload['body'] ?? '' }}</div>
+                                                    <div class="fw-semibold text-dark small"><?php echo e($payload['title'] ?? 'Notifikasi'); ?></div>
+                                                    <div class="text-muted" style="font-size: 0.8rem;"><?php echo e($payload['body'] ?? ''); ?></div>
                                                 </div>
-                                                @if($isUnread)
+                                                <?php if($isUnread): ?>
                                                     <span class="badge bg-primary-subtle text-primary border border-primary-subtle" style="font-size: 0.65rem;">Baru</span>
-                                                @endif
+                                                <?php endif; ?>
                                             </div>
                                             <div class="text-muted mt-1" style="font-size: 0.7rem;">
-                                                {{ $notification->created_at ? $notification->created_at->diffForHumans() : '' }}
+                                                <?php echo e($notification->created_at ? $notification->created_at->diffForHumans() : ''); ?>
+
                                             </div>
                                         </div>
                                     </a>
-                                @empty
-                                    {{-- Tampilkan pesan kosong hanya jika tidak ada notifikasi sistem DAN tidak ada peringatan bundling --}}
-                                    @if(!isset($bundling_warnings) || $bundling_warnings->count() == 0)
+                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
+                                    
+                                    <?php if(!isset($bundling_warnings) || $bundling_warnings->count() == 0): ?>
                                         <div class="text-center text-muted py-4" style="font-size: 0.85rem;">
                                             Belum ada notifikasi.
                                         </div>
-                                    @endif
-                                @endforelse
+                                    <?php endif; ?>
+                                <?php endif; ?>
                                 
                             </div>
                         </div>
                     </div>
-                    @endauth
+                    <?php endif; ?>
 
                     <div class="dropdown">
                         <a href="#" class="icon-nav" id="userMenu" data-bs-toggle="dropdown" aria-expanded="false">
@@ -384,41 +385,41 @@
                             <span class="ms-2 d-lg-none">Akun Saya</span>
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenu">
-                            @auth
+                            <?php if(auth()->guard()->check()): ?>
                                 <li>
                                     <div class="dropdown-header text-dark border-bottom mb-2">
-                                        <div class="fw-bold">Halo, {{ auth()->user()->name }}</div>
-                                                @if(auth()->user()->isOwner())
+                                        <div class="fw-bold">Halo, <?php echo e(auth()->user()->name); ?></div>
+                                                <?php if(auth()->user()->isOwner()): ?>
                                                     <span class="badge rounded-pill bg-dark text-white border border-dark mt-1">Pemilik</span>
-                                                @elseif(auth()->user()->isAdmin())
+                                                <?php elseif(auth()->user()->isAdmin()): ?>
                                                     <span class="badge rounded-pill bg-primary-subtle text-primary-emphasis border border-primary-subtle mt-1">Admin</span>
-                                                @elseif(auth()->user()->isCashier())
+                                                <?php elseif(auth()->user()->isCashier()): ?>
                                                     <span class="badge rounded-pill bg-warning-subtle text-warning-emphasis border border-warning-subtle mt-1">Kasir</span>
-                                        @elseif(auth()->user()->customer_type === 'langganan')
+                                        <?php elseif(auth()->user()->customer_type === 'langganan'): ?>
                                             <span class="badge rounded-pill bg-warning-subtle text-warning-emphasis border border-warning-subtle mt-1">Pelanggan Langganan</span>
-                                        @else
+                                        <?php else: ?>
                                             <span class="badge rounded-pill bg-secondary-subtle text-secondary-emphasis border border-secondary-subtle mt-1">Pelanggan Umum</span>
-                                        @endif
+                                        <?php endif; ?>
                                     </div>
                                 </li>
-                                <li><a class="dropdown-item rounded-3" href="{{ route('profile.edit') }}"><i class="bi bi-person me-2"></i>Profil</a></li>
-                                @if(auth()->user()->role === 'admin')
-                                    <li><a class="dropdown-item rounded-3" href="{{ route('admin.shipping.edit') }}"><i class="bi bi-truck me-2"></i>Pengaturan Ongkir</a></li>
-                                @endif
-                                @if(auth()->user()->isOwner())
-                                    <li><a class="dropdown-item rounded-3 text-primary" href="{{ route('dashboard') }}"><i class="bi bi-speedometer2 me-2"></i>Dashboard Pemilik</a></li>
-                                @endif
+                                <li><a class="dropdown-item rounded-3" href="<?php echo e(route('profile.edit')); ?>"><i class="bi bi-person me-2"></i>Profil</a></li>
+                                <?php if(auth()->user()->role === 'admin'): ?>
+                                    <li><a class="dropdown-item rounded-3" href="<?php echo e(route('admin.shipping.edit')); ?>"><i class="bi bi-truck me-2"></i>Pengaturan Ongkir</a></li>
+                                <?php endif; ?>
+                                <?php if(auth()->user()->isOwner()): ?>
+                                    <li><a class="dropdown-item rounded-3 text-primary" href="<?php echo e(route('dashboard')); ?>"><i class="bi bi-speedometer2 me-2"></i>Dashboard Pemilik</a></li>
+                                <?php endif; ?>
                                 <li><hr class="dropdown-divider"></li>
                                 <li>
-                                    <form action="{{ route('logout') }}" method="POST">
-                                        @csrf
+                                    <form action="<?php echo e(route('logout')); ?>" method="POST">
+                                        <?php echo csrf_field(); ?>
                                         <button type="submit" class="dropdown-item rounded-3 text-danger"><i class="bi bi-box-arrow-right me-2"></i>Keluar</button>
                                     </form>
                                 </li>
-                            @else
-                                <li><a class="dropdown-item rounded-3" href="{{ route('login') }}">Masuk</a></li>
-                                <li><a class="dropdown-item rounded-3" href="{{ route('register') }}">Daftar Baru</a></li>
-                            @endauth
+                            <?php else: ?>
+                                <li><a class="dropdown-item rounded-3" href="<?php echo e(route('login')); ?>">Masuk</a></li>
+                                <li><a class="dropdown-item rounded-3" href="<?php echo e(route('register')); ?>">Daftar Baru</a></li>
+                            <?php endif; ?>
                         </ul>
                     </div>
                 </div>
@@ -427,19 +428,19 @@
     </div>
 </nav>
 
-@if(session('success') || session('error'))
+<?php if(session('success') || session('error')): ?>
     <div id="floatingFlashMessage" class="position-fixed top-0 start-50 translate-middle-x mt-3" style="z-index: 10600;">
-        <div class="toast show align-items-center text-white {{ session('error') ? 'bg-danger' : 'bg-success' }} border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast show align-items-center text-white <?php echo e(session('error') ? 'bg-danger' : 'bg-success'); ?> border-0" role="alert" aria-live="assertive" aria-atomic="true">
             <div class="d-flex">
                 <div class="toast-body">
-                    <div class="fw-bold mb-1">{{ session('error') ? 'Gagal' : 'Berhasil' }}</div>
-                    <div class="small">{{ session('error') ?? session('success') }}</div>
+                    <div class="fw-bold mb-1"><?php echo e(session('error') ? 'Gagal' : 'Berhasil'); ?></div>
+                    <div class="small"><?php echo e(session('error') ?? session('success')); ?></div>
                 </div>
                 <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close" id="closeFloatingFlash"></button>
             </div>
         </div>
     </div>
-@endif
+<?php endif; ?>
 <div id="statusToast" class="position-fixed bottom-0 end-0 p-3" style="z-index: 9999; display: none;">
     <div class="toast show align-items-center text-white bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
         <div class="d-flex">
@@ -449,8 +450,8 @@
         </div>
     </div>
 </div>
-<main class="main-container {{ isset($page) && in_array($page, ['all', 'internal', 'customers'], true) ? 'full-width-page' : '' }} mt-4 mb-5">
-    @yield('content')
+<main class="main-container <?php echo e(isset($page) && in_array($page, ['all', 'internal', 'customers'], true) ? 'full-width-page' : ''); ?> mt-4 mb-5">
+    <?php echo $__env->yieldContent('content'); ?>
 </main>
 
 <footer class="main-footer">
@@ -521,9 +522,9 @@
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-@stack('scripts')
+<?php echo $__env->yieldPushContent('scripts'); ?>
 
-@if(session('success') || session('error'))
+<?php if(session('success') || session('error')): ?>
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         const flash = document.getElementById('floatingFlashMessage');
@@ -543,22 +544,20 @@
         }
     });
 </script>
-@endif
+<?php endif; ?>
 </body>
-@stack('scripts')
+<?php echo $__env->yieldPushContent('scripts'); ?>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     function showBadge(count) {
-        const els = document.querySelectorAll('.cart-count');
-        if (!els || els.length === 0) return;
-        els.forEach(el => {
-            if (count > 0) {
-                el.style.display = 'inline-block';
-                el.textContent = count > 99 ? '99+' : count;
-            } else {
-                el.style.display = 'none';
-            }
-        });
+        const el = document.getElementById('cart-count');
+        if (!el) return;
+        if (count > 0) {
+            el.style.display = 'inline-block';
+            el.textContent = count > 99 ? '99+' : count;
+        } else {
+            el.style.display = 'none';
+        }
     }
 
     // Attach to all add-to-cart forms
@@ -608,4 +607,4 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 </script>
-</html>
+</html><?php /**PATH C:\Users\Lenovo LOQ\Documents\GitHub\sistempenjualantrenmartkp\resources\views/layouts/app.blade.php ENDPATH**/ ?>
