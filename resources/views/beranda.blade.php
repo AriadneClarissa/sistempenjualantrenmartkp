@@ -363,6 +363,8 @@
         transition: all 0.3s ease;
         border: none;
         text-decoration: none;
+        position: relative; /* pastikan z-index berlaku */
+        z-index: 1060; /* di atas stretched-link overlay */
     }
 
     .btn-tambah-card:hover {
@@ -370,6 +372,11 @@
         color: white;
         transform: translateY(-2px);
         box-shadow: 0 5px 15px rgba(128, 0, 0, 0.2) !important;
+    }
+
+    /* Pastikan stretched-link overlay tidak menangkap klik pada tombol Tambah */
+    .card-bundling-hover .stretched-link::after {
+        pointer-events: none;
     }
 
     /* Admin action buttons styling */
