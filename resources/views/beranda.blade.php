@@ -41,7 +41,7 @@
     {{-- 2. Panel Kontrol Admin --}}
     @auth
             @if(auth()->user()->isAdmin())
-        <div class="card shadow-sm mb-5 admin-panel-card border-0 bg-light">
+        <div class="card shadow-sm mb-5 admin-panel-card border-0 bg-white">
             <div class="card-body p-4">
                 <div class="row align-items-center">
                     <div class="col-md-6 text-center text-md-start">
@@ -63,7 +63,7 @@
 
                             @if(auth()->user()->isOwner())
                             <button id="btnOpenReports" class="btn btn-primary shadow-sm admin-quick-btn">
-                                <i class="bi bi-file-earmark-text me-2"></i> Laporan
+                                <i class="bi bi-file-earmark-text me-2"></i> Laporan Penjualan
                             </button>
                             @endif
 

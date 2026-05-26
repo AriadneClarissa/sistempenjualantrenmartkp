@@ -342,36 +342,45 @@
                                     @endforeach
                                 @endif
 
-                                {{-- 2. Notifikasi Sistem Lainnya --}}
-                                @forelse(($recentNotifications ?? collect()) as $notification)
-                                    @php
-                                        $payload = $notification->data ?? [];
-                                        $isUnread = is_null($notification->read_at);
-                                    @endphp
-                                    <a href="{{ $payload['url'] ?? '#' }}" class="d-block text-decoration-none mb-2">
-                                        <div class="p-2 rounded-3 border {{ $isUnread ? 'border-primary bg-primary-subtle' : 'border-light bg-white hover-bg-light' }}">
-                                            <div class="d-flex align-items-start justify-content-between gap-2">
-                                                <div>
-                                                    <div class="fw-semibold text-dark small">{{ $payload['title'] ?? 'Notifikasi' }}</div>
-                                                    <div class="text-muted" style="font-size: 0.8rem;">{{ $payload['body'] ?? '' }}</div>
+                                {{-- 2. Notifikasi Sistem Lainnya (client-side pagination) --}}
+                                <div id="notifications-pager" data-per-page="5">
+                                    <div id="notifications-list"></div>
+
+                                    <div class="d-flex justify-content-between align-items-center mt-2">
+                                        <button type="button" id="notif-prev" class="btn btn-sm btn-light">←</button>
+                                        <div class="small text-muted" id="notif-page-indicator"></div>
+                                        <button type="button" id="notif-next" class="btn btn-sm btn-light">→</button>
+                                    </div>
+                                </div>
+
+                                <noscript>
+                                    @forelse(($recentNotifications ?? collect()) as $notification)
+                                        @php
+                                            $payload = $notification['data'] ?? [];
+                                            $isUnread = is_null($notification['read_at']);
+                                        @endphp
+                                        <a href="{{ $payload['url'] ?? '#' }}" class="d-block text-decoration-none mb-2">
+                                            <div class="p-2 rounded-3 border {{ $isUnread ? 'border-primary bg-primary-subtle' : 'border-light bg-white hover-bg-light' }}">
+                                                <div class="d-flex align-items-start justify-content-between gap-2">
+                                                    <div>
+                                                        <div class="fw-semibold text-dark small">{{ $payload['title'] ?? 'Notifikasi' }}</div>
+                                                        <div class="text-muted" style="font-size: 0.8rem;">{{ $payload['body'] ?? '' }}</div>
+                                                    </div>
+                                                    @if($isUnread)
+                                                        <span class="badge bg-primary-subtle text-primary border border-primary-subtle" style="font-size: 0.65rem;">Baru</span>
+                                                    @endif
                                                 </div>
-                                                @if($isUnread)
-                                                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle" style="font-size: 0.65rem;">Baru</span>
-                                                @endif
+                                                <div class="text-muted mt-1" style="font-size: 0.7rem;">
+                                                    {{ $notification['created_at'] ? \Carbon\Carbon::parse($notification['created_at'])->diffForHumans() : '' }}
+                                                </div>
                                             </div>
-                                            <div class="text-muted mt-1" style="font-size: 0.7rem;">
-                                                {{ $notification->created_at ? $notification->created_at->diffForHumans() : '' }}
-                                            </div>
-                                        </div>
-                                    </a>
-                                @empty
-                                    {{-- Tampilkan pesan kosong hanya jika tidak ada notifikasi sistem DAN tidak ada peringatan bundling --}}
-                                    @if(!isset($bundling_warnings) || $bundling_warnings->count() == 0)
-                                        <div class="text-center text-muted py-4" style="font-size: 0.85rem;">
-                                            Belum ada notifikasi.
-                                        </div>
-                                    @endif
-                                @endforelse
+                                        </a>
+                                    @empty
+                                        @if(!isset($bundling_warnings) || $bundling_warnings->count() == 0)
+                                            <div class="text-center text-muted py-4" style="font-size: 0.85rem;">Belum ada notifikasi.</div>
+                                        @endif
+                                    @endforelse
+                                </noscript>
                                 
                             </div>
                         </div>
@@ -607,5 +616,62 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 });
+
+    // Notifications pager
+    (function () {
+        const data = @json($recentNotifications ?? collect());
+        const perPage = parseInt(document.getElementById('notifications-pager')?.dataset.perPage || 5, 10);
+        let page = 1;
+
+        function renderPage() {
+            const listEl = document.getElementById('notifications-list');
+            const indicator = document.getElementById('notif-page-indicator');
+            if (!listEl) return;
+
+            const total = data.length;
+            const totalPages = Math.max(1, Math.ceil(total / perPage));
+            if (page < 1) page = 1;
+            if (page > totalPages) page = totalPages;
+
+            const start = (page - 1) * perPage;
+            const slice = data.slice(start, start + perPage);
+
+            listEl.innerHTML = slice.map(n => {
+                const payload = n.data || {};
+                const isUnread = !n.read_at;
+                const title = payload.title || 'Notifikasi';
+                const body = payload.body || '';
+                const url = payload.url || '#';
+                const time = n.created_at ? (new Date(n.created_at)).toLocaleString() : '';
+
+                return `<a href="${url}" class="d-block text-decoration-none mb-2">\
+                    <div class="p-2 rounded-3 border ${isUnread ? 'border-primary bg-primary-subtle' : 'border-light bg-white hover-bg-light'}">\
+                        <div class="d-flex align-items-start justify-content-between gap-2">\
+                            <div>\
+                                <div class="fw-semibold text-dark small">${escapeHtml(title)}</div>\
+                                <div class="text-muted" style="font-size: 0.8rem;">${escapeHtml(body)}</div>\
+                            </div>\
+                            ${isUnread ? '<span class="badge bg-primary-subtle text-primary border border-primary-subtle" style="font-size: 0.65rem;">Baru</span>' : ''}\
+                        </div>\
+                        <div class="text-muted mt-1" style="font-size: 0.7rem;">${escapeHtml(time)}</div>\
+                    </div>\
+                </a>`;
+            }).join('');
+
+            indicator.innerText = `${page} / ${totalPages}`;
+            document.getElementById('notif-prev').disabled = page <= 1;
+            document.getElementById('notif-next').disabled = page >= totalPages;
+        }
+
+        document.getElementById('notif-prev')?.addEventListener('click', function () { page--; renderPage(); });
+        document.getElementById('notif-next')?.addEventListener('click', function () { page++; renderPage(); });
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str).replace(/[&"'<>]/g, function (s) { return ({'&':'&amp;','"':'&quot;',"'":'&#39;','<':'&lt;','>':'&gt;'})[s]; });
+        }
+
+        renderPage();
+    })();
 </script>
 </html>
