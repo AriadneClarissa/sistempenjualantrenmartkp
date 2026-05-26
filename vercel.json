@@ -48,6 +48,8 @@
         "CACHE_DRIVER": "array",
         "LOG_CHANNEL": "stderr",
         "SESSION_DRIVER": "cookie",
+        "FILESYSTEM_DISK": "cloudinary",
+        "MEDIA_DISK": "cloudinary",
 
         "DB_CONNECTION": "mysql",
         "DB_HOST": "bt3clnnwwa5gn6rtjm2i-mysql.services.clever-cloud.com",
@@ -62,9 +64,6 @@
         "CLOUDINARY_NOTIFICATION_URL": "",
         "CLOUDINARY_API_KEY": "552677921516221",
         "CLOUDINARY_API_SECRET": "k6TOXXXX-DXcQxcXfxl2JX5Yi1Vksat0tAAM"
-
-        ,
-        "MEDIA_DISK": "cloudinary"
 
 
         
