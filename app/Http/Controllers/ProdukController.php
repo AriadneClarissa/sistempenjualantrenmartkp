@@ -540,13 +540,12 @@ class ProdukController extends Controller
      */
     private function uploadProductImageToCloudinary($file): string
     {
-        // Menggunakan jalur lengkap (namespace absolute) agar tidak bentrok dengan SDK core PHP Cloudinary
-        $upload = \CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary::upload($file->getRealPath(), [
+        $upload = app(\Cloudinary\Cloudinary::class)->uploadApi()->upload($file->getRealPath(), [
             'upload_preset' => 'produk',
             'folder' => 'produk_trenmart',
         ]);
 
-        $secureUrl = $upload->offsetGet('secure_url') ?? null;
+        $secureUrl = $upload->offsetGet('secure_url') ?? $upload['secure_url'] ?? null;
 
         if (empty($secureUrl)) {
             throw new \RuntimeException('Cloudinary tidak mengembalikan secure_url.');

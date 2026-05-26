@@ -76,6 +76,36 @@
     .sidebar-header-admin { font-weight: bold; font-size: 0.9rem; border-bottom: 1px solid #eee; padding: 12px 20px; background-color: #fff9e6; color: #333; }
     .btn-admin-panel { width: 100%; border-radius: 12px; font-weight: 600; font-size: 13px; padding: 10px; margin-bottom: 10px; border: none; color: white; display: block; text-align: center; text-decoration: none; }
 
+    /* Menghindari panel/tombol bergeser saat modal Bootstrap dibuka */
+    html {
+        scrollbar-gutter: stable;
+    }
+
+    .admin-panel-actions {
+        gap: 10px;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        padding-bottom: 2px;
+        scrollbar-width: none;
+    }
+
+    .admin-panel-actions::-webkit-scrollbar {
+        display: none;
+    }
+
+    .admin-panel-actions > .btn,
+    .admin-panel-actions > a {
+        flex: 0 0 auto;
+        min-width: 138px;
+        min-height: 40px;
+        white-space: nowrap;
+    }
+
+    .admin-panel-actions > .btn i,
+    .admin-panel-actions > a i {
+        flex-shrink: 0;
+    }
+
     /* Filter Bar Pill Style (Atas) */
     .filter-pill { background: white; border-radius: 50px; padding: 8px 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); border: 1px solid #eee; display: flex; align-items: center; width: 100%; }
     .input-filter { border: none; background: transparent; outline: none; padding: 8px 0; width: 100%; font-size: 14px; padding-left: 10px; }
@@ -139,7 +169,7 @@
         <?php if(auth()->guard()->check()): ?>
             <?php if($canManageProducts): ?>
             <div class="col-12 mb-4">
-                <div class="card-sidebar p-3 d-flex gap-2 align-items-center flex-wrap" style="border: 1px solid #ffc107;">
+                <div class="card-sidebar p-3 d-flex align-items-center admin-panel-actions" style="border: 1px solid #ffc107;">
                     <div class="sidebar-header-admin flex-grow-1">
                         <i class="bi bi-shield-lock-fill me-2"></i>
                         <?php if(auth()->user()->isOwner()): ?>
