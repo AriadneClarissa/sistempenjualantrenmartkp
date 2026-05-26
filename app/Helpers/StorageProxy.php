@@ -20,6 +20,11 @@ class StorageProxy
             return asset($path);
         }
 
+        $public = public_path('storage/' . $path);
+        if (file_exists($public)) {
+            return asset('storage/' . $path);
+        }
+
         $mediaDisk = (string) config('filesystems.media_disk', 'public');
         if ($mediaDisk !== 'public') {
             try {
@@ -27,11 +32,6 @@ class StorageProxy
             } catch (\Throwable $e) {
                 report($e);
             }
-        }
-
-        $public = public_path('storage/' . $path);
-        if (file_exists($public)) {
-            return asset('storage/' . $path);
         }
 
         // If file exists in storage disk, use proxy route

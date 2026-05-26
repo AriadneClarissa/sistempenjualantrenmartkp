@@ -11,6 +11,7 @@ use App\Models\Bundling;
 use App\Models\Order;
 use App\Models\Satuan;
 use App\Helpers\MediaStorage;
+use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -282,7 +283,7 @@ class ProdukController extends Controller
                         continue;
                     }
                     
-                    $path = MediaStorage::uploadImage($file, 'produk');
+                    $path = $this->uploadProductImageToCloudinary($file);
                     $data[$columnName] = $path;
                 }
             }
@@ -410,7 +411,7 @@ class ProdukController extends Controller
                         if (!Schema::hasColumn('produk', $columnName)) {
                             continue;
                         }
-                        $path = MediaStorage::uploadImage($file, 'produk');
+                        $path = $this->uploadProductImageToCloudinary($file);
                         $updateData[$columnName] = $path;
                         $deletedPaths[] = $produk->$columnName;
                     }
@@ -528,5 +529,21 @@ class ProdukController extends Controller
                 'message' => 'Gagal memperbarui database: ' . $e->getMessage()
             ], 500);
         }
+    }
+
+    private function uploadProductImageToCloudinary($file): string
+    {
+        $upload = Cloudinary::upload($file->getRealPath(), [
+            'upload_preset' => 'produk',
+            'folder' => 'produk_trenmart',
+        ]);
+
+        $secureUrl = $upload->offsetGet('secure_url') ?? null;
+
+        if (empty($secureUrl)) {
+            throw new \RuntimeException('Cloudinary tidak mengembalikan secure_url.');
+        }
+
+        return (string) $secureUrl;
     }
 }

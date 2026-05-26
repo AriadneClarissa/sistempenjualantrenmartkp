@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Helpers\MediaStorage;
+use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
 use Illuminate\Http\Request;
 use App\Models\Keranjang;
 use App\Models\BerandaSetting;
@@ -166,7 +167,11 @@ class CheckoutController extends Controller
 
         if ($request->hasFile('bukti_pembayaran')) {
             MediaStorage::delete($order->payment_proof);
-            $path = MediaStorage::uploadImage($request->file('bukti_pembayaran'), 'bukti_transfer');
+            $upload = Cloudinary::upload($request->file('bukti_pembayaran')->getRealPath(), [
+                'upload_preset' => 'produk',
+                'folder' => 'bukti_transfer',
+            ]);
+            $path = (string) $upload->offsetGet('secure_url');
             
             // Save to the `payment_proof` column which the Order model expects
             $order->update([

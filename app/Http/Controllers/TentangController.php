@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\BerandaSetting;
 use App\Helpers\MediaStorage;
+use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -70,7 +71,11 @@ class TentangController extends Controller
         $bannerName = BerandaSetting::where('key', 'tentang_banner')->value('value');
         if ($request->hasFile('tentang_banner')) {
             MediaStorage::delete($bannerName);
-            $bannerName = MediaStorage::uploadImage($request->file('tentang_banner'), 'tentang');
+            $upload = Cloudinary::upload($request->file('tentang_banner')->getRealPath(), [
+                'upload_preset' => 'produk',
+                'folder' => 'tentang',
+            ]);
+            $bannerName = (string) $upload->offsetGet('secure_url');
         }
 
         $fitur = [];

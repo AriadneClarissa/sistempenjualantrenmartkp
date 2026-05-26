@@ -29,10 +29,8 @@ class MediaStorage
                 }
             } catch (\Throwable $e) {
                 report($e);
+                throw $e;
             }
-
-            // Fallback: jika Cloudinary gagal, simpan sementara ke public agar proses tidak 500.
-            return $file->store(trim($folder, '/'), 'public');
         }
 
         return $file->store(trim($folder, '/'), $disk);

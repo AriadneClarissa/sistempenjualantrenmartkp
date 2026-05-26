@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Helpers\MediaStorage;
+use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
 use App\Models\User;
 use App\Models\PaymentMethod;
 use App\Models\Order;
@@ -392,7 +393,11 @@ class AuthController extends Controller
 
         if ($request->hasFile('tentang_banner')) {
             MediaStorage::delete($user->tentang_banner);
-            $path = MediaStorage::uploadImage($request->file('tentang_banner'), 'banners');
+            $upload = Cloudinary::upload($request->file('tentang_banner')->getRealPath(), [
+                'upload_preset' => 'produk',
+                'folder' => 'banners',
+            ]);
+            $path = (string) $upload->offsetGet('secure_url');
             $user->tentang_banner = $path;
             $user->save();
 
