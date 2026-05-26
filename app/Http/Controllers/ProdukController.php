@@ -332,6 +332,9 @@ class ProdukController extends Controller
         abort_unless(Auth::check() && Auth::user()->isAdmin(), 403);
 
         $request->validate([
+            'kd_kategori'          => 'required|exists:kategori,kd_kategori',
+            'kd_merk'              => 'required|exists:merk,kd_merk',
+            'kd_satuan'            => 'required|exists:satuan,kd_satuan',
             'nama_produk'          => 'required|string|max:255',
             'harga_jual_umum'      => 'required|numeric',
             'stok_tersedia'        => 'required|numeric',
@@ -340,56 +343,68 @@ class ProdukController extends Controller
         ]);
 
         $produk = Produk::where('kd_produk', $kd_produk)->firstOrFail();
-        
-        $stok_minimal = $this->resolveStokMinimalBySatuan($request);
-
-        $updateData = [
-            'nama_produk'          => $request->nama_produk,
-            'deskripsi'            => $request->deskripsi,
-            'kd_kategori'          => $request->kd_kategori,
-            'kd_merk'              => $request->kd_merk,
-            'kd_satuan'            => $request->kd_satuan,
-            'satuan'               => $request->satuan ?? (isset($request->kd_satuan) ? Satuan::find($request->kd_satuan)?->nama_satuan : null),
-            'harga_jual_umum'      => $request->harga_jual_umum,
-            'harga_jual_langganan' => $request->harga_jual_langganan ?? $request->harga_jual_umum,
-            'stok_tersedia'        => $request->stok_tersedia,
-            'stok_minimal'         => $stok_minimal,
-        ];
-
-        // Logika Multiple Upload
-        if ($request->hasFile('files')) {
-            $files = $request->file('files');
-            $columns = [0 => 'gambar', 1 => 'foto_2', 2 => 'foto_3'];
-
-            foreach ($files as $index => $file) {
-                if (isset($columns[$index])) {
-                    $columnName = $columns[$index];
-
-                    // Hapus gambar lama jika ada
-                    MediaStorage::delete($produk->$columnName);
-
-                    $path = MediaStorage::uploadImage($file, 'produk');
-                    $updateData[$columnName] = $path;
-                }
-            }
-        }
-
-        $produk->update($updateData);
 
         try {
-            ActivityLog::create([
-                'actor_id' => Auth::id(),
-                'action' => 'update_product',
-                'details' => 'Updated produk ' . $produk->nama_produk . ' (kd: ' . $produk->kd_produk . ')',
-                'ip_address' => $request->ip(),
-                'subject_type' => 'produk',
-                'subject_id' => $produk->kd_produk,
-            ]);
+            $stok_minimal = $this->resolveStokMinimalBySatuan($request);
+            $satuanNama = Satuan::where('kd_satuan', $request->kd_satuan)->value('nama_satuan');
+
+            $updateData = [
+                'nama_produk'          => $request->nama_produk,
+                'deskripsi'            => $request->deskripsi,
+                'kd_kategori'          => $request->kd_kategori,
+                'kd_merk'              => $request->kd_merk,
+                'kd_satuan'            => $request->kd_satuan,
+                'satuan'               => $satuanNama ?? $produk->satuan,
+                'harga_jual_umum'      => $request->harga_jual_umum,
+                'harga_jual_langganan' => $request->harga_jual_langganan ?? $request->harga_jual_umum,
+                'stok_tersedia'        => $request->stok_tersedia,
+                'stok_minimal'         => $stok_minimal,
+            ];
+
+            $deletedPaths = [];
+
+            // Logika Multiple Upload
+            if ($request->hasFile('files')) {
+                $files = $request->file('files');
+                $columns = [0 => 'gambar', 1 => 'foto_2', 2 => 'foto_3'];
+
+                foreach ($files as $index => $file) {
+                    if (isset($columns[$index])) {
+                        $columnName = $columns[$index];
+                        $path = MediaStorage::uploadImage($file, 'produk');
+                        $updateData[$columnName] = $path;
+                        $deletedPaths[] = $produk->$columnName;
+                    }
+                }
+            }
+
+            $produk->update($updateData);
+
+            foreach ($deletedPaths as $oldPath) {
+                MediaStorage::delete($oldPath);
+            }
+
+            try {
+                ActivityLog::create([
+                    'actor_id' => Auth::id(),
+                    'action' => 'update_product',
+                    'details' => 'Updated produk ' . $produk->nama_produk . ' (kd: ' . $produk->kd_produk . ')',
+                    'ip_address' => $request->ip(),
+                    'subject_type' => 'produk',
+                    'subject_id' => $produk->kd_produk,
+                ]);
+            } catch (\Throwable $e) {
+                report($e);
+            }
+
+            return redirect()->route('produk.index')->with('success', 'Produk berhasil diperbarui!');
         } catch (\Throwable $e) {
             report($e);
-        }
 
-        return redirect()->route('produk.index')->with('success', 'Produk berhasil diperbarui!');
+            return back()
+                ->withInput()
+                ->with('error', 'Gagal memperbarui produk. Cek log server untuk detail error.');
+        }
     }
 
     public function destroy(Request $request, $kd_produk)

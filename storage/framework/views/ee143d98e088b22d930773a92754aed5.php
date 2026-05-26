@@ -354,7 +354,7 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body px-4">
-                    <form id="formTambahMerk">
+                    <form id="formTambahMerk" action="<?php echo e(route('merk.store')); ?>" method="POST" enctype="multipart/form-data">
                         <?php echo csrf_field(); ?>
                         <div class="input-group mb-3 shadow-sm border rounded-pill overflow-hidden">
                             <input type="text" id="inputNamaMerk" name="nama_merk" class="form-control border-0 px-3" placeholder="Tambah merk baru..." required>
@@ -396,7 +396,7 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body px-4">
-                    <form id="formTambahSatuan">
+                    <form id="formTambahSatuan" action="<?php echo e(route('satuan.store')); ?>" method="POST" enctype="multipart/form-data">
                         <?php echo csrf_field(); ?>
                         <div class="row g-2 mb-3">
                             <div class="col-md-8">
