@@ -566,6 +566,16 @@
 </body>
 @stack('scripts')
 <script>
+// Ensure toast helper is always available (not only when server-side flash exists)
+window.showFlashToast = window.showFlashToast || function(type, title, body) {
+    const toast = document.createElement('div');
+    toast.className = 'flash-toast-shell';
+    const variantClass = type === 'success' ? 'success' : 'error';
+    toast.innerHTML = `<div class="flash-toast-card ${variantClass} p-3"><div class="d-flex align-items-center"><div class="flash-toast-badge me-3">${type === 'success' ? '✓' : '!'}</div><div><div class="flash-toast-title">${title}</div><div class="flash-toast-body">${body}</div></div></div><div class="flash-toast-progress mt-3"></div></div>`;
+    document.body.appendChild(toast);
+    setTimeout(()=>{ try{ toast.remove(); }catch(e){} }, 2500);
+};
+
 document.addEventListener('DOMContentLoaded', function() {
     // Expose global function to update cart badges across the layout
     window.updateCartBadge = function(count) {
