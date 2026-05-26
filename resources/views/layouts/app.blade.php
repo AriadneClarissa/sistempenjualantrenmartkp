@@ -551,13 +551,24 @@
             }, 2500);
         }
     });
+
+    // Global helper to show flash toast messages (type: 'success'|'error')
+    window.showFlashToast = function(type, title, body) {
+        const toast = document.createElement('div');
+        toast.className = 'flash-toast-shell';
+        const variantClass = type === 'success' ? 'success' : 'error';
+        toast.innerHTML = `<div class="flash-toast-card ${variantClass} p-3"><div class="d-flex align-items-center"><div class="flash-toast-badge me-3">${type === 'success' ? '✓' : '!'}</div><div><div class="flash-toast-title">${title}</div><div class="flash-toast-body">${body}</div></div></div><div class="flash-toast-progress mt-3"></div></div>`;
+        document.body.appendChild(toast);
+        setTimeout(()=>{ toast.remove(); }, 2500);
+    }
 </script>
 @endif
 </body>
 @stack('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    function showBadge(count) {
+    // Expose global function to update cart badges across the layout
+    window.updateCartBadge = function(count) {
         const els = document.querySelectorAll('.cart-count');
         if (!els || els.length === 0) return;
         els.forEach(el => {
@@ -568,7 +579,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 el.style.display = 'none';
             }
         });
-    }
+    };
 
     // Attach to all add-to-cart forms
     document.querySelectorAll('form.add-to-cart-form').forEach(form => {
@@ -590,13 +601,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (contentType.indexOf('application/json') !== -1) {
                     const data = await response.json();
                     if (data.success) {
-                        showBadge(data.cartCount || 0);
-                        // Optional: small toast
-                        const toast = document.createElement('div');
-                        toast.className = 'flash-toast-shell';
-                        toast.innerHTML = `<div class="flash-toast-card success p-3"><div class="d-flex align-items-center"><div class="flash-toast-badge me-3">✓</div><div><div class="flash-toast-title">Berhasil</div><div class="flash-toast-body">Produk ditambahkan ke keranjang.</div></div></div><div class="flash-toast-progress mt-3"></div></div>`;
-                        document.body.appendChild(toast);
-                        setTimeout(()=>{ toast.remove(); }, 2000);
+                        if (window.updateCartBadge) window.updateCartBadge(data.cartCount || 0);
+                        if (window.showFlashToast) showFlashToast('success', 'Berhasil', 'Produk ditambahkan ke keranjang.');
                     } else if (data.message) {
                         alert(data.message);
                     }

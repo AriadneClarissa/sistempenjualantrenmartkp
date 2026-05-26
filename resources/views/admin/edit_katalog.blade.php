@@ -672,10 +672,13 @@ $(document).ready(function() {
                 sidebarItem.append($('<i>', { class: 'bi bi-chevron-right small' }));
                 $('#kategoriList').append(sidebarItem);
                 $('#inputNamaKategori').val('');
+                // Show success toast
+                if (window.showFlashToast) showFlashToast('success', 'Berhasil', 'Kategori ditambahkan.');
             }
         })
             .fail(function(xhr) {
                 const pesan = xhr.responseJSON?.message || 'Kategori gagal ditambahkan. Coba lagi.';
+                if (window.showFlashToast) showFlashToast('error', 'Gagal', pesan);
             });
     });
 
@@ -687,6 +690,7 @@ $(document).ready(function() {
                 $('#containerListMerk').prepend(`<div class="list-group-item d-flex justify-content-between align-items-center bg-light item-merk" data-search="${res.data.nama_merk.toLowerCase()}"><span class="nama-merk-text">${res.data.nama_merk}</span><i class="bi bi-eye-fill text-primary"></i></div>`);
                 $('select[name="merk"]').append(`<option value="${res.data.kd_merk}">${res.data.nama_merk}</option>`);
                 $('#inputNamaMerk').val('');
+                if (window.showFlashToast) showFlashToast('success', 'Berhasil', 'Merk ditambahkan.');
             }
         });
     });
@@ -700,9 +704,11 @@ $(document).ready(function() {
                 $('select[name="kd_satuan"]').append(`<option value="${res.data.kd_satuan}">${res.data.nama_satuan}</option>`);
                 $('#inputNamaSatuan').val('');
                 $('#inputStokMinimalSatuan').val('');
+                if (window.showFlashToast) showFlashToast('success', 'Berhasil', 'Satuan ditambahkan.');
             }
         }).fail(function(xhr) {
             const pesan = xhr.responseJSON?.message || 'Satuan gagal ditambahkan. Coba lagi.';
+            if (window.showFlashToast) showFlashToast('error', 'Gagal', pesan);
         });
     });
 
