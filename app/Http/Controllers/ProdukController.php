@@ -125,9 +125,9 @@ class ProdukController extends Controller
         ));
     }
             
-
-    //Menampilkan Halaman Katalog dengan Filter Pencarian
-
+    /**
+     * Menampilkan Halaman Katalog dengan Filter Pencarian
+     */
     public function katalog(Request $request)
     {
         $kategori = Kategori::where('is_hidden', 0)->orWhereNull('is_hidden')->get();
@@ -239,6 +239,7 @@ class ProdukController extends Controller
             'harga_jual_umum' => 'required|numeric',
             'stok_tersedia'   => 'required|numeric',
             'stok_minimal'    => 'nullable|numeric',
+            'gambar'          => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
             'files.*'         => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
         ]);
 
@@ -254,7 +255,7 @@ class ProdukController extends Controller
             'harga_jual_umum'      => $request->harga_jual_umum,
             'harga_jual_langganan' => $request->harga_jual_langganan ?? $request->harga_jual_umum,
             'stok_tersedia'        => $request->stok_tersedia,
-            'status'               => 'aktif', // default status
+            'status'               => 'aktif', 
         ];
 
         if (Schema::hasColumn('produk', 'kd_satuan')) {
@@ -269,7 +270,12 @@ class ProdukController extends Controller
             $data['stok_minimal'] = $stok_minimal;
         }
 
-        // 3. Logika Simpan Banyak Foto (Maksimal 3)
+        // 3. Logika Upload Gambar Utama ('gambar') jika ada
+        if ($request->hasFile('gambar')) {
+            $data['gambar'] = $this->uploadProductImageToCloudinary($request->file('gambar'));
+        }
+
+        // 4. Logika Upload Banyak Foto Tambahan ('files') jika ada
         if ($request->hasFile('files')) {
             $files = $request->file('files');
             
@@ -289,7 +295,7 @@ class ProdukController extends Controller
             }
         }
 
-        // 4. Eksekusi Simpan ke Database
+        // 5. Eksekusi Simpan ke Database
         $produk = Produk::create($data);
 
         try {
@@ -305,7 +311,7 @@ class ProdukController extends Controller
             report($e);
         }
 
-        // 5. Redirect sesuai origin (Beranda atau Index Produk)
+        // 6. Redirect sesuai origin (Beranda atau Index Produk)
         $route = ($request->origin == 'beranda') ? 'beranda' : 'produk.index';
         return redirect()->route($route)->with('success', 'Produk berhasil ditambahkan!');
     }
@@ -329,11 +335,11 @@ class ProdukController extends Controller
             $query->where('kd_merk', $request->merk);
         }
 
-        // Untuk halaman tabel manajemen stok admin
         // Prioritaskan produk yang stoknya di bawah stok_minimal agar muncul paling atas
         $produk = $query->orderByRaw("(produk.stok_tersedia <= COALESCE(produk.stok_minimal, satuan.stok_minimal, 0)) DESC")
              ->orderBy('produk.created_at', 'desc')
              ->get();
+             
         foreach ($produk as $item) {
             $this->setHargaTampil($item);
         }
@@ -367,7 +373,8 @@ class ProdukController extends Controller
             'harga_jual_umum'      => 'required|numeric',
             'stok_tersedia'        => 'required|numeric',
             'stok_minimal'         => 'nullable|numeric',
-            'files.*'              => 'image|mimes:jpeg,png,jpg,webp|max:2048', 
+            'gambar'               => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
+            'files.*'              => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048', 
         ]);
 
         $produk = Produk::where('kd_produk', $kd_produk)->firstOrFail();
@@ -398,9 +405,15 @@ class ProdukController extends Controller
                 $updateData['stok_minimal'] = $stok_minimal;
             }
 
-            $deletedPaths = [];
+            // Jika user mengganti gambar utama lewat input satuan ('gambar')
+            if ($request->hasFile('gambar')) {
+                if ($produk->gambar) { 
+                    MediaStorage::delete($produk->gambar); 
+                }
+                $updateData['gambar'] = $this->uploadProductImageToCloudinary($request->file('gambar'));
+            }
 
-            // Logika Multiple Upload
+            // Jika user menggunakan multiple upload 'files'
             if ($request->hasFile('files')) {
                 $files = $request->file('files');
                 $columns = [0 => 'gambar', 1 => 'foto_2', 2 => 'foto_3'];
@@ -408,21 +421,17 @@ class ProdukController extends Controller
                 foreach ($files as $index => $file) {
                     if (isset($columns[$index])) {
                         $columnName = $columns[$index];
-                        if (!Schema::hasColumn('produk', $columnName)) {
-                            continue;
+                        if (Schema::hasColumn('produk', $columnName)) {
+                            if ($produk->$columnName) { 
+                                MediaStorage::delete($produk->$columnName); 
+                            }
+                            $updateData[$columnName] = $this->uploadProductImageToCloudinary($file);
                         }
-                        $path = $this->uploadProductImageToCloudinary($file);
-                        $updateData[$columnName] = $path;
-                        $deletedPaths[] = $produk->$columnName;
                     }
                 }
             }
 
             $produk->update($updateData);
-
-            foreach ($deletedPaths as $oldPath) {
-                MediaStorage::delete($oldPath);
-            }
 
             try {
                 ActivityLog::create([
@@ -443,7 +452,7 @@ class ProdukController extends Controller
 
             return back()
                 ->withInput()
-                ->with('error', 'Gagal memperbarui produk. Cek log server untuk detail error.');
+                ->with('error', 'Gagal: ' . $e->getMessage());
         }
     }
 
@@ -489,41 +498,37 @@ class ProdukController extends Controller
 
     public function searchAjax(Request $request)
     {
-    $cari = $request->q; // 'q' adalah parameter default dari Select2
+        $cari = $request->q; 
 
-    $produk = \App\Models\Produk::where('nama_produk', 'LIKE', "%$cari%")
-                ->select('kd_produk as id', 'nama_produk as text') // SANGAT PENTING: id dan text
-                ->limit(20)
-                ->get();
+        $produk = \App\Models\Produk::where('nama_produk', 'LIKE', "%$cari%")
+                    ->select('kd_produk as id', 'nama_produk as text') 
+                    ->limit(20)
+                    ->get();
 
-    return response()->json($produk);
+        return response()->json($produk);
     }
 
     public function updateStatus(Request $request)
     {
         abort_unless(Auth::check() && Auth::user()->isAdmin(), 403);
 
-        // 1. Validasi dengan menangkap pesan error agar tidak langsung 500
         $request->validate([
-            // Sesuaikan 'produk' dengan nama tabel asli di SQL Server Anda
             'id' => 'required|exists:produk,kd_produk', 
             'status' => 'required|in:aktif,nonaktif'
         ]);
 
         try {
-            // 2. Gunakan where karena primary key Anda adalah kd_produk, bukan id (integer)
             $produk = \App\Models\Produk::where('kd_produk', $request->id)->firstOrFail();
             
             $produk->status = $request->status;
             $produk->save();
 
             return response()->json([
-            'success' => true,
-            'message' => 'Status ' . $produk->nama_produk . ' berhasil diperbarui!' 
-        ]);
+                'success' => true,
+                'message' => 'Status ' . $produk->nama_produk . ' berhasil diperbarui!' 
+            ]);
 
         } catch (\Exception $e) {
-            // 3. Jika terjadi error database, kirimkan pesan yang jelas ke AJAX
             return response()->json([
                 'success' => false,
                 'message' => 'Gagal memperbarui database: ' . $e->getMessage()
@@ -531,6 +536,9 @@ class ProdukController extends Controller
         }
     }
 
+    /**
+     * Helper khusus untuk upload langsung ke Cloudinary
+     */
     private function uploadProductImageToCloudinary($file): string
     {
         $upload = Cloudinary::upload($file->getRealPath(), [

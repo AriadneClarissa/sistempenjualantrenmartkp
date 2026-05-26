@@ -18,11 +18,11 @@
             </div>
         @endif
 
+        {{-- METHOD DIUBAH MENJADI POST MURNI AGAR FILE GAMBAR BISA TERBACA DI VERCEL --}}
         <form action="{{ route('produk.update', $produk->kd_produk) }}" method="POST" enctype="multipart/form-data">
             @csrf
-            @method('PUT')
 
-            {{-- KODE PRODUK (sama seperti tambah) --}}
+            {{-- KODE PRODUK --}}
             <div class="mb-4">
                 <label class="form-label fw-bold">Kode Produk <span class="text-danger">*</span></label>
                 <input type="text" name="kd_produk" class="form-control" placeholder="Masukkan Kode Produk (Contoh: PRD001)" required value="{{ old('kd_produk', $produk->kd_produk) }}">
@@ -41,6 +41,7 @@
                             style="border: 2px dashed #007bff; min-height: 150px; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; background: #f0f7ff;">
                             <i class="bi bi-cloud-arrow-up fs-1 text-primary"></i>
                             <p class="mt-2 mb-1 small fw-bold text-center px-2">Klik untuk Pilih 1-3 Foto Baru</p>
+                            {{-- Nama input disesuaikan menjadi files[] agar masuk sebagai array upload --}}
                             <input type="file" id="multi_upload" name="files[]" accept="image/*" multiple="multiple" hidden onchange="handleMultiplePreview(this)">
                         </div>
 
@@ -48,19 +49,19 @@
                         <div class="row g-2">
                             <div class="col-4 text-center">
                                 <div class="p-1 border rounded bg-light">
-                                    <img id="preview_utama" src="{{ $produk->gambar ? \App\Helpers\StorageProxy::url($produk->gambar) : asset('images/placeholder.png') }}" class="img-fluid rounded" style="height: 60px; width: 100%; object-fit: cover;">
+                                    <img id="preview_utama" src="{{ $produk->gambar ? $produk->gambar : asset('images/placeholder.png') }}" class="img-fluid rounded" style="height: 60px; width: 100%; object-fit: cover;">
                                     <div style="font-size: 0.6rem;" class="mt-1">Utama</div>
                                 </div>
                             </div>
                             <div class="col-4 text-center">
                                 <div class="p-1 border rounded bg-light">
-                                    <img id="preview_2" src="{{ $produk->foto_2 ? \App\Helpers\StorageProxy::url($produk->foto_2) : asset('images/placeholder.png') }}" class="img-fluid rounded" style="height: 60px; width: 100%; object-fit: cover;">
+                                    <img id="preview_2" src="{{ $produk->foto_2 ? $produk->foto_2 : asset('images/placeholder.png') }}" class="img-fluid rounded" style="height: 60px; width: 100%; object-fit: cover;">
                                     <div style="font-size: 0.6rem;" class="mt-1">Foto 2</div>
                                 </div>
                             </div>
                             <div class="col-4 text-center">
                                 <div class="p-1 border rounded bg-light">
-                                    <img id="preview_3" src="{{ $produk->foto_3 ? \App\Helpers\StorageProxy::url($produk->foto_3) : asset('images/placeholder.png') }}" class="img-fluid rounded" style="height: 60px; width: 100%; object-fit: cover;">
+                                    <img id="preview_3" src="{{ $produk->foto_3 ? $produk->foto_3 : asset('images/placeholder.png') }}" class="img-fluid rounded" style="height: 60px; width: 100%; object-fit: cover;">
                                     <div style="font-size: 0.6rem;" class="mt-1">Foto 3</div>
                                 </div>
                             </div>
@@ -159,11 +160,11 @@ function handleMultiplePreview(input) {
         return;
     }
 
-    // Reset ke placeholder asli dulu jika input berubah
+    // Mengambil langsung alamat HTTPS dari Cloudinary tanpa proxy lokal asset()
     const originalPaths = [
-        "{{ $produk->gambar ? \App\Helpers\StorageProxy::url($produk->gambar) : asset('images/placeholder.png') }}",
-        "{{ $produk->foto_2 ? \App\Helpers\StorageProxy::url($produk->foto_2) : asset('images/placeholder.png') }}",
-        "{{ $produk->foto_3 ? \App\Helpers\StorageProxy::url($produk->foto_3) : asset('images/placeholder.png') }}"
+        "{{ $produk->gambar ? $produk->gambar : asset('images/placeholder.png') }}",
+        "{{ $produk->foto_2 ? $produk->foto_2 : asset('images/placeholder.png') }}",
+        "{{ $produk->foto_3 ? $produk->foto_3 : asset('images/placeholder.png') }}"
     ];
 
     for (let i = 0; i < previews.length; i++) {

@@ -1,4 +1,5 @@
 <?php
+
 use App\Models\User;
 use App\Http\Controllers\ProdukController;
 use App\Http\Controllers\AuthController;
@@ -45,7 +46,6 @@ Route::middleware(['guest'])->group(function () {
     // JALUR KHUSUS ADMIN (Alias ke login utama)
     Route::get('/internal-trenmart-admin', function () { return redirect()->route('login'); })->name('admin.login');
     Route::post('/internal-trenmart-admin', [AuthController::class, 'login']);
-
 });
 
 // --- 3. SISTEM AUTH (Harus Login) ---
@@ -80,7 +80,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/keranjang', [KeranjangController::class, 'index'])->name('cart.index');
     Route::put('/keranjang/update/{id}', [KeranjangController::class, 'update'])->name('cart.update');
     Route::delete('/keranjang/hapus/{id}', [KeranjangController::class, 'destroy'])->name('cart.remove');
-        Route::delete('/keranjang/hapus-semua', [KeranjangController::class, 'clearAll'])->name('cart.clear');
+    Route::delete('/keranjang/hapus-semua', [KeranjangController::class, 'clearAll'])->name('cart.clear');
     Route::get('/cart/sidebar-content', [ProdukController::class, 'getSidebarContent'])->name('cart.sidebar.content');
     Route::post('/keranjang/tambah/{id}/{type?}', [KeranjangController::class, 'store'])->name('cart.add');
 
@@ -106,15 +106,16 @@ Route::middleware(['auth'])->group(function () {
         // Pengaturan Tampilan & Search
         Route::get('/search-produk-ajax', [ProdukController::class, 'searchAjax'])->name('admin.produk.search_ajax');
 
-        // Manajemen Produk
+        // Manajemen Produk (BAGIAN UPDATE DIUBAH MENJADI POST MURNI)
         Route::get('/produk', [ProdukController::class, 'produkIndex'])->name('produk.index');
         Route::get('/produk/tambah', [ProdukController::class, 'create'])->name('produk.create');
         Route::post('/produk/simpan', [ProdukController::class, 'store'])->name('produk.store');
         Route::get('/produk/edit/{kd_produk}', [ProdukController::class, 'edit'])->name('produk.edit');
-        Route::put('/produk/update/{kd_produk}', [ProdukController::class, 'update'])->name('produk.update');
+        Route::post('/produk/update/{kd_produk}', [ProdukController::class, 'update'])->name('produk.update');
         Route::delete('/produk/hapus/{kd_produk}', [ProdukController::class, 'destroy'])->name('produk.destroy');
 
         // Manajemen Kategori & Merk
+        // (Tetap aman menggunakan POST/DELETE karena tidak mengirimkan file biner gambar)
         Route::post('/kategori/simpan', [KategoriController::class, 'store'])->name('kategori.store');
         Route::delete('/kategori/hapus/{id}', [KategoriController::class, 'destroy'])->name('kategori.destroy');
         Route::post('/merk/simpan', [MerkController::class, 'store'])->name('merk.store');
