@@ -54,6 +54,16 @@
         "DB_PORT": "3306",
         "DB_DATABASE": "bt3clnnwwa5gn6rtjm2i",
         "DB_USERNAME": "uxxyupxgd7f1egn9",
-        "DB_PASSWORD": "xl7VmK4jGJgxF9ut1t2A"
+        "DB_PASSWORD": "xl7VmK4jGJgxF9ut1t2A",
+
+        "CLOUDINARY_URL": "cloudinary://552677921516221:k6TOXXXX-DXcQxcXfxl2JX5Yi1Vksat0tAAM@dnzkee1js",
+        "CLOUDINARY_CLOUD_NAME": "dnzkee1js",
+        "CLOUDINARY_UPLOAD_PRESET": "produk",
+        "CLOUDINARY_NOTIFICATION_URL": "",
+        "CLOUDINARY_API_KEY": "552677921516221",
+        "CLOUDINARY_API_SECRET": "k6TOXXXX-DXcQxcXfxl2JX5Yi1Vksat0tAAM"
+
+
+        
     }
 }
