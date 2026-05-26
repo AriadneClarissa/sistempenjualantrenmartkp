@@ -167,11 +167,11 @@ class CheckoutController extends Controller
 
         if ($request->hasFile('bukti_pembayaran')) {
             MediaStorage::delete($order->payment_proof);
-            $upload = Cloudinary::upload($request->file('bukti_pembayaran')->getRealPath(), [
+            $upload = app(\Cloudinary\Cloudinary::class)->uploadApi()->upload($request->file('bukti_pembayaran')->getRealPath(), [
                 'upload_preset' => 'produk',
                 'folder' => 'bukti_transfer',
             ]);
-            $path = (string) $upload->offsetGet('secure_url');
+            $path = (string) ($upload->offsetGet('secure_url') ?? $upload['secure_url'] ?? null);
             
             // Save to the `payment_proof` column which the Order model expects
             $order->update([

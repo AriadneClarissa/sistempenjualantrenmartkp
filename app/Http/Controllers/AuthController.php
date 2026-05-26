@@ -393,11 +393,11 @@ class AuthController extends Controller
 
         if ($request->hasFile('tentang_banner')) {
             MediaStorage::delete($user->tentang_banner);
-            $upload = Cloudinary::upload($request->file('tentang_banner')->getRealPath(), [
+            $upload = app(\Cloudinary\Cloudinary::class)->uploadApi()->upload($request->file('tentang_banner')->getRealPath(), [
                 'upload_preset' => 'produk',
                 'folder' => 'banners',
             ]);
-            $path = (string) $upload->offsetGet('secure_url');
+            $path = (string) ($upload->offsetGet('secure_url') ?? $upload['secure_url'] ?? null);
             $user->tentang_banner = $path;
             $user->save();
 

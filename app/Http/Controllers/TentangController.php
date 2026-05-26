@@ -71,11 +71,11 @@ class TentangController extends Controller
         $bannerName = BerandaSetting::where('key', 'tentang_banner')->value('value');
         if ($request->hasFile('tentang_banner')) {
             MediaStorage::delete($bannerName);
-            $upload = Cloudinary::upload($request->file('tentang_banner')->getRealPath(), [
+            $upload = app(\Cloudinary\Cloudinary::class)->uploadApi()->upload($request->file('tentang_banner')->getRealPath(), [
                 'upload_preset' => 'produk',
                 'folder' => 'tentang',
             ]);
-            $bannerName = (string) $upload->offsetGet('secure_url');
+            $bannerName = (string) ($upload->offsetGet('secure_url') ?? $upload['secure_url'] ?? null);
         }
 
         $fitur = [];

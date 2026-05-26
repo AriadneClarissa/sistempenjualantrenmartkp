@@ -11,7 +11,6 @@ use App\Models\Bundling;
 use App\Models\Order;
 use App\Models\Satuan;
 use App\Helpers\MediaStorage;
-use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -537,11 +536,12 @@ class ProdukController extends Controller
     }
 
     /**
-     * Helper khusus untuk upload langsung ke Cloudinary
+     * Helper khusus untuk upload langsung ke Cloudinary menggunakan jalur absolut Facade
      */
     private function uploadProductImageToCloudinary($file): string
     {
-        $upload = Cloudinary::upload($file->getRealPath(), [
+        // Menggunakan jalur lengkap (namespace absolute) agar tidak bentrok dengan SDK core PHP Cloudinary
+        $upload = \CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary::upload($file->getRealPath(), [
             'upload_preset' => 'produk',
             'folder' => 'produk_trenmart',
         ]);
