@@ -47,6 +47,13 @@
  
         "CACHE_DRIVER": "array",
         "LOG_CHANNEL": "stderr",
-        "SESSION_DRIVER": "cookie"
+        "SESSION_DRIVER": "cookie",
+
+        "DB_CONNECTION": "mysql",
+        "DB_HOST": "bt3clnnwwa5gn6rtjm2i-mysql.services.clever-cloud.com",
+        "DB_PORT": "3306",
+        "DB_DATABASE": "bt3clnnwwa5gn6rtjm2i",
+        "DB_USERNAME": "uxxyupxgd7f1egn9",
+        "DB_PASSWORD": "xl7VmK4jGJgxF9ut1t2A"
     }
 }
