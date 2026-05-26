@@ -58,12 +58,12 @@
         "DB_USERNAME": "uxxyupxgd7f1egn9",
         "DB_PASSWORD": "xl7VmK4jGJgxF9ut1t2A",
 
-        "CLOUDINARY_URL": "cloudinary://552677921516221:k6TOXXXX-DXcQxcXfxl2JX5Yi1Vksat0tAAM@dnzkee1js",
+        "CLOUDINARY_URL": "cloudinary://831535668596148:pcgylB-DoXgMdWkAK1yqM7NIyZU@dnzkee1js",
         "CLOUDINARY_CLOUD_NAME": "dnzkee1js",
         "CLOUDINARY_UPLOAD_PRESET": "produk",
         "CLOUDINARY_NOTIFICATION_URL": "",
-        "CLOUDINARY_API_KEY": "552677921516221",
-        "CLOUDINARY_API_SECRET": "k6TOXXXX-DXcQxcXfxl2JX5Yi1Vksat0tAAM"
+        "CLOUDINARY_API_KEY": "831535668596148",
+        "CLOUDINARY_API_SECRET": "pcgylB-DoXgMdWkAK1yqM7NIyZU"
 
 
         

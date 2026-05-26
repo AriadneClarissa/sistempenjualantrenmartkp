@@ -44,17 +44,20 @@ class MediaStorage
             }
         }
 
-        $disk = self::disk();
-        $deleteTarget = self::normalizeDeleteTarget($path);
+        try {
+            $disk = self::disk();
+            $deleteTarget = self::normalizeDeleteTarget($path);
 
-        if ($deleteTarget !== null && Storage::disk($disk)->exists($deleteTarget)) {
-            Storage::disk($disk)->delete($deleteTarget);
-            return;
-        }
+            if ($deleteTarget !== null) {
+                Storage::disk($disk)->delete($deleteTarget);
 
-        // Backward compatibility: data lama mungkin masih disimpan di disk public.
-        if ($deleteTarget !== null && $disk !== 'public' && Storage::disk('public')->exists($deleteTarget)) {
-            Storage::disk('public')->delete($deleteTarget);
+                // Backward compatibility: data lama mungkin masih disimpan di disk public.
+                if ($disk !== 'public') {
+                    Storage::disk('public')->delete($deleteTarget);
+                }
+            }
+        } catch (\Throwable $e) {
+            report($e);
         }
     }
 

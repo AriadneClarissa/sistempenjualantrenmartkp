@@ -13,9 +13,9 @@ return [
     |
     */
 
-    'default' => env('FILESYSTEM_DISK', env('MEDIA_DISK', 'local')),
+    'default' => env('FILESYSTEM_DISK', env('MEDIA_DISK', 'cloudinary')),
 
-    'media_disk' => env('MEDIA_DISK', env('FILESYSTEM_DISK', 'public')),
+    'media_disk' => env('MEDIA_DISK', env('FILESYSTEM_DISK', 'cloudinary')),
 
     /*
     |--------------------------------------------------------------------------
