@@ -63,6 +63,9 @@
         "CLOUDINARY_API_KEY": "552677921516221",
         "CLOUDINARY_API_SECRET": "k6TOXXXX-DXcQxcXfxl2JX5Yi1Vksat0tAAM"
 
+        ,
+        "MEDIA_DISK": "cloudinary"
+
 
         
     }
