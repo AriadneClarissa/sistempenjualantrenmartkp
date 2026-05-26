@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\MediaStorage;
 use Illuminate\Http\Request;
 use App\Models\Keranjang;
 use App\Models\BerandaSetting;
@@ -164,7 +165,8 @@ class CheckoutController extends Controller
         $user = Auth::user();
 
         if ($request->hasFile('bukti_pembayaran')) {
-            $path = $request->file('bukti_pembayaran')->store('bukti_transfer', 'public');
+            MediaStorage::delete($order->payment_proof);
+            $path = MediaStorage::uploadImage($request->file('bukti_pembayaran'), 'bukti_transfer');
             
             // Save to the `payment_proof` column which the Order model expects
             $order->update([

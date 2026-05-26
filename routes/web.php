@@ -46,19 +46,17 @@ Route::middleware(['guest'])->group(function () {
     Route::get('/internal-trenmart-admin', function () { return redirect()->route('login'); })->name('admin.login');
     Route::post('/internal-trenmart-admin', [AuthController::class, 'login']);
 
-    // Google Login
-    Route::get('/auth/google', [AuthController::class, 'redirectToGoogle'])->name('auth.google');
-    Route::get('/auth/google/callback', [AuthController::class, 'handleGoogleCallback'])->name('auth.google.callback');
 });
 
 // --- 3. SISTEM AUTH (Harus Login) ---
 Route::middleware(['auth'])->group(function () {
     
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+    Route::get('/auth/loading', [AuthController::class, 'loadingRedirect'])->name('auth.loading');
     
-    // --- ALUR PROFIL SETELAH LOGIN GOOGLE ---
+    // --- ALUR LENGKAPI PROFIL AWAL ---
     Route::get('/lengkapi-profil/umum', [AuthController::class, 'formUmum'])->name('form.umum');
-    Route::post('/update-profil-awal', [AuthController::class, 'updateProfileAfterGoogle'])->name('profile.initial.update');
+    Route::post('/update-profil-awal', [AuthController::class, 'updateInitialProfile'])->name('profile.initial.update');
 
     // --- FITUR PELANGGAN ---
     Route::get('/dashboard', function () {

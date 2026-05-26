@@ -249,13 +249,11 @@
                 <h6 class="mt-4 fw-semibold">Bukti Transfer</h6>
                 @php
                     $proofPath = $order->payment_proof ?? $order->bukti_pembayaran ?? null;
-                    $proofExists = $proofPath ? \Illuminate\Support\Facades\Storage::disk('public')->exists($proofPath) : false;
-                    $proofMime = $proofExists ? (\Illuminate\Support\Facades\Storage::disk('public')->mimeType($proofPath) ?: 'image/jpeg') : null;
-                    $proofBase64 = $proofExists ? base64_encode(\Illuminate\Support\Facades\Storage::disk('public')->get($proofPath)) : null;
+                    $proofUrl = $proofPath ? \App\Helpers\StorageProxy::url($proofPath) : null;
                 @endphp
-                @if($proofBase64)
+                @if($proofUrl)
                     <div class="mt-2">
-                        <img src="data:{{ $proofMime }};base64,{{ $proofBase64 }}" style="max-width:220px;border-radius:10px;" alt="Bukti Transfer">
+                        <img src="{{ $proofUrl }}" style="max-width:220px;border-radius:10px;" alt="Bukti Transfer">
                     </div>
                 @elseif($proofPath)
                     <div class="text-warning">Bukti transfer tercatat di data pesanan, tetapi file gambar tidak ditemukan di storage.</div>

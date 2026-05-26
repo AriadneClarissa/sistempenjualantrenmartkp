@@ -10,9 +10,9 @@ use App\Models\User;
 use App\Models\Bundling;
 use App\Models\Order;
 use App\Models\Satuan;
+use App\Helpers\MediaStorage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
@@ -255,8 +255,7 @@ class ProdukController extends Controller
                 if (isset($columns[$index])) {
                     $columnName = $columns[$index];
                     
-                    // Simpan file ke storage/app/public/produk
-                    $path = $file->store('produk', 'public');
+                    $path = MediaStorage::uploadImage($file, 'produk');
                     $data[$columnName] = $path;
                 }
             }
@@ -367,12 +366,9 @@ class ProdukController extends Controller
                     $columnName = $columns[$index];
 
                     // Hapus gambar lama jika ada
-                    if ($produk->$columnName && Storage::disk('public')->exists($produk->$columnName)) {
-                        Storage::disk('public')->delete($produk->$columnName);
-                    }
+                    MediaStorage::delete($produk->$columnName);
 
-                    // Simpan file baru ke folder 'produk'
-                    $path = $file->store('produk', 'public');
+                    $path = MediaStorage::uploadImage($file, 'produk');
                     $updateData[$columnName] = $path;
                 }
             }
@@ -402,10 +398,9 @@ class ProdukController extends Controller
 
         $produk = Produk::where('kd_produk', $kd_produk)->firstOrFail();
         
-        // Hapus file gambar
-        if ($produk->gambar && File::exists(public_path('storage/' . $produk->gambar))) {
-            File::delete(public_path('storage/' . $produk->gambar));
-        }
+        MediaStorage::delete($produk->gambar);
+        MediaStorage::delete($produk->foto_2);
+        MediaStorage::delete($produk->foto_3);
 
         try {
             ActivityLog::create([

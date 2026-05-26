@@ -3,9 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\BerandaSetting;
+use App\Helpers\MediaStorage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\File;
 
 class TentangController extends Controller
 {
@@ -69,12 +69,8 @@ class TentangController extends Controller
 
         $bannerName = BerandaSetting::where('key', 'tentang_banner')->value('value');
         if ($request->hasFile('tentang_banner')) {
-            if ($bannerName && File::exists(public_path('storage/' . $bannerName))) {
-                File::delete(public_path('storage/' . $bannerName));
-            }
-
-            $bannerName = time() . '_' . uniqid() . '.' . $request->file('tentang_banner')->extension();
-            $request->file('tentang_banner')->move(public_path('storage'), $bannerName);
+            MediaStorage::delete($bannerName);
+            $bannerName = MediaStorage::uploadImage($request->file('tentang_banner'), 'tentang');
         }
 
         $fitur = [];

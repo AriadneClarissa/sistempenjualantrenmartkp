@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\MediaStorage;
 use App\Models\User;
 use App\Models\PaymentMethod;
 use App\Models\Order;
@@ -11,7 +12,6 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
-use Laravel\Socialite\Facades\Socialite;
 
 class AuthController extends Controller
 {
@@ -79,64 +79,43 @@ class AuthController extends Controller
             }
 
             if ($user->isCashier()) {
-                return redirect()->route('admin.orders.index');
+                return $this->redirectToLoading($request, route('admin.orders.index'));
             }
 
-            return redirect()->intended(route('beranda'));
+            $targetUrl = $request->session()->pull('url.intended', route('beranda'));
+
+            return $this->redirectToLoading($request, $targetUrl);
         }
 
         return back()->withErrors(['login' => 'Email atau kode pelanggan tidak sesuai.'])->onlyInput('login');
     }
 
-    /**
-     * 3. GOOGLE AUTHENTICATION
-     */
-    public function redirectToGoogle()
+    public function loadingRedirect(Request $request)
     {
-        if (empty(config('services.google.client_id')) || empty(config('services.google.client_secret'))) {
-            return redirect()->route('login')->with('error', 'Login Google belum dikonfigurasi. Isi GOOGLE_CLIENT_ID dan GOOGLE_CLIENT_SECRET terlebih dahulu.');
-        }
+        $targetUrl = $request->session()->pull('post_login_redirect', route('beranda'));
 
-        return Socialite::driver('google')
-            ->redirectUrl(url('/auth/google/callback'))
-            ->with(['prompt' => 'select_account'])
-            ->redirect();
+        return view('auth.loading', [
+            'targetUrl' => $this->sanitizeRedirectUrl($targetUrl),
+        ]);
     }
 
-    public function handleGoogleCallback()
+    private function redirectToLoading(Request $request, string $targetUrl)
     {
-        try {
-            $googleUser = Socialite::driver('google')
-                ->redirectUrl(url('/auth/google/callback'))
-                ->user();
-                
-            $user = User::where('email', $googleUser->email)->first();
+        $request->session()->put('post_login_redirect', $this->sanitizeRedirectUrl($targetUrl));
 
-            if (!$user) {
-                // Ini eksekusi jika dia mendaftar pertama kali pakai Google
-                $user = User::create([
-                    'name' => $googleUser->name,
-                    'email' => $googleUser->email,
-                    'password' => Hash::make(str()->random(16)), 
-                    'role' => 'customer',
-                    'google_id' => $googleUser->id,
-                    'is_approved' => true, 
-                    'is_active' => true,
-                ]);
-            }
+        return redirect()->route('auth.loading');
+    }
 
-            if (!$user->isActive()) {
-                return redirect()->route('login')->with('error', 'Akun Anda telah dinonaktifkan oleh pemilik sistem.');
-            }
+    private function sanitizeRedirectUrl(string $targetUrl): string
+    {
+        $appHost = parse_url(url('/'), PHP_URL_HOST);
+        $targetHost = parse_url($targetUrl, PHP_URL_HOST);
 
-            Auth::login($user);
-            
-            // PENTING: Arahkan ke fungsi ini untuk di-screening
-            return $this->handleRedirectAfterLogin($user);
-
-        } catch (\Exception $e) {
-            return redirect()->route('login')->withErrors(['email' => 'Gagal masuk menggunakan Google.']);
+        if ($targetHost !== null && $targetHost !== $appHost) {
+            return route('beranda');
         }
+
+        return $targetUrl;
     }
 
     public function handlePilihJenis(Request $request)
@@ -145,7 +124,7 @@ class AuthController extends Controller
         /** @var \App\Models\User $user */
         $user = Auth::user();
         
-        // Jika data profil belum lengkap (misal: user baru dari Google belum isi nomor HP)
+        // Jika data profil belum lengkap
         if (empty($user->phone_number)) {
             // Langsung arahkan ke form umum
             return redirect()->route('form.umum');
@@ -174,7 +153,7 @@ class AuthController extends Controller
             return redirect()->route('beranda');
         }
 
-        // Jika data profil belum lengkap (misal: user baru dari Google belum isi nomor HP)
+        // Jika data profil belum lengkap
         if (empty($user->phone_number)) {
             // Langsung arahkan ke form umum
             return redirect()->route('form.umum');
@@ -184,9 +163,9 @@ class AuthController extends Controller
     }
 
     /**
-     * 5. UPDATE PROFIL (Khusus Alur Google / Lengkapi Data)
+     * 5. UPDATE PROFIL AWAL (Lengkapi Data)
      */
-    public function updateProfileAfterGoogle(Request $request)
+    public function updateInitialProfile(Request $request)
     {
         /** @var \App\Models\User $user */
         $user = Auth::user();
@@ -345,7 +324,7 @@ class AuthController extends Controller
 
         $this->sendReviewStatusEmail($user, 'rejected');
         
-        // Hapus permanen agar tidak bisa login Google lagi dengan akun yang sama
+        // Hapus permanen akun yang ditolak
         $user->delete(); 
 
         return redirect()->back()->with('success', 'Pendaftaran pelanggan telah ditolak.');
@@ -412,7 +391,8 @@ class AuthController extends Controller
         $user = Auth::user();
 
         if ($request->hasFile('tentang_banner')) {
-            $path = $request->file('tentang_banner')->store('banners', 'public');
+            MediaStorage::delete($user->tentang_banner);
+            $path = MediaStorage::uploadImage($request->file('tentang_banner'), 'banners');
             $user->tentang_banner = $path;
             $user->save();
 

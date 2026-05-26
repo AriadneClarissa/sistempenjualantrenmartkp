@@ -23,7 +23,6 @@ class User extends \Illuminate\Foundation\Auth\User
         'kd_pelanggan',
         'phone_number',
         'home_address',   
-        'google_id',
         'organization_name', 
         'organization_type', 
     ];

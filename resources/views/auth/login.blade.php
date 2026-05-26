@@ -59,81 +59,6 @@
         transform: scale(0.98); 
     }
 
-    /* Pembatas ATAU di Tengah */
-    .divider {
-        display: flex;
-        align-items: center;
-        text-align: center;
-        margin: 20px 0;
-        color: #888;
-        font-size: 0.8rem;
-        font-weight: bold;
-    }
-
-    .divider::before, .divider::after {
-        content: '';
-        flex: 1;
-        border-bottom: 1px solid #eee;
-    }
-
-    .divider:not(:empty)::before { margin-right: .5em; }
-    .divider:not(:empty)::after { margin-left: .5em; }
-
-    /* Tombol Google Bar */
-    .btn-google-login {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background-color: white;
-        color: #444;
-        border: 1.5px solid #eee;
-        border-radius: 12px;
-        padding: 12px;
-        width: 100%;
-        font-weight: 600;
-        text-decoration: none;
-        transition: 0.3s;
-        margin-bottom: 20px;
-    }
-
-    .btn-google-login:hover {
-        background-color: #f8f9fa;
-        border-color: #800000;
-        color: #800000;
-    }
-
-    .btn-google-login.disabled-login {
-        opacity: 0.6;
-        cursor: not-allowed;
-        pointer-events: none;
-    }
-
-    .btn-google-login img {
-        margin-right: 10px;
-    }
-
-    .btn-status-login {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background-color: #fff7f7;
-        color: #800000;
-        border: 1.5px solid rgba(128, 0, 0, 0.18);
-        border-radius: 12px;
-        padding: 12px;
-        width: 100%;
-        font-weight: 600;
-        text-decoration: none;
-        transition: 0.3s;
-        margin-bottom: 14px;
-    }
-
-    .btn-status-login:hover {
-        background-color: #fff0f0;
-        border-color: #800000;
-        color: #800000;
-    }
-
     .password-wrapper { position: relative; }
     .no-native-password-reveal::-ms-reveal,
     .no-native-password-reveal::-ms-clear {
@@ -160,7 +85,6 @@
     .auth-links { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin-top: -6px; }
     .forgot-link { font-size: 0.88rem; color: #800000; text-decoration: none; font-weight: 600; }
     .forgot-link:hover { text-decoration: underline; }
-    .google-help { font-size: 0.85rem; color: #6b7280; margin-top: -8px; margin-bottom: 14px; }
 </style>
 
 <div class="container mt-4">
@@ -221,33 +145,6 @@
 
                 <button type="submit" class="btn-masuk-trenmart shadow">MASUK</button>
             </form>
-
-            {{-- PEMBATAS ATAU DI TENGAH --}}
-            <div class="divider">ATAU</div>
-
-            {{-- TOMBOL GOOGLE BAR --}}
-            @php
-                $googleReady = filled(config('services.google.client_id')) && filled(config('services.google.client_secret'));
-            @endphp
-
-            @if($googleReady)
-                <a href="{{ route('auth.google') }}" class="btn-google-login">
-                    <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="20" alt="Google Logo">
-                    Masuk dengan Google
-                </a>
-            @else
-                <div class="btn-google-login disabled-login">
-                    <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="20" alt="Google Logo">
-                    Masuk dengan Google
-                </div>
-                <div class="google-help text-center">
-                    Fitur Google belum aktif karena kredensial belum diisi.
-                </div>
-            @endif
-
-            <a href="https://mail.google.com/" target="_blank" rel="noopener noreferrer" class="btn-status-login">
-                Cek Status di Gmail
-            </a>
 
             <div class="register-link">
                 <span class="text-muted">Belum punya akun?</span> 

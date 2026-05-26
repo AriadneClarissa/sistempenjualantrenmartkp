@@ -120,17 +120,15 @@
             <!-- Proof Card -->
             @php
                 $proofPath = $order->payment_proof ?? $order->bukti_pembayaran ?? null;
-                $proofExists = $proofPath ? \Illuminate\Support\Facades\Storage::disk('public')->exists($proofPath) : false;
-                $proofMime = $proofExists ? (\Illuminate\Support\Facades\Storage::disk('public')->mimeType($proofPath) ?: 'image/jpeg') : null;
-                $proofBase64 = $proofExists ? base64_encode(\Illuminate\Support\Facades\Storage::disk('public')->get($proofPath)) : null;
+                $proofUrl = $proofPath ? \App\Helpers\StorageProxy::url($proofPath) : null;
             @endphp
-            @if($proofBase64)
+            @if($proofUrl)
                 <div class="card mb-3">
                     <div class="card-header bg-light">
                         <h6 class="mb-0 fw-bold">Bukti Transfer</h6>
                     </div>
                     <div class="card-body">
-                        <img src="data:{{ $proofMime }};base64,{{ $proofBase64 }}" 
+                        <img src="{{ $proofUrl }}" 
                              style="max-width:100%;max-height:400px;border-radius:10px;" alt="Bukti Transfer">
                     </div>
                 </div>

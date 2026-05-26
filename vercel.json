@@ -54,10 +54,6 @@
         "DB_PORT": "3306",
         "DB_DATABASE": "bt3clnnwwa5gn6rtjm2i",
         "DB_USERNAME": "uxxyupxgd7f1egn9",
-        "DB_PASSWORD": "xl7VmK4jGJgxF9ut1t2A",
-
-        "GOOGLE_CLIENT_ID": "47607414458-79i07e41ibn29v1ka0h0838f62jkb6of.apps.googleusercontent.com",
-        "GOOGLE_CLIENT_SECRET": "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",
-        "GOOGLE_REDIRECT_URI": "https://tes-kp.vercel.app/auth/google/callback"
+        "DB_PASSWORD": "xl7VmK4jGJgxF9ut1t2A"
     }
 }
