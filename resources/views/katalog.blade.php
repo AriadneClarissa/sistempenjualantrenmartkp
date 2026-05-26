@@ -189,9 +189,9 @@
                             <img src="{{ \App\Helpers\StorageProxy::url($p->gambar) }}" class="img-fluid" style="height: 150px; object-fit: contain;" alt="{{ $p->nama_produk }}">
                         </div>
                         
-                        <div class="product-info text-center">
-                            <p class="text-muted small mb-1">{{ $p->merk->nama_merk ?? 'No Brand' }}</p>
-                            <h6 class="fw-bold text-dark text-truncate mb-2" title="{{ $p->nama_produk }}">{{ $p->nama_produk }}</h6>
+                        <div class="product-info text-center d-flex flex-column">
+                            <p class="text-muted small mb-1 text-truncate">{{ $p->merk->nama_merk ?? 'No Brand' }}</p>
+                            <h6 class="fw-bold text-dark product-title-clamp-katalog mb-2" title="{{ $p->nama_produk }}">{{ $p->nama_produk }}</h6>
                             
                             {{-- Perbaikan Harga agar tidak Rp 0 --}}
                             <h5 class="price-text mb-1">
@@ -245,6 +245,44 @@
     </div>
 </div>
 @endsection
+
+@push('styles')
+<style>
+    .card-produk {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .card-produk .img-container {
+        position: relative;
+        height: 150px;
+        overflow: hidden;
+        border-radius: 16px;
+        margin-bottom: 0.9rem;
+    }
+
+    .card-produk .img-container img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+    }
+
+    .card-produk .product-info {
+        flex: 1 1 auto;
+    }
+
+    .product-title-clamp-katalog {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        min-height: 2.6em;
+        line-height: 1.3;
+        margin-bottom: 0.75rem !important;
+    }
+</style>
+@endpush
 
 @push('scripts')
 <script>
