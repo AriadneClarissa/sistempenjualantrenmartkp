@@ -226,7 +226,7 @@
 <nav class="navbar navbar-expand-lg bg-white sticky-top shadow-sm">
     <div class="container">
         <a class="navbar-brand" href="{{ route('beranda') }}">
-            <img src="{{ asset('images/logotrenmart.png') }}" alt="Logo">
+            <img src="{{ asset('images/logoTrenmart.png') }}" alt="Logo">
         </a>
         
         <div class="d-flex d-lg-none ms-auto me-2 align-items-center">

@@ -72,7 +72,7 @@
     <div class="card auth-card">
         <div class="card-body p-4 p-md-5">
             <div class="text-center mb-4">
-                <img src="{{ asset('images/logotrenmart.png') }}" alt="Logo" style="height: 50px;">
+                <img src="{{ asset('images/logoTrenmart.png') }}" alt="Logo" style="height: 50px;">
                 <h4 class="fw-bold mt-3 text-maroon">Buat Akun Baru</h4>
                 <p class="text-muted">Bergabunglah dengan Trenmart</p>
             </div>
