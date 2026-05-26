@@ -8,23 +8,23 @@
     "routes": [
         {
             "src": "/assets/(.*)",
-            "dest": "/public/assets/"
+            "dest": "/assets/$1"
         },
         {
             "src": "/build/(.*)",
-            "dest": "/public/build/"
+            "dest": "/build/$1"
         },
         {
             "src": "/css/(.*)",
-            "dest": "/public/css/"
+            "dest": "/css/$1"
         },
         {
             "src": "/images/(.*)",
-            "dest": "/public/images/"
+            "dest": "/images/$1"
         },
         {
             "src": "/js/(.*)",
-            "dest": "/public/js/"
+            "dest": "/js/$1"
         },
         {
             "src": "/(.*)",
@@ -35,16 +35,16 @@
         "APP_KEY": "base64:Pv4RMO45xt9crl+m542x/bpE7DC1qJm0lbsCepoiCmw=",
         "NODE_OPTIONS": "--max_old_space_size=4096",
         "APP_ENV": "production",
-        "APP_DEBUG": "true",
-        "APP_URL": "",
- 
+        "APP_DEBUG": "false",
+        "APP_URL": "https://tes-kp.vercel.app",
+
         "APP_CONFIG_CACHE": "/tmp/config.php",
         "APP_EVENTS_CACHE": "/tmp/events.php",
         "APP_PACKAGES_CACHE": "/tmp/packages.php",
         "APP_ROUTES_CACHE": "/tmp/routes.php",
         "APP_SERVICES_CACHE": "/tmp/services.php",
         "VIEW_COMPILED_PATH": "/tmp",
- 
+
         "CACHE_DRIVER": "array",
         "LOG_CHANNEL": "stderr",
         "SESSION_DRIVER": "cookie",
@@ -54,6 +54,10 @@
         "DB_PORT": "3306",
         "DB_DATABASE": "bt3clnnwwa5gn6rtjm2i",
         "DB_USERNAME": "uxxyupxgd7f1egn9",
-        "DB_PASSWORD": "xl7VmK4jGJgxF9ut1t2A"
+        "DB_PASSWORD": "xl7VmK4jGJgxF9ut1t2A",
+
+        "GOOGLE_CLIENT_ID": "47607414458-79i07e41ibn29v1ka0h0838f62jkb6of.apps.googleusercontent.com",
+        "GOOGLE_CLIENT_SECRET": "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",
+        "GOOGLE_REDIRECT_URI": "https://tes-kp.vercel.app/auth/google/callback"
     }
 }
