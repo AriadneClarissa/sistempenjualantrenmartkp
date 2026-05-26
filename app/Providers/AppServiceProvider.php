@@ -2,10 +2,8 @@
 
 namespace App\Providers;
 
-use App\Models\User;
 use Illuminate\Support\ServiceProvider;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\View;
+use Illuminate\Support\Facades\URL; // Wajib dipanggil
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -22,35 +20,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        View::composer('*', function ($view) {
-            $pendingReviewCount = 0;
-            $latestPendingReviewUser = null;
-            $notificationUnreadCount = 0;
-            $recentNotifications = collect();
-
-            if (Auth::check()) {
-                $notificationUnreadCount = Auth::user()->unreadNotifications()->count();
-                $recentNotifications = Auth::user()->notifications()->latest()->take(5)->get();
-            }
-
-            if (!Auth::check() || !Auth::user()->isAdmin()) {
-                $view->with([
-                    'pendingReviewCount' => $pendingReviewCount,
-                    'latestPendingReviewUser' => $latestPendingReviewUser,
-                    'notificationUnreadCount' => $notificationUnreadCount,
-                    'recentNotifications' => $recentNotifications,
-                ]);
-
-                return;
-            }
-
-            // Approval flow removed — no pending users
-            $view->with([
-                'pendingReviewCount' => 0,
-                'latestPendingReviewUser' => null,
-                'notificationUnreadCount' => $notificationUnreadCount,
-                'recentNotifications' => $recentNotifications,
-            ]);
-        });
+        // Paksa HTTPS bekerja jika terdeteksi koneksi dari Vercel (Forwarded Proto)
+        // atau jika APP_ENV bukan local
+        if (request()->header('x-forwarded-proto') === 'https' || env('APP_ENV') !== 'local') {
+            URL::forceScheme('https');
+        }
     }
 }

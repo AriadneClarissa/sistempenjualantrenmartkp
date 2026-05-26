@@ -18,7 +18,8 @@ class KategoriController extends Controller
         
         $kategori = \App\Models\Kategori::create([
             'kd_kategori' => \Illuminate\Support\Str::slug($nama_format), 
-            'nama_kategori' => $nama_format
+            'nama_kategori' => $nama_format,
+            'is_hidden' => false
         ]);
 
         // Respon untuk AJAX

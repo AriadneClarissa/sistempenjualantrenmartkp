@@ -28,9 +28,15 @@ class ProdukController extends Controller
     {
         $settings = BerandaSetting::all()->pluck('value', 'key'); 
         $produk_terbaru = Produk::where('status', 'aktif')
-        ->whereHas('kategori', function($q) { $q->where('is_hidden', 0); })
-        ->whereHas('merk', function($q) { $q->where('is_hidden', 0); })
-        ->whereHas('satuan', function($q) { $q->where('is_hidden', 0); })
+        ->whereHas('kategori', function($q) {
+            $q->where('is_hidden', 0)->orWhereNull('is_hidden');
+        })
+        ->whereHas('merk', function($q) {
+            $q->where('is_hidden', 0)->orWhereNull('is_hidden');
+        })
+        ->whereHas('satuan', function($q) {
+            $q->where('is_hidden', 0)->orWhereNull('is_hidden');
+        })
         ->latest()
         ->take(8)
         ->get();
@@ -123,14 +129,20 @@ class ProdukController extends Controller
 
     public function katalog(Request $request)
     {
-        $kategori = Kategori::where('is_hidden', 0)->get();
-        $merk = Merk::where('is_hidden', 0)->get(); 
+        $kategori = Kategori::where('is_hidden', 0)->orWhereNull('is_hidden')->get();
+        $merk = Merk::where('is_hidden', 0)->orWhereNull('is_hidden')->get(); 
 
          $query = Produk::query()
         ->where('status', 'aktif')
-        ->whereHas('kategori', function($q) { $q->where('is_hidden', 0); })
-        ->whereHas('merk', function($q) { $q->where('is_hidden', 0); })
-        ->whereHas('satuan', function($q) { $q->where('is_hidden', 0); });
+        ->whereHas('kategori', function($q) {
+            $q->where('is_hidden', 0)->orWhereNull('is_hidden');
+        })
+        ->whereHas('merk', function($q) {
+            $q->where('is_hidden', 0)->orWhereNull('is_hidden');
+        })
+        ->whereHas('satuan', function($q) {
+            $q->where('is_hidden', 0)->orWhereNull('is_hidden');
+        });
 
         // Filter Pencarian Nama
         if ($request->filled('search')) {
