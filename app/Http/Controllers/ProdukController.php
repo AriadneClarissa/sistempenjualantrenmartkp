@@ -15,6 +15,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use Carbon\Carbon;
 use App\Models\ActivityLog;
 
@@ -41,10 +42,12 @@ class ProdukController extends Controller
         $kategori = Kategori::all();
         $merk = Merk::all();
 
-        // Mengambil banner dari user yang sedang login agar hasil upload langsung terlihat
+        // Ambil user pemilik banner: login admin/owner aktif dulu, lalu owner, lalu admin lain.
         $admin = Auth::check() && Auth::user()->isAdmin()
             ? Auth::user()
-            : User::where('role', 'admin')->first();
+            : (User::where('role', 'owner')->whereNotNull('tentang_banner')->first()
+                ?? User::where('role', 'admin')->whereNotNull('tentang_banner')->first()
+                ?? User::whereIn('role', ['owner', 'admin'])->first());
         
         // Eager loading untuk optimasi database
         $bundling = Bundling::with(['items.produk.merk'])
@@ -233,16 +236,25 @@ class ProdukController extends Controller
             'kd_produk'            => $request->kd_produk,
             'kd_kategori'          => $request->kd_kategori,
             'kd_merk'              => $request->kd_merk,
-            'kd_satuan'            => $request->kd_satuan,
-            'satuan'               => $request->satuan ?? (isset($request->kd_satuan) ? Satuan::find($request->kd_satuan)?->nama_satuan : null),
             'nama_produk'          => $request->nama_produk,
             'deskripsi'            => $request->deskripsi,
             'harga_jual_umum'      => $request->harga_jual_umum,
             'harga_jual_langganan' => $request->harga_jual_langganan ?? $request->harga_jual_umum,
             'stok_tersedia'        => $request->stok_tersedia,
-            'stok_minimal'         => $stok_minimal,
             'status'               => 'aktif', // default status
         ];
+
+        if (Schema::hasColumn('produk', 'kd_satuan')) {
+            $data['kd_satuan'] = $request->kd_satuan;
+        }
+
+        if (Schema::hasColumn('produk', 'satuan')) {
+            $data['satuan'] = $request->satuan ?? (isset($request->kd_satuan) ? Satuan::find($request->kd_satuan)?->nama_satuan : null);
+        }
+
+        if (Schema::hasColumn('produk', 'stok_minimal')) {
+            $data['stok_minimal'] = $stok_minimal;
+        }
 
         // 3. Logika Simpan Banyak Foto (Maksimal 3)
         if ($request->hasFile('files')) {
@@ -254,6 +266,9 @@ class ProdukController extends Controller
             foreach ($files as $index => $file) {
                 if (isset($columns[$index])) {
                     $columnName = $columns[$index];
+                    if (!Schema::hasColumn('produk', $columnName)) {
+                        continue;
+                    }
                     
                     $path = MediaStorage::uploadImage($file, 'produk');
                     $data[$columnName] = $path;
@@ -353,13 +368,22 @@ class ProdukController extends Controller
                 'deskripsi'            => $request->deskripsi,
                 'kd_kategori'          => $request->kd_kategori,
                 'kd_merk'              => $request->kd_merk,
-                'kd_satuan'            => $request->kd_satuan,
-                'satuan'               => $satuanNama ?? $produk->satuan,
                 'harga_jual_umum'      => $request->harga_jual_umum,
                 'harga_jual_langganan' => $request->harga_jual_langganan ?? $request->harga_jual_umum,
                 'stok_tersedia'        => $request->stok_tersedia,
-                'stok_minimal'         => $stok_minimal,
             ];
+
+            if (Schema::hasColumn('produk', 'kd_satuan')) {
+                $updateData['kd_satuan'] = $request->kd_satuan;
+            }
+
+            if (Schema::hasColumn('produk', 'satuan')) {
+                $updateData['satuan'] = $satuanNama ?? ($produk->satuan ?? null);
+            }
+
+            if (Schema::hasColumn('produk', 'stok_minimal')) {
+                $updateData['stok_minimal'] = $stok_minimal;
+            }
 
             $deletedPaths = [];
 
@@ -371,6 +395,9 @@ class ProdukController extends Controller
                 foreach ($files as $index => $file) {
                     if (isset($columns[$index])) {
                         $columnName = $columns[$index];
+                        if (!Schema::hasColumn('produk', $columnName)) {
+                            continue;
+                        }
                         $path = MediaStorage::uploadImage($file, 'produk');
                         $updateData[$columnName] = $path;
                         $deletedPaths[] = $produk->$columnName;
