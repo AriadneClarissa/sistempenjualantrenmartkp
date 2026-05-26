@@ -23,11 +23,19 @@
     
     {{-- 1. Banner Utama --}}
     <div class="banner-wrapper mb-4 position-relative overflow-hidden" style="border-radius: 1rem;">
+        @php
+            $bannerSrc = !empty($settings['tentang_banner'])
+                ? \App\Helpers\StorageProxy::url($settings['tentang_banner'])
+                : (($admin && $admin->tentang_banner)
+                    ? \App\Helpers\StorageProxy::url($admin->tentang_banner)
+                    : asset('images/spanduktoko.png'));
+        @endphp
         <img id="bannerPreview" 
-            src="{{ (!empty($settings['tentang_banner'])) ? \App\Helpers\StorageProxy::url($settings['tentang_banner']) : (($admin && $admin->tentang_banner) ? \App\Helpers\StorageProxy::url($admin->tentang_banner) : asset('images/spanduktoko.png')) }}" 
+            src="{{ $bannerSrc }}" 
             class="w-100 shadow-sm img-banner-responsive object-fit-cover" 
             style="height: 300px;" 
-            alt="Banner Trenmart">
+            alt="Banner Trenmart"
+            onerror="if(this.dataset.fallback !== '1'){this.dataset.fallback='1'; this.src='{{ asset('images/spanduktoko.png') }}';}">
     </div>
 
     {{-- 2. Panel Kontrol Admin --}}
