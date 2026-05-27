@@ -136,27 +136,28 @@
                     <a href="{{ Route::has('password.request') ? route('password.request') : url('/forgot-password') }}" class="forgot-link">Lupa password?</a>
                 </div>
 
-                <button type="submit" class="btn-masuk-trenmart shadow">MASUK</button>
-            </form>
+                <button type="submit" class="btn-masuk-trenmart shadow mb-4">MASUK</button>
+                </form>
 
-            @if(old('login') || $errors->first('login'))
-                @php $loginValue = old('login') ?? ''; @endphp
-                @if(stripos($errors->first('login') ?? '', 'verifik') !== false || !empty($loginValue))
-                    <div class="mt-3 small text-center">
-                        <p class="text-muted mb-2">Belum menerima email verifikasi? Kirim ulang ke alamat di bawah.</p>
-                        <form action="{{ route('verification.resend') }}" method="POST" class="d-flex justify-content-center" style="gap:8px;">
-                            @csrf
-                            <input type="email" name="email" value="{{ $loginValue }}" placeholder="Email untuk verifikasi" class="form-control form-control-custom" style="max-width:320px;" required>
-                            <button type="submit" class="btn btn-outline-primary">Kirim Ulang</button>
-                        </form>
-                    </div>
+                @if(old('login') || $errors->first('login'))
+                    @php $loginValue = old('login') ?? ''; @endphp
+                    @if(stripos($errors->first('login') ?? '', 'verifik') !== false || !empty($loginValue))
+                        <div class="mt-3 mb-4 small text-center">
+                            <p class="text-muted mb-2">Belum menerima email verifikasi? Kirim ulang ke alamat di bawah.</p>
+                            <form action="{{ route('verification.resend') }}" method="POST" class="d-flex justify-content-center" style="gap:8px;">
+                                @csrf
+                                <input type="email" name="email" value="{{ $loginValue }}" placeholder="Email untuk verifikasi" class="form-control form-control-custom" style="max-width:320px;" required>
+                                <button type="submit" class="btn btn-outline-primary">Kirim Ulang</button>
+                            </form>
+                        </div>
+                    @endif
                 @endif
-            @endif
 
-            <div class="register-link">
-                <span class="text-muted">Belum punya akun?</span> 
-                <a href="{{ route('register') }}" class="fw-bold text-decoration-none" style="color: #800000;">Daftar Sekarang</a>
-            </div>
+                <div class="register-link text-center mt-4">
+                    <span class="text-muted">Belum punya akun?</span> 
+                    <a href="{{ route('register') }}" class="fw-bold text-decoration-none" style="color: #800000;">Daftar Sekarang</a>
+                </div>
+            </form>
         </div>
     </div>
 </div>
