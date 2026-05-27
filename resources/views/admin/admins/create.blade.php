@@ -31,11 +31,11 @@
                     </select>
                 </div>
 
-                <div class="col-md-12">
-                    <label class="form-label">Password Default (opsional)</label>
-                    <input type="text" name="default_password" class="form-control" placeholder="Kosongkan untuk generate otomatis">
-                    <small class="text-muted d-block mt-1">Jika kosong, password akan dibuat secara otomatis</small>
-                </div>
+                    <div class="col-md-12">
+                        <label class="form-label">Password <span class="text-danger">*</span></label>
+                        <input type="password" name="default_password" class="form-control" placeholder="Masukkan password manual" required>
+                        <small class="text-muted d-block mt-1">Minimal 8 karakter, wajib diisi manual.</small>
+                    </div>
 
                 <div class="col-12">
                     <div class="form-check">
