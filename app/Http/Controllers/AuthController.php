@@ -282,26 +282,47 @@ class AuthController extends Controller
         /** @var \App\Models\User $user */
         $user = Auth::user();
 
-        // Allow partial updates from modal/ajax: use 'sometimes' so fields
-        // are validated only when present in the request.
         $rules = [
-            'name' => 'sometimes|required|string|max:255',
+            'name' => 'required|string|max:255',
         ];
 
-        if (!$user->isAdmin()) {
+        if ($user->isCustomer()) {
             $rules['phone_number'] = 'required|string|min:10|max:15';
             $rules['home_address'] = 'required|string|max:500';
         }
 
-        if ($user->customer_type === 'langganan' && !$user->isAdmin()) {
-            $rules['email'] = 'sometimes|required|email|max:255|unique:users,email,' . $user->id;
-            $rules['organization_name'] = 'sometimes|required|string|max:255';
-            $rules['organization_type'] = 'sometimes|required|string|max:255';
+        if ($user->customer_type === 'langganan' && $user->isCustomer()) {
+            $rules['email'] = 'required|email|max:255|unique:users,email,' . $user->id;
+            $rules['organization_name'] = 'required|string|max:255';
+            $rules['organization_type'] = 'required|string|max:255';
         }
 
         $validated = $request->validate($rules);
 
-        $user->update($validated);
+        $user->name = $validated['name'];
+
+        if (array_key_exists('email', $validated)) {
+            $user->email = $validated['email'];
+        }
+
+        if (array_key_exists('phone_number', $validated)) {
+            $user->phone_number = $validated['phone_number'];
+        }
+
+        if (array_key_exists('home_address', $validated)) {
+            $user->home_address = $validated['home_address'];
+        }
+
+        if (array_key_exists('organization_name', $validated)) {
+            $user->organization_name = $validated['organization_name'];
+        }
+
+        if (array_key_exists('organization_type', $validated)) {
+            $user->organization_type = $validated['organization_type'];
+        }
+
+        $user->save();
+
         return back()->with('success', 'Profil berhasil diperbarui!');
     }
 

@@ -114,7 +114,15 @@ class User extends \Illuminate\Foundation\Auth\User implements MustVerifyEmail
     {
         if (! $this->isCustomer()) return false;
 
-        return empty($this->phone_number) || empty($this->home_address);
+        $needsBasicProfile = blank(trim((string) ($this->phone_number ?? ''))) || blank(trim((string) ($this->home_address ?? '')));
+
+        if ($this->customer_type === 'langganan') {
+            return $needsBasicProfile
+                || blank(trim((string) ($this->organization_name ?? '')))
+                || blank(trim((string) ($this->organization_type ?? '')));
+        }
+
+        return $needsBasicProfile;
     }
 
     public function sendPasswordResetNotification($token): void
