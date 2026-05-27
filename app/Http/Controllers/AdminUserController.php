@@ -126,6 +126,10 @@ class AdminUserController extends Controller
             'is_approved' => true,
         ]);
 
+        // Akun internal (admin/kasir) tidak perlu verifikasi email manual.
+        $admin->email_verified_at = now();
+        $admin->save();
+
         try {
             ActivityLog::create([
                 'actor_id' => Auth::id(),
