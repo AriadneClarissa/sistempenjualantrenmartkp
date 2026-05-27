@@ -21,7 +21,7 @@
         flex-wrap: nowrap;
         gap: 0.4rem;
         align-items: center;
-        justify-content: flex-end;
+        justify-content: flex-start;
         width: auto;
         max-width: 100%;
         overflow-x: auto;
@@ -40,6 +40,7 @@
     .admin-header > .container-fluid > .d-flex > h2 {
         flex: 0 0 auto;
         min-width: 0;
+        white-space: nowrap;
     }
     .admin-header > .container-fluid > .d-flex > .admin-header-actions {
         flex: 1 1 auto;
@@ -64,6 +65,18 @@
             flex: 0 0 auto;
             width: auto;
             min-width: 120px;
+        }
+    }
+    @media (max-width: 1600px) {
+        .admin-header > .container-fluid > .d-flex {
+            flex-wrap: wrap;
+        }
+        .admin-header > .container-fluid > .d-flex > h2 {
+            flex: 1 1 100%;
+        }
+        .admin-header > .container-fluid > .d-flex > .admin-header-actions {
+            flex: 1 1 100%;
+            width: 100%;
         }
     }
     @media (max-width: 576px) {
