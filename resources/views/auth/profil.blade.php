@@ -38,6 +38,11 @@
 
             @if(session('success'))
                 <div class="alert alert-success border-0 shadow-sm mb-4">{{ session('success') }}</div>
+                <script>
+                    document.addEventListener('DOMContentLoaded', function() {
+                        if (window.showFlashToast) showFlashToast('success', 'Berhasil', '{{ addslashes(session('success')) }}');
+                    });
+                </script>
             @endif
 
             <div class="card border-0 shadow-sm rounded-3">
@@ -232,6 +237,38 @@
                 });
             });
         }
+        // Track unsaved password changes
+        var passwordForm = document.querySelector('form[action="{{ route('profile.password.update') }}"]');
+        var passwordUnsaved = false;
+        var unsavedToastShown = false;
+
+        passwordInputs.forEach(function(input) {
+            input.addEventListener('input', function() {
+                passwordUnsaved = Array.from(passwordInputs).some(inp => inp.value.trim() !== '');
+                if (!passwordUnsaved) unsavedToastShown = false; // reset when cleared
+            });
+        });
+
+        // When user clicks outside password form while there are unsaved changes, show red toast once
+        document.addEventListener('click', function(e) {
+            if (!passwordUnsaved || unsavedToastShown) return;
+            var target = e.target;
+            if (passwordForm && !passwordForm.contains(target)) {
+                // don't show when clicking the submit button (we want submit to proceed)
+                if (target === btnSubmitPassword || target.closest && target.closest('#btnSubmitPassword')) return;
+                if (window.showFlashToast) showFlashToast('error', 'Perhatian', 'Perubahan kata sandi belum disimpan.');
+                unsavedToastShown = true;
+            }
+        });
+
+        // Warn on page unload if there are unsaved password changes
+        window.addEventListener('beforeunload', function (e) {
+            if (passwordUnsaved) {
+                var confirmationMessage = 'Anda memiliki perubahan kata sandi yang belum disimpan.';
+                (e || window.event).returnValue = confirmationMessage;
+                return confirmationMessage;
+            }
+        });
     });
 </script>
 @endsection
