@@ -32,7 +32,7 @@ class EmailVerificationController extends Controller
         $user->email_verified_at = Carbon::now();
         $user->save();
 
-        return Redirect::route('login')->with('success', 'Email berhasil diverifikasi. Silakan masuk.');
+        return Redirect::route('login')->with('success', 'Email berhasil diverifikasi. Silakan masuk kembali menggunakan email dan password Anda.');
     }
 
     public function resend(Request $request)
