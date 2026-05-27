@@ -11,7 +11,7 @@
     <div class="card shadow-sm w-100">
         <div class="card-body p-3">
             <div class="table-responsive">
-                <table class="table table-hover table-bordered align-middle w-100 mb-0" style="font-size: 0.95rem; table-layout: fixed; min-width: 1450px;">
+                <table class="table table-hover table-bordered align-middle w-100 mb-0" style="font-size: 0.95rem; table-layout: fixed; min-width: 1300px;">
                     <thead class="table-light">
                         <tr>
                             <th class="py-1 px-2" style="width: 5%;">#</th>
@@ -20,10 +20,8 @@
                             <th class="py-1 px-2" style="width: 26%;">Email</th>
                             <th class="py-1 px-2" style="width: 12%;">Jenis Pelanggan</th>
                             <th class="py-1 px-2" style="width: 12%;">No. Telepon</th>
-                            <th class="py-1 px-2" style="width: 12%;">Alamat</th>
-                            <th class="py-1 px-2" style="width: 12%;">Organisasi</th>
-                            <th class="py-1 px-2" style="width: 8%;">Status</th>
-                            <th class="py-1 px-2" style="width: 10%;">Aksi</th>
+                            <th class="py-1 px-2" style="width: 17%;">Alamat</th>
+                            <th class="py-1 px-2" style="width: 11%;">Organisasi</th>
                             <th class="py-1 px-2" style="width: 8%;">Tgl Daftar</th>
                         </tr>
                     </thead>
@@ -38,8 +36,6 @@
                             <td class="py-1 px-2 text-truncate">{{ $c->phone_number ?? '-' }}</td>
                             <td class="py-1 px-2 text-truncate">{{ $c->home_address ?? '-' }}</td>
                             <td class="py-1 px-2 text-truncate">{{ $c->organization_name ?? '-' }}</td>
-                            <td class="py-1 px-2"><span class="badge bg-light text-secondary border">-</span></td>
-                            <td class="py-1 px-2"><span class="text-muted">-</span></td>
                             <td class="py-1 px-2">{{ $c->created_at ? $c->created_at->format('d M Y') : '-' }}</td>
                         </tr>
                         @endforeach

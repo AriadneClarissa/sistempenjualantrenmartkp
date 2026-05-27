@@ -9,10 +9,11 @@
         </a>
     </div>
 
-    <div class="card">
+    <div class="card shadow-sm">
         <div class="card-body p-0">
-            <table class="table mb-0">
-                <thead>
+            <div class="table-responsive" style="max-height: 70vh; overflow: auto;">
+            <table class="table mb-0 align-middle" style="min-width: 980px;">
+                <thead style="position: sticky; top: 0; z-index: 2; background: #f8f9fa;">
                     <tr>
                         <th>#</th>
                         <th>Waktu</th>
@@ -37,6 +38,7 @@
                     @endforelse
                 </tbody>
             </table>
+            </div>
         </div>
     </div>
 

@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use Illuminate\Auth\Notifications\VerifyEmail;
+use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\URL; // Wajib dipanggil
 use Illuminate\Support\Facades\View;
@@ -27,6 +29,15 @@ class AppServiceProvider extends ServiceProvider
         if (request()->header('x-forwarded-proto') === 'https' || env('APP_ENV') !== 'local') {
             URL::forceScheme('https');
         }
+
+        VerifyEmail::toMailUsing(function (object $notifiable, string $url) {
+            return (new MailMessage)
+                ->subject('Konfirmasi Email Trenmart')
+                ->greeting('Halo ' . ($notifiable->name ?? 'Pelanggan') . ',')
+                ->line('Terima kasih sudah mendaftar di Trenmart. Silakan verifikasi alamat email Anda untuk melanjutkan.')
+                ->action('Verifikasi Email', $url)
+                ->line('Jika Anda tidak membuat akun ini, abaikan email ini.');
+        });
 
         // Share notification counters and recent notifications with all views
         View::composer('*', function ($view) {
