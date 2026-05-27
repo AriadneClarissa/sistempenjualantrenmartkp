@@ -453,11 +453,12 @@
                             <input type="hidden" name="_method" value="PUT">
                             <div class="mb-3">
                                 <label class="form-label">Nomor WhatsApp</label>
-                                <input type="text" name="phone_number" class="form-control" placeholder="08xxxxxxxxxx" value="{{ old('phone_number', auth()->user()->phone_number) }}" required>
+                                <input type="text" name="phone_number" id="profile_phone_number" class="form-control" placeholder="Contoh: 081234567890" inputmode="numeric" maxlength="13" oninput="validateWAForModal(this)" value="{{ old('phone_number', auth()->user()->phone_number) }}" required>
+                                <div id="profile-phone-error" class="text-danger small mt-1" style="display: none;">Nomor telepon tidak valid! Harus diawali 08 dan 11-13 digit.</div>
                             </div>
                             <div class="mb-3">
                                 <label class="form-label">Alamat Pengiriman</label>
-                                <textarea name="home_address" class="form-control" rows="3" placeholder="Alamat lengkap untuk pengiriman" required>{{ old('home_address', auth()->user()->home_address) }}</textarea>
+                                <textarea name="home_address" id="profile_home_address" class="form-control" rows="3" placeholder="Alamat lengkap untuk pengiriman" required>{{ old('home_address', auth()->user()->home_address) }}</textarea>
                             </div>
                             <div class="d-flex justify-content-end" style="gap:8px;">
                                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="profileModalRemindLater">Ingatkan Nanti</button>
@@ -702,6 +703,18 @@ document.addEventListener('DOMContentLoaded', function() {
         profileForm.addEventListener('submit', function(e) {
             e.preventDefault();
             const action = "{{ route('profile.update') }}";
+            // client-side validation for WA
+            const phoneInput = document.getElementById('profile_phone_number');
+            const phoneError = document.getElementById('profile-phone-error');
+            if (phoneInput) {
+                const v = (phoneInput.value || '').trim();
+                if (!v.startsWith('08') || v.length < 11 || v.length > 13) {
+                    if (phoneError) phoneError.style.display = 'block';
+                    phoneInput.classList.add('is-invalid');
+                    showFlashToast('error', 'Nomor tidak valid', 'Nomor WhatsApp harus diawali 08 dan 11-13 digit.');
+                    return;
+                }
+            }
             const formData = new FormData(profileForm);
 
             fetch(action, {
@@ -734,6 +747,35 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 });
+
+// Small helper for validating WA input inside modal (converts +62/62 to 08, strips non-digits, limits length)
+function validateWAForModal(input) {
+    let val = input.value || '';
+    if (val.startsWith('+62')) {
+        val = '08' + val.substring(3);
+    } else if (val.startsWith('62')) {
+        val = '08' + val.substring(2);
+    }
+    val = val.replace(/\D/g, '');
+    val = val.substring(0, 13);
+    input.value = val;
+
+    const errEl = document.getElementById('profile-phone-error');
+    if (val.length >= 2) {
+        if (!val.startsWith('08') || val.length < 11) {
+            if (errEl) errEl.style.display = 'block';
+            input.classList.add('is-invalid');
+            input.classList.remove('is-valid');
+        } else {
+            if (errEl) errEl.style.display = 'none';
+            input.classList.remove('is-invalid');
+            input.classList.add('is-valid');
+        }
+    } else {
+        if (errEl) errEl.style.display = 'none';
+        input.classList.remove('is-invalid', 'is-valid');
+    }
+}
 
     // Notifications pager
     (function () {
