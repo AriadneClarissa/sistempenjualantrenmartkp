@@ -25,12 +25,17 @@ Route::get('/', [ProdukController::class, 'index'])->name('beranda');
 
 // Temporary debug route to send a test email and show errors in response/logs
 Route::get('/debug/send-test-email', function () {
+    $to = request()->query('to', null);
+    if (empty($to)) {
+        return response('Provide ?to=you@example.com to send test email.', 400);
+    }
+
     try {
-        Mail::raw('This is a test email from Trenmart debug route.', function ($message) {
-            $message->to('please-change-angelim_2327240084@mhs.mdp.ac.id')->subject('Trenmart Test Email');
+        Mail::raw('This is a test email from Trenmart debug route.', function ($message) use ($to) {
+            $message->to($to)->subject('Trenmart Test Email');
         });
 
-        return response('Email sent (check inbox or logs).');
+        return response('Email sent to ' . $to . ' (check inbox or logs).');
     } catch (\Exception $e) {
         \Log::error('Debug send-test-email failed: ' . $e->getMessage(), ['exception' => $e]);
         return response('Error sending email: ' . $e->getMessage(), 500);

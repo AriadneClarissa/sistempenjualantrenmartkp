@@ -51,17 +51,9 @@ class AuthController extends Controller
         'home_address' => $validated['home_address'],
         'is_active' => true,
     ]);
-        // Send email verification link (signed, expires in 60 minutes)
+        // Use Laravel built-in verification notification
         try {
-            $verifyUrl = URL::temporarySignedRoute(
-                'verification.verify', now()->addMinutes(60), ['id' => $user->id, 'hash' => sha1($user->email)]
-            );
-
-            $message = "Halo {$user->name},\n\nTerima kasih telah mendaftar di Trenmart. Klik tautan berikut untuk memverifikasi alamat email Anda:\n\n{$verifyUrl}\n\nTautan ini akan kadaluarsa dalam 60 menit. Jika Anda tidak mendaftar, abaikan email ini.";
-
-            Mail::raw($message, function ($mail) use ($user) {
-                $mail->to($user->email)->subject('Verifikasi Email - Trenmart');
-            });
+            $user->sendEmailVerificationNotification();
         } catch (\Throwable $e) {
             Log::error('Gagal mengirim email verifikasi: ' . $e->getMessage());
         }

@@ -6,8 +6,9 @@ use App\Notifications\TrenmartResetPasswordNotification;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 
-class User extends \Illuminate\Foundation\Auth\User
+class User extends \Illuminate\Foundation\Auth\User implements MustVerifyEmail
 {
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
