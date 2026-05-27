@@ -13,11 +13,10 @@
             @csrf
             <div class="row g-3">
                 <div class="col-md-6">
-                <div class="col-md-6">
-                    <label class="form-label">Password <span class="text-danger">*</span></label>
-                    <input type="password" name="default_password" class="form-control" placeholder="Masukkan password manual" required>
-                    <small class="text-muted d-block mt-1">Minimal 8 karakter, wajib diisi manual.</small>
+                    <label class="form-label">Nama</label>
+                    <input type="text" name="name" class="form-control" required>
                 </div>
+
                 <div class="col-md-6">
                     <label class="form-label">Kode Pelanggan <span class="text-danger">*</span></label>
                     <input type="text" name="kd_pelanggan" class="form-control" placeholder="Contoh: PL0001" required>
@@ -30,8 +29,9 @@
                 </div>
 
                 <div class="col-md-6">
-                    <label class="form-label">Password Default (opsional)</label>
-                    <input type="text" name="default_password" class="form-control" placeholder="Kosongkan untuk generate otomatis">
+                    <label class="form-label">Password <span class="text-danger">*</span></label>
+                    <input type="password" name="default_password" class="form-control" placeholder="Masukkan password manual" required>
+                    <small class="text-muted d-block mt-1">Minimal 8 karakter, wajib diisi manual.</small>
                 </div>
 
                 <div class="col-md-6">
