@@ -269,6 +269,15 @@
                 return confirmationMessage;
             }
         });
+
+        // When the password form is submitted, clear the unsaved flag so the beforeunload dialog
+        // does not appear and the success toast can be shown after redirect.
+        if (passwordForm) {
+            passwordForm.addEventListener('submit', function () {
+                passwordUnsaved = false;
+                unsavedToastShown = false;
+            });
+        }
     });
 </script>
 @endsection
