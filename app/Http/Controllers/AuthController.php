@@ -221,8 +221,10 @@ class AuthController extends Controller
         /** @var \App\Models\User $user */
         $user = Auth::user();
 
+        // Allow partial updates from modal/ajax: use 'sometimes' so fields
+        // are validated only when present in the request.
         $rules = [
-            'name' => 'required|string|max:255',
+            'name' => 'sometimes|required|string|max:255',
         ];
 
         if (!$user->isAdmin()) {
@@ -231,9 +233,9 @@ class AuthController extends Controller
         }
 
         if ($user->customer_type === 'langganan' && !$user->isAdmin()) {
-            $rules['email'] = 'required|email|max:255|unique:users,email,' . $user->id;
-            $rules['organization_name'] = 'required|string|max:255';
-            $rules['organization_type'] = 'required|string|max:255';
+            $rules['email'] = 'sometimes|required|email|max:255|unique:users,email,' . $user->id;
+            $rules['organization_name'] = 'sometimes|required|string|max:255';
+            $rules['organization_type'] = 'sometimes|required|string|max:255';
         }
 
         $validated = $request->validate($rules);
