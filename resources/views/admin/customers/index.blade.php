@@ -15,19 +15,21 @@
                     <thead class="table-light">
                         <tr>
                             <th class="py-1 px-2" style="width: 5%;">#</th>
+                            <th class="py-1 px-2" style="width: 11%;">Kode Pelanggan</th>
                             <th class="py-1 px-2" style="width: 18%;">Nama</th>
                             <th class="py-1 px-2" style="width: 26%;">Email</th>
-                            <th class="py-1 px-2" style="width: 10%;">Jenis</th>
+                            <th class="py-1 px-2" style="width: 12%;">Jenis</th>
                             <th class="py-1 px-2" style="width: 12%;">No. Telepon</th>
-                            <th class="py-1 px-2" style="width: 14%;">Alamat</th>
-                            <th class="py-1 px-2" style="width: 10%;">Organisasi (jika ada)</th>
-                            <th class="py-1 px-2" style="width: 5%;">Tgl Daftar</th>
+                            <th class="py-1 px-2" style="width: 12%;">Alamat</th>
+                            <th class="py-1 px-2" style="width: 8%;">Organisasi</th>
+                            <th class="py-1 px-2" style="width: 8%;">Tgl Daftar</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach($customers as $c)
                         <tr>
                             <td class="py-1 px-2 text-truncate">{{ $c->id }}</td>
+                            <td class="py-1 px-2 text-truncate">{{ $c->kd_pelanggan ?? '-' }}</td>
                             <td class="py-1 px-2 text-truncate">{{ $c->name }}</td>
                             <td class="py-1 px-2 text-truncate">{{ $c->email }}</td>
                             <td class="py-1 px-2 text-truncate">{{ strtoupper($c->customer_type ?? 'regular') }}</td>

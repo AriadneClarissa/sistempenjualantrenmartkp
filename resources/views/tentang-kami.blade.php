@@ -19,9 +19,14 @@
                     <h1 class="fw-bold mb-1" style="font-size: 2rem;">Halaman Tentang Kami</h1>
                     <p class="text-muted mb-0">Atur informasi toko, foto, lokasi, dan pengumuman yang tampil di website pelanggan.</p>
                 </div>
-                <a href="{{ route('tentang', ['preview' => 1]) }}" class="btn btn-outline-danger fw-semibold" target="_blank">
-                    <i class="bi bi-box-arrow-up-right me-1"></i> Lihat Halaman Pelanggan
-                </a>
+                <div class="d-flex gap-2 align-items-center">
+                    <a href="{{ route('tentang', ['preview' => 1]) }}" class="btn btn-outline-danger fw-semibold" target="_blank">
+                        <i class="bi bi-box-arrow-up-right me-1"></i> Lihat Halaman Pelanggan
+                    </a>
+                    <button type="button" id="btnToggleEdit" class="btn btn-outline-primary fw-semibold" title="Aktifkan mode edit">
+                        <i class="bi bi-pencil-square me-1"></i> Edit
+                    </button>
+                </div>
             </div>
 
             <div class="card border-0 shadow-sm mb-4" style="border-radius: 18px;">
@@ -156,7 +161,7 @@
             </div>
 
             <div class="d-flex justify-content-end mb-4">
-                <button type="submit" class="btn px-4 py-2 fw-semibold" style="background-color: #981b3f; color: #fff; border-radius: 12px;">
+                <button type="submit" id="submitBtn" disabled class="btn px-4 py-2 fw-semibold" style="background-color: #981b3f; color: #fff; border-radius: 12px;">
                     <i class="bi bi-floppy me-2"></i> Simpan Informasi Toko
                 </button>
             </div>
@@ -272,14 +277,41 @@
 
         removeBtn.closest('.feature-row').remove();
     });
-    document.getElementById('btnToggleEdit').addEventListener('click', function() {
-        const container = document.getElementById('formContainer');
-        container.classList.add('editing');
-        
-        // Opsional: Scroll ke atas agar user tahu mode edit sudah aktif
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    }); 
-});
+
+    // Disable all form controls on load to avoid accidental submit
+    const form = document.querySelector('form[action="{{ route('admin.tentang.update') }}"]');
+    const submitBtn = document.getElementById('submitBtn');
+    const editBtn = document.getElementById('btnToggleEdit');
+
+    function setFormEnabled(enabled) {
+        if (!form) return;
+        const controls = form.querySelectorAll('input, textarea, select, button[type="file"]');
+        controls.forEach(c => {
+            // Keep CSRF/method inputs enabled
+            if (c.type === 'hidden') return;
+            // Do not disable the edit button
+            if (c.id === 'btnToggleEdit') return;
+            // Leave preview link alone
+            c.disabled = !enabled;
+        });
+        if (submitBtn) submitBtn.disabled = !enabled;
+    }
+
+    // Initially disable
+    setFormEnabled(false);
+
+    if (editBtn) {
+        editBtn.addEventListener('click', function() {
+            setFormEnabled(true);
+            // Optional: Scroll to top so user sees form enabled
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            // Visually indicate edit mode
+            editBtn.classList.remove('btn-outline-primary');
+            editBtn.classList.add('btn-primary');
+            editBtn.disabled = true;
+        });
+    }
+})();
 </script>
 @endif
 @endpush
