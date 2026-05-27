@@ -19,6 +19,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Mail;
 use App\Http\Controllers\Auth\AdminShippingSettingController;
 use App\Http\Controllers\StorageProxyController;
+use App\Http\Middleware\ProfileComplete;
 
 // --- 1. HALAMAN PUBLIK ---
 Route::get('/', [ProdukController::class, 'index'])->name('beranda');
@@ -108,9 +109,9 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/keranjang/tambah/{id}/{type?}', [KeranjangController::class, 'store'])->name('cart.add');
 
     // --- CHECKOUT & PEMBAYARAN ---
-    Route::get('/checkout', [\App\Http\Controllers\CheckoutController::class, 'index'])->name('checkout.index');
-    Route::get('/checkout/shipping-quote', [\App\Http\Controllers\CheckoutController::class, 'shippingQuote'])->name('checkout.shipping_quote');
-    Route::post('/checkout/place-order', [\App\Http\Controllers\CheckoutController::class, 'placeOrder'])->name('checkout.place_order');
+    Route::get('/checkout', [\App\Http\Controllers\CheckoutController::class, 'index'])->name('checkout.index')->middleware(ProfileComplete::class);
+    Route::get('/checkout/shipping-quote', [\App\Http\Controllers\CheckoutController::class, 'shippingQuote'])->name('checkout.shipping_quote')->middleware(ProfileComplete::class);
+    Route::post('/checkout/place-order', [\App\Http\Controllers\CheckoutController::class, 'placeOrder'])->name('checkout.place_order')->middleware(ProfileComplete::class);
     Route::get('/checkout/{order}/upload-proof', [\App\Http\Controllers\CheckoutController::class, 'uploadProof'])->name('checkout.upload_proof');
     Route::post('/checkout/{order}/store-proof', [\App\Http\Controllers\CheckoutController::class, 'storeProof'])->name('checkout.store_proof');
     Route::get('/checkout/{order}/waiting', [\App\Http\Controllers\CheckoutController::class, 'waiting'])->name('checkout.waiting');

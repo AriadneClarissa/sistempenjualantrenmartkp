@@ -106,6 +106,17 @@ class User extends \Illuminate\Foundation\Auth\User implements MustVerifyEmail
         return false;
     }
 
+    /**
+     * Check if user needs to complete profile required fields (phone and address)
+     * Only applies for customer accounts.
+     */
+    public function needsProfileCompletion(): bool
+    {
+        if (! $this->isCustomer()) return false;
+
+        return empty($this->phone_number) || empty($this->home_address);
+    }
+
     public function sendPasswordResetNotification($token): void
     {
         $this->notify(new TrenmartResetPasswordNotification($token));

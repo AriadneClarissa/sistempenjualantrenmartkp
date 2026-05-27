@@ -436,6 +436,41 @@
     </div>
 </nav>
 
+@auth
+    @if(auth()->user()->isCustomer() && auth()->user()->needsProfileCompletion())
+        <!-- Profile completion modal -->
+        <div class="modal fade" id="profileCompleteModal" tabindex="-1" aria-labelledby="profileCompleteModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="profileCompleteModalLabel">Lengkapi Profil Anda</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p class="small text-muted">Sebelum melakukan pesanan, mohon lengkapi nomor WhatsApp dan alamat pengiriman Anda.</p>
+                        <form id="profileCompleteForm">
+                            @csrf
+                            <input type="hidden" name="_method" value="PUT">
+                            <div class="mb-3">
+                                <label class="form-label">Nomor WhatsApp</label>
+                                <input type="text" name="phone_number" class="form-control" placeholder="08xxxxxxxxxx" value="{{ old('phone_number', auth()->user()->phone_number) }}" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Alamat Pengiriman</label>
+                                <textarea name="home_address" class="form-control" rows="3" placeholder="Alamat lengkap untuk pengiriman" required>{{ old('home_address', auth()->user()->home_address) }}</textarea>
+                            </div>
+                            <div class="d-flex justify-content-end" style="gap:8px;">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Ingatkan Nanti</button>
+                                <button type="submit" class="btn btn-primary">Simpan</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
+@endauth
+
 @if(session('success') || session('error'))
     <div id="floatingFlashMessage" class="position-fixed top-0 start-50 translate-middle-x mt-3" style="z-index: 10600;">
         <div class="toast show align-items-center text-white {{ session('error') ? 'bg-danger' : 'bg-success' }} border-0" role="alert" aria-live="assertive" aria-atomic="true">
@@ -631,6 +666,55 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
     });
+});
+
+// Profile completion modal handler
+document.addEventListener('DOMContentLoaded', function() {
+    const profileForm = document.getElementById('profileCompleteForm');
+    const profileModalEl = document.getElementById('profileCompleteModal');
+    const profileModal = profileModalEl ? new bootstrap.Modal(profileModalEl) : null;
+
+    // Show modal if present (only once per session)
+    if (profileModalEl && sessionStorage.getItem('profileModalShown') !== '1') {
+        profileModal.show();
+        sessionStorage.setItem('profileModalShown', '1');
+    }
+
+    if (profileForm) {
+        profileForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const action = "{{ route('profile.update') }}";
+            const formData = new FormData(profileForm);
+
+            fetch(action, {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                },
+                body: formData,
+                credentials: 'same-origin'
+            }).then(async response => {
+                if (response.ok) {
+                    showFlashToast('success', 'Tersimpan', 'Profil berhasil diperbarui.');
+                    if (profileModal) profileModal.hide();
+                    // Optionally reload to reflect changes
+                    setTimeout(() => location.reload(), 900);
+                } else {
+                    const ct = response.headers.get('content-type') || '';
+                    if (ct.indexOf('application/json') !== -1) {
+                        const data = await response.json();
+                        showFlashToast('error', 'Gagal', data.message || 'Terjadi kesalahan.');
+                    } else {
+                        showFlashToast('error', 'Gagal', 'Terjadi kesalahan saat menyimpan.');
+                    }
+                }
+            }).catch(err => {
+                console.error(err);
+                showFlashToast('error', 'Gagal', 'Terjadi kesalahan jaringan.');
+            });
+        });
+    }
 });
 
     // Notifications pager
