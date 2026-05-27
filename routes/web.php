@@ -16,11 +16,26 @@ use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\BundlingController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Mail;
 use App\Http\Controllers\Auth\AdminShippingSettingController;
 use App\Http\Controllers\StorageProxyController;
 
 // --- 1. HALAMAN PUBLIK ---
 Route::get('/', [ProdukController::class, 'index'])->name('beranda');
+
+// Temporary debug route to send a test email and show errors in response/logs
+Route::get('/debug/send-test-email', function () {
+    try {
+        Mail::raw('This is a test email from Trenmart debug route.', function ($message) {
+            $message->to('please-change-me@example.com')->subject('Trenmart Test Email');
+        });
+
+        return response('Email sent (check inbox or logs).');
+    } catch (\Exception $e) {
+        \Log::error('Debug send-test-email failed: ' . $e->getMessage(), ['exception' => $e]);
+        return response('Error sending email: ' . $e->getMessage(), 500);
+    }
+});
 
 // Proxy route to serve storage/app/public files when public/storage is missing
 Route::get('/storage-proxy/{path}', [StorageProxyController::class, 'show'])->where('path', '.*');
