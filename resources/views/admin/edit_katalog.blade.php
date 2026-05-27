@@ -103,6 +103,17 @@
         white-space: nowrap;
     }
 
+    /* Ensure anchors and buttons are vertically centered and use consistent box sizing */
+    .admin-panel-actions > .btn,
+    .admin-panel-actions > a {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding-left: 12px;
+        padding-right: 12px;
+        box-sizing: border-box;
+    }
+
     .admin-panel-actions > .btn i,
     .admin-panel-actions > a i {
         flex-shrink: 0;
