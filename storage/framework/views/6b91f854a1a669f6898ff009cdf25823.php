@@ -1,3 +1,5 @@
+
+
 <?php $__env->startSection('content'); ?>
 <div class="container mt-3 mt-md-4 mb-5">
 
@@ -39,7 +41,7 @@
     
     <?php if(auth()->guard()->check()): ?>
             <?php if(auth()->user()->isAdmin()): ?>
-        <div class="card shadow-sm mb-5 admin-panel-card border-0 bg-light">
+        <div class="card shadow-sm mb-5 admin-panel-card border-0 bg-white">
             <div class="card-body p-4">
                 <div class="row align-items-center">
                     <div class="col-md-6 text-center text-md-start">
@@ -61,7 +63,7 @@
 
                             <?php if(auth()->user()->isOwner()): ?>
                             <button id="btnOpenReports" class="btn btn-primary shadow-sm admin-quick-btn">
-                                <i class="bi bi-file-earmark-text me-2"></i> Laporan
+                                <i class="bi bi-file-earmark-text me-2"></i> Laporan Penjualan
                             </button>
                             <?php endif; ?>
 
@@ -294,11 +296,14 @@
                                     </h4>
                                     
                                     
-                                    <?php if(!Auth::check() || (Auth::check() && Auth::user()->isCustomer())): ?>
+                                    <?php if(Auth::check() && Auth::user()->isCustomer()): ?>
                                         
-                                        <span class="btn-tambah-card shadow-sm d-flex align-items-center justify-content-center" style="position: relative; z-index: 2;">
+                                        <span class="btn-tambah-card shadow-sm d-flex align-items-center justify-content-center" style="position: relative; z-index: 2;" data-action="<?php echo e(route('cart.add', ['id' => $b->id, 'type' => 'bundling'])); ?>" data-bundling-id="<?php echo e($b->id); ?>">
                                             <i class="bi bi-plus-lg me-1"></i> Tambah
                                         </span>
+                                    <?php else: ?>
+                                        
+                                        <a href="<?php echo e(route('login')); ?>" class="btn btn-outline-primary">Masuk untuk Tambah</a>
                                     <?php endif; ?>
                                 </div>
                             </div>
@@ -366,6 +371,9 @@
         transition: all 0.3s ease;
         border: none;
         text-decoration: none;
+        position: relative; /* pastikan z-index berlaku */
+        z-index: 1060; /* di atas stretched-link overlay */
+        cursor: pointer; /* tunjukkan klikable */
     }
 
     .btn-tambah-card:hover {
@@ -373,6 +381,11 @@
         color: white;
         transform: translateY(-2px);
         box-shadow: 0 5px 15px rgba(128, 0, 0, 0.2) !important;
+    }
+
+    /* Pastikan stretched-link overlay tidak menangkap klik pada tombol Tambah */
+    .card-bundling-hover .stretched-link::after {
+        pointer-events: none;
     }
 
     /* Admin action buttons styling */
@@ -535,6 +548,49 @@ document.addEventListener('DOMContentLoaded', function(){
             window.open("<?php echo e(route('reports.index')); ?>", '_blank');
         });
     }
+});
+
+// Attach add-to-cart handler for bundling cards
+document.addEventListener('click', function(e) {
+    const btn = e.target.closest && e.target.closest('.btn-tambah-card');
+    if (!btn) return;
+    const action = btn.getAttribute('data-action');
+    if (!action) return;
+
+    e.preventDefault();
+    const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+    fetch(action, {
+        method: 'POST',
+        credentials: 'same-origin',
+        headers: {
+            'X-CSRF-TOKEN': token,
+            'Accept': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest',
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ type: 'bundling' })
+    }).then(async (r) => {
+        let text = await r.text();
+        let data = null;
+        try { data = JSON.parse(text); } catch (e) { /* not json */ }
+        if (!r.ok) {
+            const msg = (data && data.message) ? data.message : (text || 'Server error');
+            if (window.showFlashToast) showFlashToast('error', 'Gagal', msg);
+            console.error('Bundling add failed', r.status, text);
+            return;
+        }
+        if (data && data.success) {
+            if (window.updateCartBadge) window.updateCartBadge(data.cartCount || 0);
+            if (window.showFlashToast) showFlashToast('success', 'Berhasil', 'Paket bundling ditambahkan ke keranjang.');
+        } else {
+            const msg = (data && data.message) ? data.message : 'Gagal menambahkan ke keranjang.';
+            if (window.showFlashToast) showFlashToast('error', 'Gagal', msg);
+        }
+    }).catch(err => {
+        if (window.showFlashToast) showFlashToast('error', 'Gagal', 'Terjadi kesalahan jaringan.');
+        console.error(err);
+    });
 });
 </script>
 

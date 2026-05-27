@@ -235,9 +235,9 @@
                 <a href="<?php echo e(route('cart.index')); ?>" class="me-3 icon-nav position-relative">
                     <i class="bi bi-cart3"></i>
                     <?php if($cartCount > 0): ?>
-                        <span id="cart-count" class="notification-badge"><?php echo e($cartCount > 99 ? '99+' : $cartCount); ?></span>
+                        <span class="cart-count notification-badge"><?php echo e($cartCount > 99 ? '99+' : $cartCount); ?></span>
                     <?php else: ?>
-                        <span id="cart-count" class="notification-badge" style="display:none">0</span>
+                        <span class="cart-count notification-badge" style="display:none">0</span>
                     <?php endif; ?>
                 </a>
             <?php endif; ?>
@@ -287,9 +287,9 @@
                         <a href="<?php echo e(route('cart.index')); ?>" class="me-3 position-relative icon-nav d-none d-lg-flex">
                             <i class="bi bi-cart3"></i>
                             <?php if(isset($cartCount) && $cartCount > 0): ?>
-                                <span id="cart-count" class="notification-badge"><?php echo e($cartCount > 99 ? '99+' : $cartCount); ?></span>
+                                <span class="cart-count notification-badge"><?php echo e($cartCount > 99 ? '99+' : $cartCount); ?></span>
                             <?php else: ?>
-                                <span id="cart-count" class="notification-badge" style="display:none">0</span>
+                                <span class="cart-count notification-badge" style="display:none">0</span>
                             <?php endif; ?>
                         </a>
                     <?php endif; ?>
@@ -343,36 +343,45 @@
                                 <?php endif; ?>
 
                                 
-                                <?php $__empty_1 = true; $__currentLoopData = ($recentNotifications ?? collect()); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $notification): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
-                                    <?php
-                                        $payload = $notification->data ?? [];
-                                        $isUnread = is_null($notification->read_at);
-                                    ?>
-                                    <a href="<?php echo e($payload['url'] ?? '#'); ?>" class="d-block text-decoration-none mb-2">
-                                        <div class="p-2 rounded-3 border <?php echo e($isUnread ? 'border-primary bg-primary-subtle' : 'border-light bg-white hover-bg-light'); ?>">
-                                            <div class="d-flex align-items-start justify-content-between gap-2">
-                                                <div>
-                                                    <div class="fw-semibold text-dark small"><?php echo e($payload['title'] ?? 'Notifikasi'); ?></div>
-                                                    <div class="text-muted" style="font-size: 0.8rem;"><?php echo e($payload['body'] ?? ''); ?></div>
-                                                </div>
-                                                <?php if($isUnread): ?>
-                                                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle" style="font-size: 0.65rem;">Baru</span>
-                                                <?php endif; ?>
-                                            </div>
-                                            <div class="text-muted mt-1" style="font-size: 0.7rem;">
-                                                <?php echo e($notification->created_at ? $notification->created_at->diffForHumans() : ''); ?>
+                                <div id="notifications-pager" data-per-page="5">
+                                    <div id="notifications-list"></div>
 
+                                    <div class="d-flex justify-content-between align-items-center mt-2">
+                                        <button type="button" id="notif-prev" class="btn btn-sm btn-light">←</button>
+                                        <div class="small text-muted" id="notif-page-indicator"></div>
+                                        <button type="button" id="notif-next" class="btn btn-sm btn-light">→</button>
+                                    </div>
+                                </div>
+
+                                <noscript>
+                                    <?php $__empty_1 = true; $__currentLoopData = ($recentNotifications ?? collect()); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $notification): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
+                                        <?php
+                                            $payload = $notification['data'] ?? [];
+                                            $isUnread = is_null($notification['read_at']);
+                                        ?>
+                                        <a href="<?php echo e($payload['url'] ?? '#'); ?>" class="d-block text-decoration-none mb-2">
+                                            <div class="p-2 rounded-3 border <?php echo e($isUnread ? 'border-primary bg-primary-subtle' : 'border-light bg-white hover-bg-light'); ?>">
+                                                <div class="d-flex align-items-start justify-content-between gap-2">
+                                                    <div>
+                                                        <div class="fw-semibold text-dark small"><?php echo e($payload['title'] ?? 'Notifikasi'); ?></div>
+                                                        <div class="text-muted" style="font-size: 0.8rem;"><?php echo e($payload['body'] ?? ''); ?></div>
+                                                    </div>
+                                                    <?php if($isUnread): ?>
+                                                        <span class="badge bg-primary-subtle text-primary border border-primary-subtle" style="font-size: 0.65rem;">Baru</span>
+                                                    <?php endif; ?>
+                                                </div>
+                                                <div class="text-muted mt-1" style="font-size: 0.7rem;">
+                                                    <?php echo e($notification['created_at'] ? \Carbon\Carbon::parse($notification['created_at'])->diffForHumans() : ''); ?>
+
+                                                </div>
                                             </div>
-                                        </div>
-                                    </a>
-                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
-                                    
-                                    <?php if(!isset($bundling_warnings) || $bundling_warnings->count() == 0): ?>
-                                        <div class="text-center text-muted py-4" style="font-size: 0.85rem;">
-                                            Belum ada notifikasi.
-                                        </div>
+                                        </a>
+                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
+                                        <?php if(!isset($bundling_warnings) || $bundling_warnings->count() == 0): ?>
+                                            <div class="text-center text-muted py-4" style="font-size: 0.85rem;">Belum ada notifikasi.</div>
+                                        <?php endif; ?>
                                     <?php endif; ?>
-                                <?php endif; ?>
+                                </noscript>
                                 
                             </div>
                         </div>
@@ -427,6 +436,42 @@
         </div>
     </div>
 </nav>
+
+<?php if(auth()->guard()->check()): ?>
+    <?php if(auth()->user()->isCustomer() && auth()->user()->needsProfileCompletion()): ?>
+        <!-- Profile completion modal -->
+        <div class="modal fade" id="profileCompleteModal" tabindex="-1" aria-labelledby="profileCompleteModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="profileCompleteModalLabel">Lengkapi Profil Anda</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="profileModalCloseBtn"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p class="small text-muted">Sebelum melakukan pesanan, mohon lengkapi nomor WhatsApp dan alamat pengiriman Anda.</p>
+                        <form id="profileCompleteForm">
+                            <?php echo csrf_field(); ?>
+                            <input type="hidden" name="_method" value="PUT">
+                            <div class="mb-3">
+                                <label class="form-label">Nomor WhatsApp</label>
+                                <input type="text" name="phone_number" id="profile_phone_number" class="form-control" placeholder="Contoh: 081234567890" inputmode="numeric" maxlength="13" oninput="validateWAForModal(this)" value="<?php echo e(old('phone_number', auth()->user()->phone_number)); ?>" required>
+                                <div id="profile-phone-error" class="text-danger small mt-1" style="display: none;">Nomor telepon tidak valid! Harus diawali 08 dan 11-13 digit.</div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Alamat Pengiriman</label>
+                                <textarea name="home_address" id="profile_home_address" class="form-control" rows="3" placeholder="Alamat lengkap untuk pengiriman" required><?php echo e(old('home_address', auth()->user()->home_address)); ?></textarea>
+                            </div>
+                            <div class="d-flex justify-content-end" style="gap:8px;">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="profileModalRemindLater">Ingatkan Nanti</button>
+                                <button type="submit" class="btn btn-primary">Simpan</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    <?php endif; ?>
+<?php endif; ?>
 
 <?php if(session('success') || session('error')): ?>
     <div id="floatingFlashMessage" class="position-fixed top-0 start-50 translate-middle-x mt-3" style="z-index: 10600;">
@@ -543,22 +588,45 @@
             }, 2500);
         }
     });
+
+    // Global helper to show flash toast messages (type: 'success'|'error')
+    window.showFlashToast = function(type, title, body) {
+        const toast = document.createElement('div');
+        toast.className = 'flash-toast-shell';
+        const variantClass = type === 'success' ? 'success' : 'error';
+        toast.innerHTML = `<div class="flash-toast-card ${variantClass} p-3"><div class="d-flex align-items-center"><div class="flash-toast-badge me-3">${type === 'success' ? '✓' : '!'}</div><div><div class="flash-toast-title">${title}</div><div class="flash-toast-body">${body}</div></div></div><div class="flash-toast-progress mt-3"></div></div>`;
+        document.body.appendChild(toast);
+        setTimeout(()=>{ toast.remove(); }, 2500);
+    }
 </script>
 <?php endif; ?>
 </body>
 <?php echo $__env->yieldPushContent('scripts'); ?>
 <script>
+// Ensure toast helper is always available (not only when server-side flash exists)
+window.showFlashToast = window.showFlashToast || function(type, title, body) {
+    const toast = document.createElement('div');
+    toast.className = 'flash-toast-shell';
+    const variantClass = type === 'success' ? 'success' : 'error';
+    toast.innerHTML = `<div class="flash-toast-card ${variantClass} p-3"><div class="d-flex align-items-center"><div class="flash-toast-badge me-3">${type === 'success' ? '✓' : '!'}</div><div><div class="flash-toast-title">${title}</div><div class="flash-toast-body">${body}</div></div></div><div class="flash-toast-progress mt-3"></div></div>`;
+    document.body.appendChild(toast);
+    setTimeout(()=>{ try{ toast.remove(); }catch(e){} }, 2500);
+};
+
 document.addEventListener('DOMContentLoaded', function() {
-    function showBadge(count) {
-        const el = document.getElementById('cart-count');
-        if (!el) return;
-        if (count > 0) {
-            el.style.display = 'inline-block';
-            el.textContent = count > 99 ? '99+' : count;
-        } else {
-            el.style.display = 'none';
-        }
-    }
+    // Expose global function to update cart badges across the layout
+    window.updateCartBadge = function(count) {
+        const els = document.querySelectorAll('.cart-count');
+        if (!els || els.length === 0) return;
+        els.forEach(el => {
+            if (count > 0) {
+                el.style.display = 'inline-block';
+                el.textContent = count > 99 ? '99+' : count;
+            } else {
+                el.style.display = 'none';
+            }
+        });
+    };
 
     // Attach to all add-to-cart forms
     document.querySelectorAll('form.add-to-cart-form').forEach(form => {
@@ -580,13 +648,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (contentType.indexOf('application/json') !== -1) {
                     const data = await response.json();
                     if (data.success) {
-                        showBadge(data.cartCount || 0);
-                        // Optional: small toast
-                        const toast = document.createElement('div');
-                        toast.className = 'flash-toast-shell';
-                        toast.innerHTML = `<div class="flash-toast-card success p-3"><div class="d-flex align-items-center"><div class="flash-toast-badge me-3">✓</div><div><div class="flash-toast-title">Berhasil</div><div class="flash-toast-body">Produk ditambahkan ke keranjang.</div></div></div><div class="flash-toast-progress mt-3"></div></div>`;
-                        document.body.appendChild(toast);
-                        setTimeout(()=>{ toast.remove(); }, 2000);
+                        if (window.updateCartBadge) window.updateCartBadge(data.cartCount || 0);
+                        if (window.showFlashToast) showFlashToast('success', 'Berhasil', 'Produk ditambahkan ke keranjang.');
                     } else if (data.message) {
                         alert(data.message);
                     }
@@ -606,5 +669,170 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 });
+
+// Profile completion modal utilities
+document.addEventListener('DOMContentLoaded', function() {
+    const profileForm = document.getElementById('profileCompleteForm');
+    const profileModalEl = document.getElementById('profileCompleteModal');
+
+    // Expose current user's needsProfileCompletion state to client
+    window.currentUserNeedsProfileCompletion = <?php echo json_encode(auth()->check() && auth()->user()->needsProfileCompletion(), 15, 512) ?>;
+
+    // Reusable function to show modal; if forced=true the modal is non-dismissible
+    window.showProfileModal = function(forced = false) {
+        if (!profileModalEl) return;
+        const closeBtn = document.getElementById('profileModalCloseBtn');
+        const remindBtn = document.getElementById('profileModalRemindLater');
+
+        if (closeBtn) closeBtn.style.display = forced ? 'none' : '';
+        if (remindBtn) remindBtn.style.display = forced ? 'none' : '';
+
+        const modalOptions = { backdrop: forced ? 'static' : true, keyboard: !forced };
+        const modal = new bootstrap.Modal(profileModalEl, modalOptions);
+        modal.show();
+
+        if (!forced) sessionStorage.setItem('profileModalShown', '1');
+    };
+
+    // Auto-show modal once per session for non-forced flows
+    if (profileModalEl && sessionStorage.getItem('profileModalShown') !== '1') {
+        // show non-forced by default
+        window.showProfileModal(false);
+    }
+
+    if (profileForm) {
+        profileForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const action = "<?php echo e(route('profile.update')); ?>";
+            // client-side validation for WA
+            const phoneInput = document.getElementById('profile_phone_number');
+            const phoneError = document.getElementById('profile-phone-error');
+            if (phoneInput) {
+                const v = (phoneInput.value || '').trim();
+                if (!v.startsWith('08') || v.length < 11 || v.length > 13) {
+                    if (phoneError) phoneError.style.display = 'block';
+                    phoneInput.classList.add('is-invalid');
+                    showFlashToast('error', 'Nomor tidak valid', 'Nomor WhatsApp harus diawali 08 dan 11-13 digit.');
+                    return;
+                }
+            }
+            const formData = new FormData(profileForm);
+
+            fetch(action, {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                },
+                body: formData,
+                credentials: 'same-origin'
+            }).then(async response => {
+                if (response.ok) {
+                    showFlashToast('success', 'Tersimpan', 'Profil berhasil diperbarui.');
+                    // hide modal and reload to reflect changes
+                    try { const m = bootstrap.Modal.getInstance(profileModalEl); if (m) m.hide(); } catch(e) {}
+                    setTimeout(() => location.reload(), 700);
+                } else {
+                    const ct = response.headers.get('content-type') || '';
+                    if (ct.indexOf('application/json') !== -1) {
+                        const data = await response.json();
+                        showFlashToast('error', 'Gagal', data.message || 'Terjadi kesalahan.');
+                    } else {
+                        showFlashToast('error', 'Gagal', 'Terjadi kesalahan saat menyimpan.');
+                    }
+                }
+            }).catch(err => {
+                console.error(err);
+                showFlashToast('error', 'Gagal', 'Terjadi kesalahan jaringan.');
+            });
+        });
+    }
+});
+
+// Small helper for validating WA input inside modal (converts +62/62 to 08, strips non-digits, limits length)
+function validateWAForModal(input) {
+    let val = input.value || '';
+    if (val.startsWith('+62')) {
+        val = '08' + val.substring(3);
+    } else if (val.startsWith('62')) {
+        val = '08' + val.substring(2);
+    }
+    val = val.replace(/\D/g, '');
+    val = val.substring(0, 13);
+    input.value = val;
+
+    const errEl = document.getElementById('profile-phone-error');
+    if (val.length >= 2) {
+        if (!val.startsWith('08') || val.length < 11) {
+            if (errEl) errEl.style.display = 'block';
+            input.classList.add('is-invalid');
+            input.classList.remove('is-valid');
+        } else {
+            if (errEl) errEl.style.display = 'none';
+            input.classList.remove('is-invalid');
+            input.classList.add('is-valid');
+        }
+    } else {
+        if (errEl) errEl.style.display = 'none';
+        input.classList.remove('is-invalid', 'is-valid');
+    }
+}
+
+    // Notifications pager
+    (function () {
+        const data = <?php echo json_encode($recentNotifications ?? collect(), 15, 512) ?>;
+        const perPage = parseInt(document.getElementById('notifications-pager')?.dataset.perPage || 5, 10);
+        let page = 1;
+
+        function renderPage() {
+            const listEl = document.getElementById('notifications-list');
+            const indicator = document.getElementById('notif-page-indicator');
+            if (!listEl) return;
+
+            const total = data.length;
+            const totalPages = Math.max(1, Math.ceil(total / perPage));
+            if (page < 1) page = 1;
+            if (page > totalPages) page = totalPages;
+
+            const start = (page - 1) * perPage;
+            const slice = data.slice(start, start + perPage);
+
+            listEl.innerHTML = slice.map(n => {
+                const payload = n.data || {};
+                const isUnread = !n.read_at;
+                const title = payload.title || 'Notifikasi';
+                const body = payload.body || '';
+                const url = payload.url || '#';
+                const time = n.created_at ? (new Date(n.created_at)).toLocaleString() : '';
+
+                return `<a href="${url}" class="d-block text-decoration-none mb-2">\
+                    <div class="p-2 rounded-3 border ${isUnread ? 'border-primary bg-primary-subtle' : 'border-light bg-white hover-bg-light'}">\
+                        <div class="d-flex align-items-start justify-content-between gap-2">\
+                            <div>\
+                                <div class="fw-semibold text-dark small">${escapeHtml(title)}</div>\
+                                <div class="text-muted" style="font-size: 0.8rem;">${escapeHtml(body)}</div>\
+                            </div>\
+                            ${isUnread ? '<span class="badge bg-primary-subtle text-primary border border-primary-subtle" style="font-size: 0.65rem;">Baru</span>' : ''}\
+                        </div>\
+                        <div class="text-muted mt-1" style="font-size: 0.7rem;">${escapeHtml(time)}</div>\
+                    </div>\
+                </a>`;
+            }).join('');
+
+            indicator.innerText = `${page} / ${totalPages}`;
+            document.getElementById('notif-prev').disabled = page <= 1;
+            document.getElementById('notif-next').disabled = page >= totalPages;
+        }
+
+        document.getElementById('notif-prev')?.addEventListener('click', function () { page--; renderPage(); });
+        document.getElementById('notif-next')?.addEventListener('click', function () { page++; renderPage(); });
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str).replace(/[&"'<>]/g, function (s) { return ({'&':'&amp;','"':'&quot;',"'":'&#39;','<':'&lt;','>':'&gt;'})[s]; });
+        }
+
+        renderPage();
+    })();
 </script>
 </html><?php /**PATH C:\Users\asus\OneDrive\Documents\GitHub\tesKP\resources\views/layouts/app.blade.php ENDPATH**/ ?>

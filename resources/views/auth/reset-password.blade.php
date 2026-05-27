@@ -66,7 +66,7 @@
     <div class="card auth-card">
         <div class="card-header-custom">
             <h5 class="mb-0 fw-bold" style="color: #800000;">Reset Password</h5>
-            <p class="mb-0 text-muted small">Silakan isi password baru Anda untuk akun yang terdaftar.</p>
+            <p class="mb-0 text-muted small">Masukkan email, kode yang dikirim ke inbox, lalu isi password baru Anda.</p>
         </div>
 
         <div class="card-body p-4">
@@ -82,11 +82,15 @@
 
             <form method="POST" action="{{ route('password.store') }}">
                 @csrf
-                <input type="hidden" name="token" value="{{ $request->route('token') }}">
-
                 <div class="mb-3">
                     <label class="form-label">Email</label>
                     <input type="email" name="email" class="form-control form-control-custom" value="{{ old('email', $request->email) }}" required autofocus autocomplete="username">
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Kode Reset</label>
+                    <input type="text" name="code" class="form-control form-control-custom" placeholder="Masukkan kode 6 digit" value="{{ old('code') }}" inputmode="numeric" maxlength="6" required>
+                    <div class="syarat-text">Kode berlaku singkat untuk alasan keamanan.</div>
                 </div>
 
                 <div class="mb-3">

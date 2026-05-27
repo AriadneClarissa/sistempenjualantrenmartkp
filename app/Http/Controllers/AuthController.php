@@ -85,12 +85,13 @@ class AuthController extends Controller
                 return back()->withErrors(['login' => 'Akun Anda telah dinonaktifkan oleh pemilik sistem.'])->onlyInput('login');
             }
 
-            // Require email verification only when user logs in with an email address
-            // but allow internal staff (admin/owner/kasir) to login without email verification.
-            if ($isEmailLogin && is_null($user->email_verified_at)) {
+            // Semua akun customer wajib verifikasi email sebelum bisa masuk.
+            // Internal staff tetap boleh login tanpa verifikasi email.
+            if (! $user->hasVerifiedEmail()) {
                 $isInternal = method_exists($user, 'isInternalStaff') ? $user->isInternalStaff() : false;
+
                 if (! $isInternal) {
-                    return back()->withErrors(['login' => 'Email belum terverifikasi. Silakan cek inbox untuk tautan verifikasi.'])->onlyInput('login');
+                    return back()->withErrors(['login' => 'Akun Anda belum terverifikasi. Silakan cek email untuk tautan verifikasi.'])->onlyInput('login');
                 }
             }
 

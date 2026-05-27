@@ -4,17 +4,16 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
-use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Password;
-use Illuminate\Support\Str;
-use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\View\View;
 
 class NewPasswordController extends Controller
 {
+    private const RESET_CODE_TTL_MINUTES = 15;
+
     /**
      * Display the password reset view.
      */
@@ -25,43 +24,42 @@ class NewPasswordController extends Controller
 
     /**
      * Handle an incoming new password request.
-     *
-     * @throws ValidationException
      */
     public function store(Request $request): RedirectResponse
     {
         $request->validate([
-            'token' => ['required'],
             'email' => ['required', 'email'],
+            'code' => ['required', 'digits:6'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
         ]);
 
-        // Here we will attempt to reset the user's password. If it is successful we
-        // will update the password on an actual user model and persist it to the
-        // database. Otherwise we will parse the error and return the response.
-        $status = Password::reset(
-            $request->only('email', 'password', 'password_confirmation', 'token'),
-            function (User $user) use ($request) {
-                $user->forceFill([
-                    'password' => Hash::make($request->password),
-                    'remember_token' => Str::random(60),
-                ])->save();
+        $user = User::where('email', $request->email)->first();
 
-                event(new PasswordReset($user));
-            }
-        );
-
-        if ($status === Password::PASSWORD_RESET) {
-            return redirect()->route('login')->with('status', 'Password berhasil diperbarui. Silakan login dengan password baru Anda.');
+        if (! $user) {
+            return back()->withInput($request->only('email'))
+                ->withErrors(['email' => 'Email tidak ditemukan. Pastikan email yang dimasukkan sudah terdaftar.']);
         }
 
-        $pesanError = match ($status) {
-            Password::INVALID_TOKEN => 'Link reset password tidak valid atau sudah kedaluwarsa. Silakan minta link baru.',
-            Password::INVALID_USER => 'Email tidak ditemukan. Pastikan email yang dimasukkan sudah terdaftar.',
-            default => 'Reset password gagal diproses. Silakan coba lagi.',
-        };
+        $cacheKey = $this->cacheKey($user->email);
+        $payload = Cache::get($cacheKey);
 
-        return back()->withInput($request->only('email'))
-            ->withErrors(['email' => $pesanError]);
+        if (! $payload || ! Hash::check($request->code, $payload['code'] ?? '')) {
+            return back()->withInput($request->only('email'))
+                ->withErrors(['code' => 'Kode reset tidak valid atau sudah kedaluwarsa. Silakan minta kode baru.']);
+        }
+
+        $user->forceFill([
+            'password' => Hash::make($request->password),
+            'remember_token' => null,
+        ])->save();
+
+        Cache::forget($cacheKey);
+
+        return redirect()->route('login')->with('status', 'Password berhasil diperbarui. Silakan login dengan password baru Anda.');
+    }
+
+    private function cacheKey(string $email): string
+    {
+        return 'password-reset-code:'.strtolower($email);
     }
 }

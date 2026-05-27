@@ -64,7 +64,7 @@ Route::middleware(['guest'])->group(function () {
     // Lupa Password untuk customer umum/langganan
     Route::get('/forgot-password', [PasswordResetLinkController::class, 'create'])->name('password.request');
     Route::post('/forgot-password', [PasswordResetLinkController::class, 'store'])->name('password.email');
-    Route::get('/reset-password/{token}', [NewPasswordController::class, 'create'])->name('password.reset');
+    Route::get('/reset-password/{token?}', [NewPasswordController::class, 'create'])->name('password.reset');
     Route::post('/reset-password', [NewPasswordController::class, 'store'])->name('password.store');
 
     // JALUR KHUSUS ADMIN (Alias ke login utama)

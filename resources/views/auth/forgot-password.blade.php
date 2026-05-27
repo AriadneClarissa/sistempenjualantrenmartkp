@@ -54,7 +54,7 @@
     <div class="card auth-card">
         <div class="card-header-custom">
             <h5 class="mb-0 fw-bold" style="color: #800000;">Lupa Password</h5>
-            <p class="mb-0 helper-text">Masukkan email yang terdaftar untuk menerima tautan reset password.</p>
+            <p class="mb-0 helper-text">Masukkan email yang terdaftar untuk menerima kode reset password.</p>
         </div>
 
         <div class="card-body p-4">
@@ -82,7 +82,7 @@
                     <input type="email" name="email" class="form-control form-control-custom" placeholder="Masukkan email Anda" value="{{ old('email') }}" required autofocus>
                 </div>
 
-                <button type="submit" class="btn-masuk-trenmart shadow">KIRIM LINK RESET</button>
+                <button type="submit" class="btn-masuk-trenmart shadow">KIRIM KODE RESET</button>
             </form>
 
             <div class="text-center mt-3">
