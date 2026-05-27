@@ -70,7 +70,7 @@
             text-align: center;
             box-shadow: 0 0 0 2px #fff;
         }
-        .notification-menu { min-width: 320px; padding: 0; overflow: hidden; }
+        .notification-menu { min-width: 320px; padding: 0; overflow: hidden; z-index: 1075; }
         .notification-menu .dropdown-header { background: linear-gradient(135deg, #fff7f7 0%, #ffffff 100%); padding: 16px 18px; }
         .notification-menu .dropdown-body { padding: 16px 18px 18px; }
         .notification-menu .notification-title { color: #800000; font-weight: 700; font-size: 0.95rem; }
@@ -295,7 +295,7 @@
                     @endif
 
                     @auth
-                    <div class="dropdown me-3 d-none d-lg-flex">
+                    <div class="dropdown me-3 d-none d-lg-flex" data-bs-auto-close="outside">
                         <a href="#" class="icon-nav notification-link" id="notificationMenu" data-bs-toggle="dropdown" aria-expanded="false" title="Notifikasi">
                             <i class="bi bi-bell"></i>
                             @php 
@@ -323,7 +323,7 @@
                             </div>
 
                             {{-- Body Dropdown --}}
-                            <div class="dropdown-body p-2 custom-scrollbar" style="max-height: 380px; overflow-y: auto;">
+                            <div class="dropdown-body p-2 custom-scrollbar" id="notifications-dropdown-body" style="max-height: min(380px, calc(100vh - 190px)); overflow-y: auto;">
                                 
                                 {{-- 1. Peringatan Harga Bundling (Khusus Admin) --}}
                                 @if(auth()->user()->isAdmin() && isset($bundling_warnings) && $bundling_warnings->count() > 0)
@@ -821,8 +821,18 @@ function validateWAForModal(input) {
             document.getElementById('notif-next').disabled = page >= totalPages;
         }
 
-        document.getElementById('notif-prev')?.addEventListener('click', function () { page--; renderPage(); });
-        document.getElementById('notif-next')?.addEventListener('click', function () { page++; renderPage(); });
+        document.getElementById('notif-prev')?.addEventListener('click', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            page--;
+            renderPage();
+        });
+        document.getElementById('notif-next')?.addEventListener('click', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            page++;
+            renderPage();
+        });
 
         function escapeHtml(str) {
             if (!str) return '';
@@ -830,6 +840,15 @@ function validateWAForModal(input) {
         }
 
         renderPage();
+
+        // Keep dropdown open and start from top when user changes page.
+        const dropdownBody = document.getElementById('notifications-dropdown-body');
+        const pagerContainer = document.getElementById('notifications-pager');
+        if (dropdownBody && pagerContainer) {
+            pagerContainer.addEventListener('click', function () {
+                dropdownBody.scrollTop = 0;
+            });
+        }
     })();
 </script>
 </html>
