@@ -144,7 +144,7 @@
                     @if(stripos($errors->first('login') ?? '', 'verifik') !== false || !empty($loginValue))
                         <div class="mt-3 mb-4 small text-center">
                             <p class="text-muted mb-2">Belum menerima email verifikasi? Kirim ulang ke alamat di bawah.</p>
-                            <form action="{{ route('verification.resend') }}" method="POST" class="d-flex justify-content-center" style="gap:8px;">
+                            <form action="{{ route('verification.resend_from_login') }}" method="POST" class="d-flex justify-content-center" style="gap:8px;">
                                 @csrf
                                 <input type="email" name="email" value="{{ $loginValue }}" placeholder="Email untuk verifikasi" class="form-control form-control-custom" style="max-width:320px;" required>
                                 <button type="submit" class="btn btn-outline-primary">Kirim Ulang</button>

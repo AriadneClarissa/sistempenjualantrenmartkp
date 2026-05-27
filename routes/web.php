@@ -49,6 +49,7 @@ Route::get('/bundling/{id}', [BundlingController::class, 'show'])->name('bundlin
 // Email verification route (signed)
 Route::get('/email/verify/{id}/{hash}', [\App\Http\Controllers\EmailVerificationController::class, 'verify'])->name('verification.verify');
 Route::post('/email/resend', [\App\Http\Controllers\EmailVerificationController::class, 'resend'])->name('verification.resend');
+Route::post('/email/resend-from-login', [AuthController::class, 'resendVerification'])->name('verification.resend_from_login');
 Route::get('/katalog', [ProdukController::class, 'katalog'])->name('katalog');
 Route::get('/produk/detail/{id}', [ProdukController::class, 'show'])->name('produk.detail');
 Route::get('/tentang-kami', [TentangController::class, 'index'])->name('tentang');

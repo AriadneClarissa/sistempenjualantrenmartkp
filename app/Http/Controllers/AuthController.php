@@ -133,6 +133,34 @@ class AuthController extends Controller
         }
     }
 
+    public function resendVerification(Request $request)
+    {
+        $request->validate([
+            'email' => ['required', 'email:rfc,dns'],
+        ]);
+
+        $user = User::where('email', $request->email)->first();
+
+        if (! $user) {
+            return back()->with('error', 'Email tidak ditemukan.');
+        }
+
+        if ($user->hasVerifiedEmail()) {
+            return back()->with('success', 'Alamat email sudah terverifikasi.');
+        }
+
+        try {
+            $user->sendEmailVerificationNotification();
+            Cache::put('verification-email-sent:'.strtolower($user->email), true, now()->addMinutes(1));
+        } catch (\Throwable $e) {
+            Log::error('Gagal mengirim ulang email verifikasi: ' . $e->getMessage());
+
+            return back()->with('error', 'Gagal mengirim ulang email verifikasi.');
+        }
+
+        return back()->with('success', 'Email verifikasi telah dikirim ulang ke alamat yang terdaftar.');
+    }
+
     public function loadingRedirect(Request $request)
     {
         $targetUrl = $request->session()->pull('post_login_redirect', route('beranda'));

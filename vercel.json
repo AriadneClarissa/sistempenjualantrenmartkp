@@ -65,13 +65,7 @@
         "CLOUDINARY_API_KEY": "831535668596148",
         "CLOUDINARY_API_SECRET": "pcgylB-DoXgMdWkAK1yqM7NIyZU",
 
-        "MAIL_MAILER": "smtp",
-        "MAIL_SCHEME": "smtp",
-        "MAIL_HOST": "smtp.gmail.com",
-        "MAIL_PORT": "587",
-        "MAIL_USERNAME": "ariadnedarnet@gmail.com",
-        "MAIL_FROM_ADDRESS": "ariadnedarnet@gmail.com",
-        "MAIL_FROM_NAME": "Admin Trenmart",
+        "QUEUE_CONNECTION": "sync",
         "VITE_APP_NAME": "${APP_NAME}"
     }
 }

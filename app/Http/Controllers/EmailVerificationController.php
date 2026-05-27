@@ -6,7 +6,6 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Redirect;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 
 class EmailVerificationController extends Controller
@@ -49,12 +48,7 @@ class EmailVerificationController extends Controller
         }
 
         try {
-            $cacheKey = 'verification-email-sent:'.strtolower($user->email);
-
-            if (! Cache::has($cacheKey)) {
-                $user->sendEmailVerificationNotification();
-                Cache::put($cacheKey, true, now()->addMinutes(5));
-            }
+            $user->sendEmailVerificationNotification();
         } catch (\Throwable $e) {
             Log::error('Gagal mengirim ulang email verifikasi: ' . $e->getMessage());
             return redirect()->back()->with('error', 'Gagal mengirim ulang email verifikasi.');
