@@ -48,7 +48,9 @@ class PasswordResetLinkController extends Controller
 
         $user->notify(new PasswordResetCodeNotification($code, self::RESET_CODE_TTL_MINUTES));
 
-        return back()->with('status', 'Jika email terdaftar, kode reset password telah dikirim. Silakan cek inbox/spam email Anda.');
+        return redirect()
+            ->route('password.reset', ['email' => $request->email])
+            ->with('status', 'Kode reset password telah dikirim. Silakan cek inbox/spam email Anda lalu masukkan kode untuk membuat password baru.');
     }
 
     private function cacheKey(string $email): string
