@@ -51,11 +51,13 @@ class AuthController extends Controller
         'home_address' => $validated['home_address'],
         'is_active' => true,
     ]);
-        // Use Laravel built-in verification notification
-        try {
-            $user->sendEmailVerificationNotification();
-        } catch (\Throwable $e) {
-            Log::error('Gagal mengirim email verifikasi: ' . $e->getMessage());
+        // Send verification email only for customer accounts.
+        if ($user->role === 'customer') {
+            try {
+                $user->sendEmailVerificationNotification();
+            } catch (\Throwable $e) {
+                Log::error('Gagal mengirim email verifikasi: ' . $e->getMessage());
+            }
         }
 
         return redirect()->route('login')->with('success', 'Pendaftaran berhasil! Silakan cek email Anda untuk tautan verifikasi.');
@@ -84,8 +86,12 @@ class AuthController extends Controller
             }
 
             // Require email verification only when user logs in with an email address
+            // but allow internal staff (admin/owner/kasir) to login without email verification.
             if ($isEmailLogin && is_null($user->email_verified_at)) {
-                return back()->withErrors(['login' => 'Email belum terverifikasi. Silakan cek inbox untuk tautan verifikasi.'])->onlyInput('login');
+                $isInternal = method_exists($user, 'isInternalStaff') ? $user->isInternalStaff() : false;
+                if (! $isInternal) {
+                    return back()->withErrors(['login' => 'Email belum terverifikasi. Silakan cek inbox untuk tautan verifikasi.'])->onlyInput('login');
+                }
             }
 
             Auth::login($user, $request->boolean('remember'));
