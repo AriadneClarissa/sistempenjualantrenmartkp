@@ -53,8 +53,8 @@ class AuthController extends Controller
         'home_address' => $validated['home_address'],
         'is_active' => true,
     ]);
-        // Semua pelanggan wajib verifikasi email.
-        if ($user->role === 'customer') {
+        // Kirim verifikasi hanya untuk pelanggan reguler.
+        if ($user->role === 'customer' && $user->customer_type !== 'langganan') {
             try {
                 $user->sendEmailVerificationNotification();
             } catch (\Throwable $e) {
@@ -62,7 +62,9 @@ class AuthController extends Controller
             }
         }
 
-        $successMessage = 'Pendaftaran berhasil! Silakan cek email Anda untuk tautan verifikasi.';
+        $successMessage = $user->customer_type === 'langganan'
+            ? 'Pendaftaran berhasil! Silakan login menggunakan kode pelanggan dan password Anda.'
+            : 'Pendaftaran berhasil! Silakan cek email Anda untuk tautan verifikasi.';
 
         return redirect()->route('login')->with('success', $successMessage);
     }
@@ -89,8 +91,9 @@ class AuthController extends Controller
                 return back()->withErrors(['login' => 'Akun Anda telah dinonaktifkan oleh pemilik sistem.'])->onlyInput('login');
             }
 
-            // Semua pelanggan wajib verifikasi email sebelum login.
-            if ($user->isCustomer() && ! $user->hasVerifiedEmail()) {
+            // Pelanggan langganan boleh langsung login dengan kode pelanggan + password.
+            // Pelanggan reguler tetap wajib verifikasi email.
+            if ($user->isCustomer() && $user->customer_type !== 'langganan' && ! $user->hasVerifiedEmail()) {
                 $isInternal = method_exists($user, 'isInternalStaff') ? $user->isInternalStaff() : false;
 
                 if (! $isInternal) {
