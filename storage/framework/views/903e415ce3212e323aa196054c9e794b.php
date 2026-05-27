@@ -123,8 +123,22 @@
                     <a href="<?php echo e(route('admin.users.internal')); ?>" class="btn btn-sm admin-nav-btn <?php echo e($activePage === 'internal_users' ? 'active btn-outline-secondary' : 'btn-outline-secondary'); ?>">
                         <i class="bi bi-shield-lock me-1"></i> User Internal
                     </a>
-                <?php endif; ?>
-                <?php if(auth()->user()->isAdmin()): ?>
+                    <a href="<?php echo e(route('admin.customers.index')); ?>" class="btn btn-sm admin-nav-btn <?php echo e($activePage === 'customers' ? 'active btn-outline-secondary' : 'btn-outline-secondary'); ?>">
+                        <i class="bi bi-person-badge me-1"></i> Pelanggan
+                    </a>
+                    <a href="<?php echo e(route('admin.payment_methods.index')); ?>" class="btn btn-sm admin-nav-btn <?php echo e($activePage === 'payment' ? 'active btn-outline-secondary' : 'btn-outline-secondary'); ?>">
+                        <i class="bi bi-credit-card-2-back me-1"></i> Metode Pembayaran
+                    </a>
+                    <a href="<?php echo e(route('admin.users.create')); ?>" class="btn btn-sm btn-primary admin-nav-btn">
+                        <i class="bi bi-person-plus me-1"></i> Buat Pelanggan
+                    </a>
+                    <a href="<?php echo e(route('admin.admins.create')); ?>" class="btn btn-sm btn-warning admin-nav-btn text-dark">
+                        <i class="bi bi-shield-check me-1"></i> Buat User Internal
+                    </a>
+                <?php elseif(auth()->user()->isAdmin()): ?>
+                    <a href="<?php echo e(route('admin.users.internal')); ?>" class="btn btn-sm admin-nav-btn <?php echo e($activePage === 'internal_users' ? 'active btn-outline-secondary' : 'btn-outline-secondary'); ?>">
+                        <i class="bi bi-shield-lock me-1"></i> User Internal
+                    </a>
                     <a href="<?php echo e(route('admin.customers.index')); ?>" class="btn btn-sm admin-nav-btn <?php echo e($activePage === 'customers' ? 'active btn-outline-secondary' : 'btn-outline-secondary'); ?>">
                         <i class="bi bi-person-badge me-1"></i> Pelanggan
                     </a>
