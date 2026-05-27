@@ -170,9 +170,13 @@
                             <p class="text-muted small">Kategori: {{ $produk->kategori->nama_kategori ?? 'Tidak ada kategori' }}</p>
                         </div>
 
+                        @php
+                            $satuanNama = $produk->satuan?->nama_satuan ?? $produk->satuan ?? 'pcs';
+                        @endphp
+
                         <h3 class="fw-bold mb-4" style="color: #800000;">
                             Rp {{ number_format($produk->harga_tampil, 0, ',', '.') }}
-                            <small class="text-muted fw-normal fs-6">/{{ $produk->satuanModel->nama_satuan ?? 'pcs' }}</small>
+                            <small class="text-muted fw-normal fs-6">/{{ $satuanNama }}</small>
                         </h3>
 
                         {{-- Harga Langganan untuk Admin --}}

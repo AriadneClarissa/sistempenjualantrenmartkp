@@ -5,6 +5,7 @@
         @php
             $stokMinimal = $item->stok_minimal ?? $item->satuanModel?->stok_minimal ?? 0;
             $isLowStock = $stokMinimal > 0 && $item->stok_tersedia <= $stokMinimal;
+            $satuanNama = $item->satuan?->nama_satuan ?? $item->satuan ?? 'pcs';
         @endphp
         
         {{-- Badge Status Stok --}}
@@ -47,7 +48,7 @@
             {{-- Harga Utama & Satuan --}}
             <h4 class="fw-bold mb-1" style="color: #800000; font-size: 1.15rem;">
                 Rp {{ number_format($item->harga_tampil, 0, ',', '.') }}
-                <span class="text-muted fw-normal" style="font-size: 0.75rem;">/ {{ $item->satuanModel->nama_satuan ?? 'pcs' }}</span>
+                <span class="text-muted fw-normal" style="font-size: 0.75rem;">/ {{ $satuanNama }}</span>
             </h4>
 
             {{-- Harga Langganan (Muncul untuk Admin atau User tipe Langganan) --}}

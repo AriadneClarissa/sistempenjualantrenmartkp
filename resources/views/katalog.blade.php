@@ -196,7 +196,7 @@
                             {{-- Perbaikan Harga agar tidak Rp 0 --}}
                             <h5 class="price-text mb-1">
                                 Rp {{ number_format(($p->harga_tampil > 0 ? $p->harga_tampil : $p->harga_jual_umum), 0, ',', '.') }}
-                                <span class="text-muted small fw-normal" style="font-size: 11px;">/{{ $p->satuan }}</span>
+                                <span class="text-muted small fw-normal" style="font-size: 11px;">/{{ $p->satuan?->nama_satuan ?? $p->satuan ?? 'pcs' }}</span>
                             </h5>
                             @auth
                                 @if(auth()->user()->isAdmin())
