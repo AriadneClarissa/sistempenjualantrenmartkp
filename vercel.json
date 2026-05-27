@@ -68,9 +68,8 @@
         "MAIL_MAILER": "smtp",
         "MAIL_SCHEME": "smtp",
         "MAIL_HOST": "smtp.gmail.com",
-        "MAIL_PORT": 587,
+        "MAIL_PORT": "587",
         "MAIL_USERNAME": "ariadnedarnet@gmail.com",
-        "MAIL_PASSWORD": "nlzvvikoukyuklzh",
         "MAIL_FROM_ADDRESS": "ariadnedarnet@gmail.com",
         "MAIL_FROM_NAME": "Admin Trenmart",
         "VITE_APP_NAME": "${APP_NAME}"
