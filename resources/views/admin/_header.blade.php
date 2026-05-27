@@ -4,12 +4,12 @@
     .admin-header h2 { color: var(--maroon); font-weight: bold; }
     .admin-nav-btn { 
         border-radius: 50px; 
-        padding: 0.45rem 0.8rem; 
+        padding: 0.4rem 0.72rem; 
         font-weight: 500;
-        font-size: 0.9rem;
+        font-size: 0.86rem;
         transition: all 0.2s ease;
         white-space: nowrap;
-        min-height: 38px;
+        min-height: 36px;
         width: 100%;
         display: inline-flex;
         align-items: center;
@@ -19,18 +19,19 @@
     .admin-header-actions {
         display: flex;
         flex-wrap: nowrap;
-        gap: 0.5rem;
+        gap: 0.4rem;
         align-items: center;
         justify-content: flex-end;
         width: auto;
         max-width: 100%;
         overflow-x: auto;
-        padding-bottom: 2px;
+        padding-bottom: 4px;
+        -webkit-overflow-scrolling: touch;
     }
     .admin-header-actions .admin-nav-btn {
         flex: 0 0 auto;
         width: auto;
-        min-width: 120px;
+        min-width: 0;
     }
     .admin-header > .container-fluid > .d-flex {
         flex-wrap: nowrap;
@@ -108,7 +109,7 @@
                 @endif
                 - Trenmart
             </h2>
-            <div class="admin-header-actions">
+            <div class="admin-header-actions custom-scrollbar">
                 @if(method_exists(auth()->user(), 'isCashier') && auth()->user()->isCashier())
                     <a href="{{ route('admin.orders.index') }}" class="btn btn-sm admin-nav-btn {{ request()->routeIs('admin.orders.*') ? 'active' : 'btn-outline-secondary' }}">
                         <i class="bi bi-receipt me-1"></i> Pesanan
@@ -116,12 +117,26 @@
                     <a href="{{ route('produk.index') }}" class="btn btn-sm admin-nav-btn {{ request()->routeIs('produk.*') ? 'active' : 'btn-outline-secondary' }}">
                         <i class="bi bi-box-seam me-1"></i> Produk
                     </a>
-                @elseif(auth()->user()->isOwner() || auth()->user()->isAdmin())
-                    @if(auth()->user()->isOwner())
-                        <a href="{{ route('admin.dashboard') }}" class="btn btn-sm admin-nav-btn {{ $activePage === 'users' ? 'active btn-outline-secondary' : 'btn-outline-secondary' }}">
-                            <i class="bi bi-people me-1"></i> Semua Pengguna
-                        </a>
-                    @endif
+                @elseif(auth()->user()->isOwner())
+                    <a href="{{ route('admin.dashboard') }}" class="btn btn-sm admin-nav-btn {{ $activePage === 'users' ? 'active btn-outline-secondary' : 'btn-outline-secondary' }}">
+                        <i class="bi bi-people me-1"></i> Semua Pengguna
+                    </a>
+                    <a href="{{ route('admin.users.internal') }}" class="btn btn-sm admin-nav-btn {{ $activePage === 'internal_users' ? 'active btn-outline-secondary' : 'btn-outline-secondary' }}">
+                        <i class="bi bi-shield-lock me-1"></i> User Internal
+                    </a>
+                    <a href="{{ route('admin.customers.index') }}" class="btn btn-sm admin-nav-btn {{ $activePage === 'customers' ? 'active btn-outline-secondary' : 'btn-outline-secondary' }}">
+                        <i class="bi bi-person-badge me-1"></i> Pelanggan
+                    </a>
+                    <a href="{{ route('admin.payment_methods.index') }}" class="btn btn-sm admin-nav-btn {{ $activePage === 'payment' ? 'active btn-outline-secondary' : 'btn-outline-secondary' }}">
+                        <i class="bi bi-credit-card-2-back me-1"></i> Metode Pembayaran
+                    </a>
+                    <a href="{{ route('admin.users.create') }}" class="btn btn-sm btn-primary admin-nav-btn">
+                        <i class="bi bi-person-plus me-1"></i> Buat Pelanggan
+                    </a>
+                    <a href="{{ route('admin.admins.create') }}" class="btn btn-sm btn-warning admin-nav-btn text-dark">
+                        <i class="bi bi-shield-check me-1"></i> Buat User Internal
+                    </a>
+                @elseif(auth()->user()->isAdmin())
                     <a href="{{ route('admin.users.internal') }}" class="btn btn-sm admin-nav-btn {{ $activePage === 'internal_users' ? 'active btn-outline-secondary' : 'btn-outline-secondary' }}">
                         <i class="bi bi-shield-lock me-1"></i> User Internal
                     </a>
