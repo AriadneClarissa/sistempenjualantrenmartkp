@@ -17,12 +17,12 @@
     }
     .admin-header-actions {
         display: flex;
-        flex-wrap: nowrap;
+        flex-wrap: wrap;
         gap: 0.5rem;
         align-items: center;
         justify-content: flex-end;
-        width: min(100%, 1000px);
-        overflow-x: auto;
+        width: 100%;
+        max-width: 100%;
         padding-bottom: 2px;
     }
     .admin-header-actions .admin-nav-btn {
@@ -30,13 +30,25 @@
         width: 165px;
         min-width: 165px;
     }
+    .admin-header > .container-fluid > .d-flex {
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+    .admin-header > .container-fluid > .d-flex > h2 {
+        flex: 1 1 280px;
+        min-width: 0;
+    }
+    .admin-header > .container-fluid > .d-flex > .admin-header-actions {
+        flex: 1 1 560px;
+    }
     @media (max-width: 768px) {
         .admin-nav-btn {
             width: 100%;
         }
         .admin-header-actions .admin-nav-btn {
-            flex: 0 0 165px;
-            width: 165px;
+            flex: 1 1 100%;
+            width: 100%;
+            min-width: 0;
         }
     }
     @media (max-width: 576px) {
@@ -44,8 +56,9 @@
             width: 100%;
         }
         .admin-header-actions .admin-nav-btn {
-            flex: 0 0 165px;
-            width: 165px;
+            flex: 1 1 100%;
+            width: 100%;
+            min-width: 0;
         }
     }
     .admin-nav-btn.active {
