@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Cache;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Log;
@@ -91,7 +92,9 @@ class AuthController extends Controller
                 $isInternal = method_exists($user, 'isInternalStaff') ? $user->isInternalStaff() : false;
 
                 if (! $isInternal) {
-                    return back()->withErrors(['login' => 'Akun Anda belum terverifikasi. Silakan cek email untuk tautan verifikasi.'])->onlyInput('login');
+                    $this->sendVerificationEmailIfAllowed($user);
+
+                    return back()->withErrors(['login' => 'Akun Anda belum terverifikasi. Email konfirmasi telah dikirim ke alamat yang Anda daftarkan.'])->onlyInput('login');
                 }
             }
 
@@ -112,6 +115,22 @@ class AuthController extends Controller
         }
 
         return back()->withErrors(['login' => 'Email atau kode pelanggan tidak sesuai.'])->onlyInput('login');
+    }
+
+    private function sendVerificationEmailIfAllowed(User $user): void
+    {
+        $cacheKey = 'verification-email-sent:'.strtolower($user->email);
+
+        if (Cache::has($cacheKey)) {
+            return;
+        }
+
+        try {
+            $user->sendEmailVerificationNotification();
+            Cache::put($cacheKey, true, now()->addMinutes(5));
+        } catch (\Throwable $e) {
+            Log::error('Gagal mengirim email verifikasi saat login: ' . $e->getMessage());
+        }
     }
 
     public function loadingRedirect(Request $request)

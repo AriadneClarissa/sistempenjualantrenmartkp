@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 
 class EmailVerificationController extends Controller
 {
@@ -36,7 +38,7 @@ class EmailVerificationController extends Controller
 
     public function resend(Request $request)
     {
-        $request->validate(['email' => 'required|email']);
+        $request->validate(['email' => 'required|email:rfc,dns']);
         $user = User::where('email', $request->email)->first();
         if (! $user) {
             return redirect()->back()->with('error', 'Email tidak ditemukan.');
@@ -46,16 +48,15 @@ class EmailVerificationController extends Controller
             return redirect()->back()->with('success', 'Alamat email sudah terverifikasi.');
         }
 
-        $verifyUrl = \Illuminate\Support\Facades\URL::temporarySignedRoute(
-            'verification.verify', now()->addMinutes(60), ['id' => $user->id, 'hash' => sha1($user->email)]
-        );
-
         try {
-            \Illuminate\Support\Facades\Mail::raw("Silakan verifikasi email Anda: {$verifyUrl}", function ($mail) use ($user) {
-                $mail->to($user->email)->subject('Verifikasi Email - Trenmart');
-            });
+            $cacheKey = 'verification-email-sent:'.strtolower($user->email);
+
+            if (! Cache::has($cacheKey)) {
+                $user->sendEmailVerificationNotification();
+                Cache::put($cacheKey, true, now()->addMinutes(5));
+            }
         } catch (\Throwable $e) {
-            report($e);
+            Log::error('Gagal mengirim ulang email verifikasi: ' . $e->getMessage());
             return redirect()->back()->with('error', 'Gagal mengirim ulang email verifikasi.');
         }
 
