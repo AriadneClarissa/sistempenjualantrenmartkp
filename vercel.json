@@ -36,7 +36,7 @@
         "NODE_OPTIONS": "--max_old_space_size=4096",
         "APP_ENV": "production",
         "APP_DEBUG": "false",
-        "APP_URL": "https://tes-kp.vercel.app",
+        "APP_URL": "https://sistempjualantrenmartkp.vercel.app",
 
         "APP_CONFIG_CACHE": "/tmp/config.php",
         "APP_EVENTS_CACHE": "/tmp/events.php",
@@ -50,6 +50,15 @@
         "SESSION_DRIVER": "cookie",
         "FILESYSTEM_DISK": "cloudinary",
         "MEDIA_DISK": "cloudinary",
+
+        "MAIL_MAILER": "smtp",
+        "MAIL_SCHEME": "tls",
+        "MAIL_HOST": "smtp.gmail.com",
+        "MAIL_PORT": "587",
+        "MAIL_USERNAME": "ariadnedarnet@gmail.com",
+        "MAIL_PASSWORD": "jmatzbkxzgzprjln",
+        "MAIL_FROM_ADDRESS": "ariadnedarnet@gmail.com",
+        "MAIL_FROM_NAME": "Admin Trenmart",
 
         "DB_CONNECTION": "mysql",
         "DB_HOST": "bt3clnnwwa5gn6rtjm2i-mysql.services.clever-cloud.com",
