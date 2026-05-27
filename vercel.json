@@ -32,49 +32,22 @@
         }
     ],
     "env": {
-        "APP_KEY": "base64:Pv4RMO45xt9crl+m542x/bpE7DC1qJm0lbsCepoiCmw=",
         "NODE_OPTIONS": "--max_old_space_size=4096",
         "APP_ENV": "production",
         "APP_DEBUG": "false",
-        "APP_URL": "https://sistempjualantrenmartkp.vercel.app",
-
+        
         "APP_CONFIG_CACHE": "/tmp/config.php",
         "APP_EVENTS_CACHE": "/tmp/events.php",
         "APP_PACKAGES_CACHE": "/tmp/packages.php",
         "APP_ROUTES_CACHE": "/tmp/routes.php",
         "APP_SERVICES_CACHE": "/tmp/services.php",
         "VIEW_COMPILED_PATH": "/tmp",
-
+        
         "CACHE_DRIVER": "array",
         "LOG_CHANNEL": "stderr",
         "SESSION_DRIVER": "cookie",
         "FILESYSTEM_DISK": "cloudinary",
         "MEDIA_DISK": "cloudinary",
-
-        "MAIL_MAILER": "smtp",
-        "MAIL_SCHEME": "tls",
-        "MAIL_HOST": "smtp.gmail.com",
-        "MAIL_PORT": "587",
-        "MAIL_USERNAME": "ariadnedarnet@gmail.com",
-        "MAIL_PASSWORD": "jmatzbkxzgzprjln",
-        "MAIL_FROM_ADDRESS": "ariadnedarnet@gmail.com",
-        "MAIL_FROM_NAME": "Admin Trenmart",
-
-        "DB_CONNECTION": "mysql",
-        "DB_HOST": "bt3clnnwwa5gn6rtjm2i-mysql.services.clever-cloud.com",
-        "DB_PORT": "3306",
-        "DB_DATABASE": "bt3clnnwwa5gn6rtjm2i",
-        "DB_USERNAME": "uxxyupxgd7f1egn9",
-        "DB_PASSWORD": "xl7VmK4jGJgxF9ut1t2A",
-
-        "CLOUDINARY_URL": "cloudinary://831535668596148:pcgylB-DoXgMdWkAK1yqM7NIyZU@dnzkee1js",
-        "CLOUDINARY_CLOUD_NAME": "dnzkee1js",
-        "CLOUDINARY_UPLOAD_PRESET": "produk",
-        "CLOUDINARY_NOTIFICATION_URL": "",
-        "CLOUDINARY_API_KEY": "831535668596148",
-        "CLOUDINARY_API_SECRET": "pcgylB-DoXgMdWkAK1yqM7NIyZU",
-
-        "QUEUE_CONNECTION": "sync",
-        "VITE_APP_NAME": "${APP_NAME}"
+        "QUEUE_CONNECTION": "sync"
     }
 }
