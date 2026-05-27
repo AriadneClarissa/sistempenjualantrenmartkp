@@ -50,11 +50,6 @@
 </style>
 
 <div class="container mt-4">
-    <div class="row justify-content-center mb-4">
-        <div class="col-md-8">
-            <img src="{{ asset('images/spanduktoko.png') }}" class="w-100 rounded-4 shadow-sm" style="height: 200px; object-fit: cover;" alt="Banner">
-        </div>
-    </div>
 
     <div class="card auth-card">
         <div class="card-header-custom">

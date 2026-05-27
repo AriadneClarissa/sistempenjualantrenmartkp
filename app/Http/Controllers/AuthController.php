@@ -71,8 +71,11 @@ class AuthController extends Controller
             'password' => ['required'],
         ]);
 
-        $user = User::where('email', $credentials['login'])
-            ->orWhere('kd_pelanggan', $credentials['login'])
+        $loginInput = $credentials['login'];
+        $isEmailLogin = filter_var($loginInput, FILTER_VALIDATE_EMAIL) !== false;
+
+        $user = User::where('email', $loginInput)
+            ->orWhere('kd_pelanggan', $loginInput)
             ->first();
 
         if ($user && Hash::check($credentials['password'], $user->password)) {
@@ -80,8 +83,8 @@ class AuthController extends Controller
                 return back()->withErrors(['login' => 'Akun Anda telah dinonaktifkan oleh pemilik sistem.'])->onlyInput('login');
             }
 
-            // Require email verification
-            if (is_null($user->email_verified_at)) {
+            // Require email verification only when user logs in with an email address
+            if ($isEmailLogin && is_null($user->email_verified_at)) {
                 return back()->withErrors(['login' => 'Email belum terverifikasi. Silakan cek inbox untuk tautan verifikasi.'])->onlyInput('login');
             }
 
