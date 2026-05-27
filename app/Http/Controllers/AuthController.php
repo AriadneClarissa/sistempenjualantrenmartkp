@@ -48,12 +48,13 @@ class AuthController extends Controller
         'email' => $validated['email'],
         'password' => Hash::make($validated['password']),
         'role' => 'customer',
+        'customer_type' => $request->customer_type === 'langganan' ? 'langganan' : 'regular',
         'phone_number' => $validated['phone_number'],
         'home_address' => $validated['home_address'],
         'is_active' => true,
     ]);
-        // Send verification email only for customer accounts.
-        if ($user->role === 'customer') {
+        // Send verification email only for regular customers.
+        if ($user->role === 'customer' && $user->customer_type !== 'langganan') {
             try {
                 $user->sendEmailVerificationNotification();
             } catch (\Throwable $e) {
@@ -61,7 +62,11 @@ class AuthController extends Controller
             }
         }
 
-        return redirect()->route('login')->with('success', 'Pendaftaran berhasil! Silakan cek email Anda untuk tautan verifikasi.');
+        $successMessage = $user->customer_type === 'langganan'
+            ? 'Pendaftaran berhasil! Silakan login menggunakan kode pelanggan dan password Anda.'
+            : 'Pendaftaran berhasil! Silakan cek email Anda untuk tautan verifikasi.';
+
+        return redirect()->route('login')->with('success', $successMessage);
     }
 
     /**
@@ -86,9 +91,9 @@ class AuthController extends Controller
                 return back()->withErrors(['login' => 'Akun Anda telah dinonaktifkan oleh pemilik sistem.'])->onlyInput('login');
             }
 
-            // Semua akun customer wajib verifikasi email sebelum bisa masuk.
-            // Internal staff tetap boleh login tanpa verifikasi email.
-            if (! $user->hasVerifiedEmail()) {
+            // Pelanggan langganan boleh langsung login tanpa verifikasi email.
+            // Pelanggan regular tetap wajib verifikasi email.
+            if ($user->isCustomer() && $user->customer_type !== 'langganan' && ! $user->hasVerifiedEmail()) {
                 $isInternal = method_exists($user, 'isInternalStaff') ? $user->isInternalStaff() : false;
 
                 if (! $isInternal) {

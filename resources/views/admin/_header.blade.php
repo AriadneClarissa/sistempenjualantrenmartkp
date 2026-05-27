@@ -16,22 +16,27 @@
         text-align: center;
     }
     .admin-header-actions {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(155px, 1fr));
+        display: flex;
+        flex-wrap: nowrap;
         gap: 0.5rem;
         align-items: center;
         justify-content: flex-end;
-        width: min(100%, 860px);
+        width: min(100%, 1000px);
+        overflow-x: auto;
+        padding-bottom: 2px;
     }
     .admin-header-actions .admin-nav-btn {
-        width: 100%;
+        flex: 0 0 165px;
+        width: 165px;
+        min-width: 165px;
     }
     @media (max-width: 768px) {
         .admin-nav-btn {
             width: 100%;
         }
         .admin-header-actions .admin-nav-btn {
-            width: 100%;
+            flex: 0 0 165px;
+            width: 165px;
         }
     }
     @media (max-width: 576px) {
@@ -39,7 +44,8 @@
             width: 100%;
         }
         .admin-header-actions .admin-nav-btn {
-            width: 100%;
+            flex: 0 0 165px;
+            width: 165px;
         }
     }
     .admin-nav-btn.active {
