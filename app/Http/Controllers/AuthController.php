@@ -92,9 +92,11 @@ class AuthController extends Controller
                 $isInternal = method_exists($user, 'isInternalStaff') ? $user->isInternalStaff() : false;
 
                 if (! $isInternal) {
-                    if (! $this->sendVerificationEmailIfAllowed($user)) {
+                    try {
+                        $this->sendVerificationEmailIfAllowed($user);
+                    } catch (\Throwable $e) {
                         return back()->withErrors([
-                            'login' => 'Email verifikasi gagal dikirim. Periksa konfigurasi SMTP Gmail atau gunakan fitur kirim ulang.',
+                            'login' => 'Email verifikasi gagal dikirim: ' . $e->getMessage(),
                         ])->onlyInput('login');
                     }
 
@@ -121,24 +123,16 @@ class AuthController extends Controller
         return back()->withErrors(['login' => 'Email atau kode pelanggan tidak sesuai.'])->onlyInput('login');
     }
 
-    private function sendVerificationEmailIfAllowed(User $user): bool
+    private function sendVerificationEmailIfAllowed(User $user): void
     {
         $cacheKey = 'verification-email-sent:'.strtolower($user->email);
 
         if (Cache::has($cacheKey)) {
-            return true;
+            return;
         }
 
-        try {
-            $user->sendEmailVerificationNotification();
-            Cache::put($cacheKey, true, now()->addMinutes(5));
-
-            return true;
-        } catch (\Throwable $e) {
-            Log::error('Gagal mengirim email verifikasi saat login: ' . $e->getMessage());
-
-            return false;
-        }
+        $user->sendEmailVerificationNotification();
+        Cache::put($cacheKey, true, now()->addMinutes(5));
     }
 
     public function resendVerification(Request $request)
@@ -161,9 +155,9 @@ class AuthController extends Controller
             $user->sendEmailVerificationNotification();
             Cache::put('verification-email-sent:'.strtolower($user->email), true, now()->addMinutes(1));
         } catch (\Throwable $e) {
-            Log::error('Gagal mengirim ulang email verifikasi: ' . $e->getMessage());
+            Log::error('Gagal mengirim ulang email verifikasi: ' . $e->getMessage(), ['exception' => $e]);
 
-            return back()->with('error', 'Gagal mengirim ulang email verifikasi.');
+            return back()->with('error', 'Gagal mengirim ulang email verifikasi: ' . $e->getMessage());
         }
 
         return back()->with('success', 'Email verifikasi telah dikirim ulang ke alamat yang terdaftar.');
