@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
 use App\Models\ActivityLog;
 
@@ -26,85 +27,103 @@ class ProdukController extends Controller
      */
     public function index()
     {
-        $settings = BerandaSetting::all()->pluck('value', 'key'); 
-        $produk_terbaru = Produk::where('status', 'aktif')
-        ->whereHas('kategori', function($q) {
-            $q->where('is_hidden', 0)->orWhereNull('is_hidden');
-        })
-        ->whereHas('merk', function($q) {
-            $q->where('is_hidden', 0)->orWhereNull('is_hidden');
-        })
-        ->whereHas('satuan', function($q) {
-            $q->where('is_hidden', 0)->orWhereNull('is_hidden');
-        })
-        ->latest()
-        ->take(8)
-        ->get();
-        
-        foreach ($produk_terbaru as $item) { 
-            $this->setHargaTampil($item); 
-        }
-
-        $kategori = Kategori::all();
-        $merk = Merk::all();
-
-        // Ambil user pemilik banner: login admin/owner aktif dulu, lalu owner, lalu admin lain.
-        $admin = Auth::check() && Auth::user()->isAdmin()
-            ? Auth::user()
-            : (User::where('role', 'owner')->whereNotNull('tentang_banner')->first()
-                ?? User::where('role', 'admin')->whereNotNull('tentang_banner')->first()
-                ?? User::whereIn('role', ['owner', 'admin'])->first());
-        
-        // Eager loading untuk optimasi database
-        $bundling = Bundling::with(['items.produk.merk'])
-            ->activePromo()
-            ->latest()
-            ->get();
-
-        // Inisialisasi collection kosong
-        $bundling_warnings = collect();
-
-        // Inisialisasi chart data
-        $chartLabels = [];
-        $chartData = [];
-        $totalRevenue = 0;
-        $totalOrders = 0;
-        $averageOrderValue = 0;
-        $statusBreakdown = collect();
-
-        if (Auth::check() && Auth::user()->isAdmin()) {
-            $bundling_warnings = $bundling->filter(function($b) {
-                return $b->hasPriceDivergence();
-            });
-
-            // Jika owner, tampilkan grafik penjualan
-            if (Auth::user()->isOwner()) {
-                // Fetch sales data for the last 30 days
-                $thirtyDaysAgo = Carbon::now()->subDays(30);
-                $salesData = Order::where('created_at', '>=', $thirtyDaysAgo)
-                    ->selectRaw('DATE(created_at) as date, SUM(total) as revenue, COUNT(*) as order_count')
-                    ->groupBy('date')
-                    ->orderBy('date')
-                    ->get();
-
-                // Convert to format for chart
-                for ($i = 29; $i >= 0; $i--) {
-                    $date = Carbon::now()->subDays($i)->format('Y-m-d');
-                    $chartLabels[] = Carbon::now()->subDays($i)->format('d/m');
-                    $revenue = $salesData->firstWhere('date', $date)?->revenue ?? 0;
-                    $chartData[] = floatval($revenue);
-                }
-
-                // Calculate metrics
-                $totalRevenue = Order::where('created_at', '>=', $thirtyDaysAgo)->sum('total');
-                $totalOrders = Order::where('created_at', '>=', $thirtyDaysAgo)->count();
-                $averageOrderValue = $totalOrders > 0 ? round($totalRevenue / $totalOrders, 2) : 0;
-
-                // Order status breakdown
-                $statusBreakdown = Order::selectRaw('order_status, COUNT(*) as count')
-                    ->groupBy('order_status')
-                    ->pluck('count', 'order_status');
+        try {
+            $settings = BerandaSetting::all()->pluck('value', 'key'); 
+            $produk_terbaru = Produk::where('status', 'aktif')
+                ->whereHas('kategori', function($q) {
+                    $q->where('is_hidden', 0)->orWhereNull('is_hidden');
+                })
+                ->whereHas('merk', function($q) {
+                    $q->where('is_hidden', 0)->orWhereNull('is_hidden');
+                })
+                ->whereHas('satuan', function($q) {
+                    $q->where('is_hidden', 0)->orWhereNull('is_hidden');
+                })
+                ->latest()
+                ->take(8)
+                ->get();
+            
+            foreach ($produk_terbaru as $item) { 
+                $this->setHargaTampil($item); 
             }
+
+            $kategori = Kategori::all();
+            $merk = Merk::all();
+
+            // Ambil user pemilik banner: login admin/owner aktif dulu, lalu owner, lalu admin lain.
+            $admin = Auth::check() && Auth::user()->isAdmin()
+                ? Auth::user()
+                : (User::where('role', 'owner')->whereNotNull('tentang_banner')->first()
+                    ?? User::where('role', 'admin')->whereNotNull('tentang_banner')->first()
+                    ?? User::whereIn('role', ['owner', 'admin'])->first());
+            
+            // Eager loading untuk optimasi database
+            $bundling = Bundling::with(['items.produk.merk'])
+                ->activePromo()
+                ->latest()
+                ->get();
+
+            // Inisialisasi collection kosong
+            $bundling_warnings = collect();
+
+            // Inisialisasi chart data
+            $chartLabels = [];
+            $chartData = [];
+            $totalRevenue = 0;
+            $totalOrders = 0;
+            $averageOrderValue = 0;
+            $statusBreakdown = collect();
+
+            if (Auth::check() && Auth::user()->isAdmin()) {
+                $bundling_warnings = $bundling->filter(function($b) {
+                    return $b->hasPriceDivergence();
+                });
+
+                // Jika owner, tampilkan grafik penjualan
+                if (Auth::user()->isOwner()) {
+                    // Fetch sales data for the last 30 days
+                    $thirtyDaysAgo = Carbon::now()->subDays(30);
+                    $salesData = Order::where('created_at', '>=', $thirtyDaysAgo)
+                        ->selectRaw('DATE(created_at) as date, SUM(total) as revenue, COUNT(*) as order_count')
+                        ->groupBy('date')
+                        ->orderBy('date')
+                        ->get();
+
+                    // Convert to format for chart
+                    for ($i = 29; $i >= 0; $i--) {
+                        $date = Carbon::now()->subDays($i)->format('Y-m-d');
+                        $chartLabels[] = Carbon::now()->subDays($i)->format('d/m');
+                        $revenue = $salesData->firstWhere('date', $date)?->revenue ?? 0;
+                        $chartData[] = floatval($revenue);
+                    }
+
+                    // Calculate metrics
+                    $totalRevenue = Order::where('created_at', '>=', $thirtyDaysAgo)->sum('total');
+                    $totalOrders = Order::where('created_at', '>=', $thirtyDaysAgo)->count();
+                    $averageOrderValue = $totalOrders > 0 ? round($totalRevenue / $totalOrders, 2) : 0;
+
+                    // Order status breakdown
+                    $statusBreakdown = Order::selectRaw('order_status, COUNT(*) as count')
+                        ->groupBy('order_status')
+                        ->pluck('count', 'order_status');
+                }
+            }
+        } catch (\Throwable $e) {
+            Log::error('Homepage failed to load data: '.$e->getMessage());
+
+            $settings = collect();
+            $produk_terbaru = collect();
+            $kategori = collect();
+            $merk = collect();
+            $admin = null;
+            $bundling = collect();
+            $bundling_warnings = collect();
+            $chartLabels = [];
+            $chartData = [];
+            $totalRevenue = 0;
+            $totalOrders = 0;
+            $averageOrderValue = 0;
+            $statusBreakdown = collect();
         }
 
         return view('beranda', compact(
