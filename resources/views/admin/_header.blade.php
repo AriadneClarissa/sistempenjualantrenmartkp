@@ -4,11 +4,12 @@
     .admin-header h2 { color: var(--maroon); font-weight: bold; }
     .admin-nav-btn { 
         border-radius: 50px; 
-        padding: 0.5rem 1rem; 
+        padding: 0.45rem 0.8rem; 
         font-weight: 500;
+        font-size: 0.9rem;
         transition: all 0.2s ease;
         white-space: nowrap;
-        min-height: 40px;
+        min-height: 38px;
         width: 100%;
         display: inline-flex;
         align-items: center;
@@ -29,9 +30,7 @@
     .admin-header-actions .admin-nav-btn {
         flex: 0 0 auto;
         width: auto;
-        min-width: 150px;
-        padding-left: 0.85rem;
-        padding-right: 0.85rem;
+        min-width: 120px;
     }
     .admin-header > .container-fluid > .d-flex {
         flex-wrap: nowrap;
@@ -63,7 +62,7 @@
         .admin-header-actions .admin-nav-btn {
             flex: 0 0 auto;
             width: auto;
-            min-width: 150px;
+            min-width: 120px;
         }
     }
     @media (max-width: 576px) {
@@ -73,7 +72,7 @@
         .admin-header-actions .admin-nav-btn {
             flex: 0 0 auto;
             width: auto;
-            min-width: 150px;
+            min-width: 120px;
         }
     }
     .admin-nav-btn.active {
