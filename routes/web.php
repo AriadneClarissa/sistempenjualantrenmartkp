@@ -27,7 +27,7 @@ Route::get('/', [ProdukController::class, 'index'])->name('beranda');
 Route::get('/debug/send-test-email', function () {
     try {
         Mail::raw('This is a test email from Trenmart debug route.', function ($message) {
-            $message->to('please-change-me@example.com')->subject('Trenmart Test Email');
+            $message->to('please-change-angelim_2327240084@mhs.mdp.ac.id')->subject('Trenmart Test Email');
         });
 
         return response('Email sent (check inbox or logs).');
