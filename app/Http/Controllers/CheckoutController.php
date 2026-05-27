@@ -159,7 +159,7 @@ class CheckoutController extends Controller
     public function storeProof(Request $request, $orderId)
     {
         $request->validate([
-            'bukti_pembayaran' => 'required|image|mimes:jpeg,png,jpg|max:2048',
+            'bukti_pembayaran' => 'required|image|mimes:jpeg,png,jpg|max:1024',
         ]);
 
         $order = Order::findOrFail($orderId);

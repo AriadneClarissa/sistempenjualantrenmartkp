@@ -332,12 +332,14 @@ class AuthController extends Controller
         }
 
         $user->save();
+        $user->refresh();
+        Auth::setUser($user);
 
         if ($emailChanged && $user->isCustomer()) {
-            return back()->with('success', 'Profil berhasil diperbarui. Silakan klik tombol Kirim Verifikasi Email untuk mengirim tautan verifikasi ke alamat baru Anda.');
+            return redirect()->route('profile.edit')->with('success', 'Profil berhasil diperbarui. Silakan klik tombol Kirim Verifikasi Email untuk mengirim tautan verifikasi ke alamat baru Anda.');
         }
 
-        return back()->with('success', 'Profil berhasil diperbarui!');
+        return redirect()->route('profile.edit')->with('success', 'Profil berhasil diperbarui!');
     }
 
     /**

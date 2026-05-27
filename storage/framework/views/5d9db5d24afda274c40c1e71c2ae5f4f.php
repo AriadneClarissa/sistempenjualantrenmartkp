@@ -5,6 +5,7 @@
         <?php
             $stokMinimal = $item->stok_minimal ?? $item->satuanModel?->stok_minimal ?? 0;
             $isLowStock = $stokMinimal > 0 && $item->stok_tersedia <= $stokMinimal;
+            $satuanNama = $item->satuan?->nama_satuan ?? $item->satuan ?? 'pcs';
         ?>
         
         
@@ -33,15 +34,15 @@
                  style="max-height: 100%; object-fit: contain; mix-blend-mode: multiply;">
         </div>
 
-        <div class="card-body p-0">
+        <div class="card-body p-0 d-flex flex-column flex-grow-1">
             
-            <p class="text-muted mb-1" style="font-size: 0.78rem;">
+            <p class="text-muted mb-1 text-truncate" style="font-size: 0.78rem;">
                 <?php echo e($item->merk->nama_merk ?? 'Tanpa Merk'); ?>
 
             </p>
 
             
-            <h5 class="fw-bold text-dark mb-2" style="font-size: 0.95rem;">
+            <h5 class="fw-bold text-dark product-title-clamp mb-2" style="font-size: 0.95rem;">
                 <?php echo e($item->nama_produk); ?>
 
             </h5>
@@ -50,7 +51,7 @@
             <h4 class="fw-bold mb-1" style="color: #800000; font-size: 1.15rem;">
                 Rp <?php echo e(number_format($item->harga_tampil, 0, ',', '.')); ?>
 
-                <span class="text-muted fw-normal" style="font-size: 0.75rem;">/ <?php echo e($item->satuanModel->nama_satuan ?? 'pcs'); ?></span>
+                <span class="text-muted fw-normal" style="font-size: 0.75rem;">/ <?php echo e($satuanNama); ?></span>
             </h4>
 
             
@@ -94,5 +95,26 @@
     .product-card form {
         position: relative;
         z-index: 2;
+    }
+</style>
+
+<style>
+    .product-card {
+        display: flex;
+        flex-direction: column;
+        min-height: 100%;
+    }
+
+    .product-card .card-body {
+        flex: 1 1 auto;
+    }
+
+    .product-title-clamp {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        min-height: 2.7em;
+        line-height: 1.35;
     }
 </style><?php /**PATH C:\Users\asus\OneDrive\Documents\GitHub\tesKP\resources\views\partials\item_produk.blade.php ENDPATH**/ ?>

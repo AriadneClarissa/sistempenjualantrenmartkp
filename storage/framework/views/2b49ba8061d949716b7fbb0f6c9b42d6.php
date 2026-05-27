@@ -1,3 +1,5 @@
+
+
 <?php $__env->startSection('content'); ?>
 <div class="container py-5">
     <div class="row justify-content-center">
@@ -12,6 +14,11 @@
                 .no-native-password-reveal::-webkit-password-toggle-button {
                     display: none !important;
                     visibility: hidden;
+                }
+
+                .profile-input[readonly] {
+                    background-color: #e9ecef;
+                    cursor: default;
                 }
             </style>
 
@@ -37,6 +44,18 @@
 
             <?php if(session('success')): ?>
                 <div class="alert alert-success border-0 shadow-sm mb-4"><?php echo e(session('success')); ?></div>
+                <script>
+                    document.addEventListener('DOMContentLoaded', function() {
+                        if (window.showFlashToast) showFlashToast('success', 'Berhasil', '<?php echo e(addslashes(session('success'))); ?>');
+                    });
+                </script>
+            <?php endif; ?>
+
+            <?php if($errors->any()): ?>
+                <div class="alert alert-danger border-0 shadow-sm mb-4">
+                    <div class="fw-bold mb-1">Perubahan belum tersimpan.</div>
+                    <div class="small mb-0"><?php echo e($errors->first()); ?></div>
+                </div>
             <?php endif; ?>
 
             <div class="card border-0 shadow-sm rounded-3">
@@ -48,13 +67,23 @@
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label class="form-label small fw-bold">Nama Lengkap</label>
-                                <input type="text" name="name" class="form-control profile-input" value="<?php echo e(old('name', $user->name)); ?>" disabled required>
+                                <input type="text" name="name" class="form-control profile-input" value="<?php echo e(old('name', $user->name)); ?>" readonly required>
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label class="form-label small fw-bold">Email</label>
                                 <?php if($user->customer_type === 'langganan' && $user->isCustomer()): ?>
-                                    <input type="email" name="email" class="form-control profile-input" value="<?php echo e(old('email', $user->email)); ?>" disabled required>
+                                    <input type="email" name="email" class="form-control profile-input" value="<?php echo e(old('email', $user->email)); ?>" readonly required>
                                     <small class="text-muted d-block mt-1">Email ini bisa diganti dengan email asli Anda.</small>
+                                    <div class="mt-2 d-flex flex-column gap-2">
+                                        <?php if($user->hasVerifiedEmail()): ?>
+                                            <span class="badge bg-success align-self-start">Email Terverifikasi</span>
+                                        <?php else: ?>
+                                            <span class="badge bg-warning text-dark align-self-start">Email belum terverifikasi</span>
+                                            <button type="button" class="btn btn-sm btn-outline-primary px-3 align-self-start" onclick="document.getElementById('resendVerificationForm').submit();">
+                                                Kirim Verifikasi Email
+                                            </button>
+                                        <?php endif; ?>
+                                    </div>
                                 <?php else: ?>
                                     <input type="email" class="form-control bg-light" value="<?php echo e($user->email); ?>" disabled>
                                 <?php endif; ?>
@@ -63,12 +92,12 @@
                                 <?php if($user->isCustomer()): ?>
                                 <div class="col-md-6 mb-3">
                                     <label class="form-label small fw-bold">Nomor WhatsApp</label>
-                                    <input type="text" name="phone_number" class="form-control profile-input" value="<?php echo e(old('phone_number', $user->phone_number)); ?>" disabled required>
+                                    <input type="text" name="phone_number" class="form-control profile-input" value="<?php echo e(old('phone_number', $user->phone_number)); ?>" readonly required>
                                 </div>
 
                                 <div class="col-12 mb-3">
                                     <label class="form-label small fw-bold">Alamat Rumah</label>
-                                    <textarea name="home_address" class="form-control profile-input" rows="2" disabled required><?php echo e(old('home_address', $user->home_address)); ?></textarea>
+                                    <textarea name="home_address" class="form-control profile-input" rows="2" readonly required><?php echo e(old('home_address', $user->home_address)); ?></textarea>
                                 </div>
                             <?php endif; ?>
 
@@ -76,11 +105,11 @@
                                 <div class="col-12 mt-2"><hr class="opacity-25"></div>
                                 <div class="col-md-6 mb-3">
                                     <label class="form-label small fw-bold">Nama Perusahaan/Toko</label>
-                                    <input type="text" name="organization_name" class="form-control profile-input" value="<?php echo e(old('organization_name', $user->organization_name)); ?>" disabled required>
+                                    <input type="text" name="organization_name" class="form-control profile-input" value="<?php echo e(old('organization_name', $user->organization_name)); ?>" readonly required>
                                 </div>
                                 <div class="col-md-6 mb-3">
                                     <label class="form-label small fw-bold">Jenis Bidang Usaha</label>
-                                    <input type="text" name="organization_type" class="form-control profile-input" value="<?php echo e(old('organization_type', $user->organization_type)); ?>" disabled required>
+                                    <input type="text" name="organization_type" class="form-control profile-input" value="<?php echo e(old('organization_type', $user->organization_type)); ?>" readonly required>
                                 </div>
                             <?php endif; ?>
 
@@ -112,6 +141,10 @@
                     </form>
                 </div>
             </div>
+
+            <form id="resendVerificationForm" action="<?php echo e(route('verification.resend_profile')); ?>" method="POST" class="d-none">
+                <?php echo csrf_field(); ?>
+            </form>
 
             <div class="card border-0 shadow-sm rounded-3 mt-4">
                 <div class="card-body p-4">
@@ -187,7 +220,7 @@
     function enableEditing() {
         inputs.forEach(function(input) {
             originalData[input.name] = input.value;
-            input.disabled = false;
+            input.readOnly = false;
         });
 
         if(editBtn) editBtn.style.display = 'none';
@@ -201,7 +234,7 @@
     function disableEditing() {
         inputs.forEach(function(input) {
             input.value = originalData[input.name] || input.value;
-            input.disabled = true;
+            input.readOnly = true;
         });
 
         if(editBtn) editBtn.style.display = 'inline-block';
@@ -229,6 +262,47 @@
                         btnSubmitPassword.style.backgroundColor = '#800000'; 
                     }
                 });
+            });
+        }
+        // Track unsaved password changes
+        var passwordForm = document.querySelector('form[action="<?php echo e(route('profile.password.update')); ?>"]');
+        var passwordUnsaved = false;
+        var unsavedToastShown = false;
+
+        passwordInputs.forEach(function(input) {
+            input.addEventListener('input', function() {
+                passwordUnsaved = Array.from(passwordInputs).some(inp => inp.value.trim() !== '');
+                if (!passwordUnsaved) unsavedToastShown = false; // reset when cleared
+            });
+        });
+
+        // When user clicks outside password form while there are unsaved changes, show red toast once
+        document.addEventListener('click', function(e) {
+            if (!passwordUnsaved || unsavedToastShown) return;
+            var target = e.target;
+            if (passwordForm && !passwordForm.contains(target)) {
+                // don't show when clicking the submit button (we want submit to proceed)
+                if (target === btnSubmitPassword || target.closest && target.closest('#btnSubmitPassword')) return;
+                if (window.showFlashToast) showFlashToast('error', 'Perhatian', 'Perubahan kata sandi belum disimpan.');
+                unsavedToastShown = true;
+            }
+        });
+
+        // Warn on page unload if there are unsaved password changes
+        window.addEventListener('beforeunload', function (e) {
+            if (passwordUnsaved) {
+                var confirmationMessage = 'Anda memiliki perubahan kata sandi yang belum disimpan.';
+                (e || window.event).returnValue = confirmationMessage;
+                return confirmationMessage;
+            }
+        });
+
+        // When the password form is submitted, clear the unsaved flag so the beforeunload dialog
+        // does not appear and the success toast can be shown after redirect.
+        if (passwordForm) {
+            passwordForm.addEventListener('submit', function () {
+                passwordUnsaved = false;
+                unsavedToastShown = false;
             });
         }
     });

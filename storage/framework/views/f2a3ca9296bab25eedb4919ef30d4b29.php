@@ -1,3 +1,5 @@
+
+
 <?php $__env->startSection('content'); ?>
 <?php echo $__env->make('admin._header', ['activePage' => 'customers'], array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
 
@@ -13,19 +15,21 @@
                     <thead class="table-light">
                         <tr>
                             <th class="py-1 px-2" style="width: 5%;">#</th>
-                            <th class="py-1 px-2" style="width: 16%;">Nama</th>
+                            <th class="py-1 px-2" style="width: 12%;">Kode Pelanggan</th>
+                            <th class="py-1 px-2" style="width: 18%;">Nama</th>
                             <th class="py-1 px-2" style="width: 24%;">Email</th>
-                            <th class="py-1 px-2" style="width: 12%;">Jenis</th>
+                            <th class="py-1 px-2" style="width: 12%;">Jenis Pelanggan</th>
                             <th class="py-1 px-2" style="width: 12%;">No. Telepon</th>
-                            <th class="py-1 px-2" style="width: 15%;">Alamat</th>
-                            <th class="py-1 px-2" style="width: 12%;">Organisasi (jika ada)</th>
-                            <th class="py-1 px-2" style="width: 10%;">Tgl Daftar</th>
+                            <th class="py-1 px-2" style="width: 13%;">Alamat</th>
+                            <th class="py-1 px-2" style="width: 9%;">Organisasi</th>
+                            <th class="py-1 px-2" style="width: 8%;">Tgl Daftar</th>
                         </tr>
                     </thead>
                     <tbody>
                         <?php $__currentLoopData = $customers; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $c): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                         <tr>
                             <td class="py-1 px-2 text-truncate"><?php echo e($c->id); ?></td>
+                            <td class="py-1 px-2 text-truncate"><?php echo e($c->kd_pelanggan ?? '-'); ?></td>
                             <td class="py-1 px-2 text-truncate"><?php echo e($c->name); ?></td>
                             <td class="py-1 px-2 text-truncate"><?php echo e($c->email); ?></td>
                             <td class="py-1 px-2 text-truncate"><?php echo e(strtoupper($c->customer_type ?? 'regular')); ?></td>

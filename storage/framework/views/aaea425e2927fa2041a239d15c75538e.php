@@ -1,3 +1,5 @@
+
+
 <?php $__env->startPush('styles'); ?>
 <style>
     :root { 
@@ -196,7 +198,7 @@
                 </div>
 
                 <?php if(count($items) > 0): ?>
-                <a href="<?php echo e(route('checkout.index')); ?>" class="btn-checkout shadow-sm">
+                <a href="<?php echo e(route('checkout.index')); ?>" id="btnProceedCheckout" class="btn-checkout shadow-sm">
                     Lanjut ke Pembayaran <i class="bi bi-chevron-right ms-2"></i>
                 </a>
                 <?php else: ?>
@@ -208,4 +210,27 @@
     </div>
 </div>
 <?php $__env->stopSection(); ?>
+
+<?php $__env->startPush('scripts'); ?>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const btn = document.getElementById('btnProceedCheckout');
+    if (!btn) return;
+
+    btn.addEventListener('click', function(e) {
+        // If user needs profile completion, show forced modal and prevent navigation
+        try {
+            if (window.currentUserNeedsProfileCompletion === true) {
+                e.preventDefault();
+                if (window.showProfileModal) window.showProfileModal(true);
+                return false;
+            }
+        } catch (err) {
+            // ignore and allow default
+        }
+        // otherwise, proceed normally
+    });
+});
+</script>
+<?php $__env->stopPush(); ?>
 <?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\Users\asus\OneDrive\Documents\GitHub\tesKP\resources\views\keranjang.blade.php ENDPATH**/ ?>

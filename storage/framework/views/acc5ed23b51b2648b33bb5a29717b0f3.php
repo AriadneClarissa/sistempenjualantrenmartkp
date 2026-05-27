@@ -16,9 +16,9 @@
             </div>
         <?php endif; ?>
 
+        
         <form action="<?php echo e(route('produk.update', $produk->kd_produk)); ?>" method="POST" enctype="multipart/form-data">
             <?php echo csrf_field(); ?>
-            <?php echo method_field('PUT'); ?>
 
             
             <div class="mb-4">
@@ -39,6 +39,7 @@
                             style="border: 2px dashed #007bff; min-height: 150px; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; background: #f0f7ff;">
                             <i class="bi bi-cloud-arrow-up fs-1 text-primary"></i>
                             <p class="mt-2 mb-1 small fw-bold text-center px-2">Klik untuk Pilih 1-3 Foto Baru</p>
+                            
                             <input type="file" id="multi_upload" name="files[]" accept="image/*" multiple="multiple" hidden onchange="handleMultiplePreview(this)">
                         </div>
 
@@ -46,19 +47,19 @@
                         <div class="row g-2">
                             <div class="col-4 text-center">
                                 <div class="p-1 border rounded bg-light">
-                                    <img id="preview_utama" src="<?php echo e($produk->gambar ? \App\Helpers\StorageProxy::url($produk->gambar) : asset('images/placeholder.png')); ?>" class="img-fluid rounded" style="height: 60px; width: 100%; object-fit: cover;">
+                                    <img id="preview_utama" src="<?php echo e($produk->gambar ? $produk->gambar : asset('images/placeholder.png')); ?>" class="img-fluid rounded" style="height: 60px; width: 100%; object-fit: cover;">
                                     <div style="font-size: 0.6rem;" class="mt-1">Utama</div>
                                 </div>
                             </div>
                             <div class="col-4 text-center">
                                 <div class="p-1 border rounded bg-light">
-                                    <img id="preview_2" src="<?php echo e($produk->foto_2 ? \App\Helpers\StorageProxy::url($produk->foto_2) : asset('images/placeholder.png')); ?>" class="img-fluid rounded" style="height: 60px; width: 100%; object-fit: cover;">
+                                    <img id="preview_2" src="<?php echo e($produk->foto_2 ? $produk->foto_2 : asset('images/placeholder.png')); ?>" class="img-fluid rounded" style="height: 60px; width: 100%; object-fit: cover;">
                                     <div style="font-size: 0.6rem;" class="mt-1">Foto 2</div>
                                 </div>
                             </div>
                             <div class="col-4 text-center">
                                 <div class="p-1 border rounded bg-light">
-                                    <img id="preview_3" src="<?php echo e($produk->foto_3 ? \App\Helpers\StorageProxy::url($produk->foto_3) : asset('images/placeholder.png')); ?>" class="img-fluid rounded" style="height: 60px; width: 100%; object-fit: cover;">
+                                    <img id="preview_3" src="<?php echo e($produk->foto_3 ? $produk->foto_3 : asset('images/placeholder.png')); ?>" class="img-fluid rounded" style="height: 60px; width: 100%; object-fit: cover;">
                                     <div style="font-size: 0.6rem;" class="mt-1">Foto 3</div>
                                 </div>
                             </div>
@@ -157,11 +158,11 @@ function handleMultiplePreview(input) {
         return;
     }
 
-    // Reset ke placeholder asli dulu jika input berubah
+    // Mengambil langsung alamat HTTPS dari Cloudinary tanpa proxy lokal asset()
     const originalPaths = [
-        "<?php echo e($produk->gambar ? \App\Helpers\StorageProxy::url($produk->gambar) : asset('images/placeholder.png')); ?>",
-        "<?php echo e($produk->foto_2 ? \App\Helpers\StorageProxy::url($produk->foto_2) : asset('images/placeholder.png')); ?>",
-        "<?php echo e($produk->foto_3 ? \App\Helpers\StorageProxy::url($produk->foto_3) : asset('images/placeholder.png')); ?>"
+        "<?php echo e($produk->gambar ? $produk->gambar : asset('images/placeholder.png')); ?>",
+        "<?php echo e($produk->foto_2 ? $produk->foto_2 : asset('images/placeholder.png')); ?>",
+        "<?php echo e($produk->foto_3 ? $produk->foto_3 : asset('images/placeholder.png')); ?>"
     ];
 
     for (let i = 0; i < previews.length; i++) {

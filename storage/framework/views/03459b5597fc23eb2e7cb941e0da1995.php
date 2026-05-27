@@ -1,3 +1,5 @@
+
+
 <?php $__env->startPush('styles'); ?>
 <style>
     :root { --maroon: #800000; --soft-bg: #f8f9fa; }
@@ -76,6 +78,47 @@
     .sidebar-header-admin { font-weight: bold; font-size: 0.9rem; border-bottom: 1px solid #eee; padding: 12px 20px; background-color: #fff9e6; color: #333; }
     .btn-admin-panel { width: 100%; border-radius: 12px; font-weight: 600; font-size: 13px; padding: 10px; margin-bottom: 10px; border: none; color: white; display: block; text-align: center; text-decoration: none; }
 
+    /* Menghindari panel/tombol bergeser saat modal Bootstrap dibuka */
+    html {
+        scrollbar-gutter: stable;
+    }
+
+    .admin-panel-actions {
+        gap: 10px;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        padding-bottom: 2px;
+        scrollbar-width: none;
+    }
+
+    .admin-panel-actions::-webkit-scrollbar {
+        display: none;
+    }
+
+    .admin-panel-actions > .btn,
+    .admin-panel-actions > a {
+        flex: 0 0 auto;
+        min-width: 138px;
+        min-height: 40px;
+        white-space: nowrap;
+    }
+
+    /* Ensure anchors and buttons are vertically centered and use consistent box sizing */
+    .admin-panel-actions > .btn,
+    .admin-panel-actions > a {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding-left: 12px;
+        padding-right: 12px;
+        box-sizing: border-box;
+    }
+
+    .admin-panel-actions > .btn i,
+    .admin-panel-actions > a i {
+        flex-shrink: 0;
+    }
+
     /* Filter Bar Pill Style (Atas) */
     .filter-pill { background: white; border-radius: 50px; padding: 8px 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); border: 1px solid #eee; display: flex; align-items: center; width: 100%; }
     .input-filter { border: none; background: transparent; outline: none; padding: 8px 0; width: 100%; font-size: 14px; padding-left: 10px; }
@@ -129,7 +172,7 @@
 <?php $__env->stopPush(); ?>
 
 <?php $__env->startSection('content'); ?>
-<div class="container-fluid mt-4 mb-5 px-0">
+<div class="container-fluid mt-4 mb-5">
     <div class="row">
         <?php
             $canManageProducts = auth()->check() && auth()->user()->isAdmin();
@@ -139,7 +182,7 @@
         <?php if(auth()->guard()->check()): ?>
             <?php if($canManageProducts): ?>
             <div class="col-12 mb-4">
-                <div class="card-sidebar p-3 d-flex gap-2 align-items-center flex-wrap" style="border: 1px solid #ffc107;">
+                <div class="card-sidebar p-3 d-flex align-items-center admin-panel-actions" style="border: 1px solid #ffc107;">
                     <div class="sidebar-header-admin flex-grow-1">
                         <i class="bi bi-shield-lock-fill me-2"></i>
                         <?php if(auth()->user()->isOwner()): ?>
@@ -354,7 +397,7 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body px-4">
-                    <form id="formTambahMerk">
+                    <form id="formTambahMerk" action="<?php echo e(route('merk.store')); ?>" method="POST" enctype="multipart/form-data">
                         <?php echo csrf_field(); ?>
                         <div class="input-group mb-3 shadow-sm border rounded-pill overflow-hidden">
                             <input type="text" id="inputNamaMerk" name="nama_merk" class="form-control border-0 px-3" placeholder="Tambah merk baru..." required>
@@ -396,7 +439,7 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body px-4">
-                    <form id="formTambahSatuan">
+                    <form id="formTambahSatuan" action="<?php echo e(route('satuan.store')); ?>" method="POST" enctype="multipart/form-data">
                         <?php echo csrf_field(); ?>
                         <div class="row g-2 mb-3">
                             <div class="col-md-8">
@@ -642,10 +685,13 @@ $(document).ready(function() {
                 sidebarItem.append($('<i>', { class: 'bi bi-chevron-right small' }));
                 $('#kategoriList').append(sidebarItem);
                 $('#inputNamaKategori').val('');
+                // Show success toast
+                if (window.showFlashToast) showFlashToast('success', 'Berhasil', 'Kategori ditambahkan.');
             }
         })
             .fail(function(xhr) {
                 const pesan = xhr.responseJSON?.message || 'Kategori gagal ditambahkan. Coba lagi.';
+                if (window.showFlashToast) showFlashToast('error', 'Gagal', pesan);
             });
     });
 
@@ -657,6 +703,7 @@ $(document).ready(function() {
                 $('#containerListMerk').prepend(`<div class="list-group-item d-flex justify-content-between align-items-center bg-light item-merk" data-search="${res.data.nama_merk.toLowerCase()}"><span class="nama-merk-text">${res.data.nama_merk}</span><i class="bi bi-eye-fill text-primary"></i></div>`);
                 $('select[name="merk"]').append(`<option value="${res.data.kd_merk}">${res.data.nama_merk}</option>`);
                 $('#inputNamaMerk').val('');
+                if (window.showFlashToast) showFlashToast('success', 'Berhasil', 'Merk ditambahkan.');
             }
         });
     });
@@ -670,9 +717,11 @@ $(document).ready(function() {
                 $('select[name="kd_satuan"]').append(`<option value="${res.data.kd_satuan}">${res.data.nama_satuan}</option>`);
                 $('#inputNamaSatuan').val('');
                 $('#inputStokMinimalSatuan').val('');
+                if (window.showFlashToast) showFlashToast('success', 'Berhasil', 'Satuan ditambahkan.');
             }
         }).fail(function(xhr) {
             const pesan = xhr.responseJSON?.message || 'Satuan gagal ditambahkan. Coba lagi.';
+            if (window.showFlashToast) showFlashToast('error', 'Gagal', pesan);
         });
     });
 

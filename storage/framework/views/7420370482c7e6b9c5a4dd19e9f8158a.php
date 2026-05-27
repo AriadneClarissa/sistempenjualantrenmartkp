@@ -1,3 +1,5 @@
+
+
 <?php $__env->startSection('content'); ?>
 <style>
     /* Card Auth Style */
@@ -57,28 +59,6 @@
         transform: scale(0.98); 
     }
 
-    .btn-status-login {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background-color: #fff7f7;
-        color: #800000;
-        border: 1.5px solid rgba(128, 0, 0, 0.18);
-        border-radius: 12px;
-        padding: 12px;
-        width: 100%;
-        font-weight: 600;
-        text-decoration: none;
-        transition: 0.3s;
-        margin-bottom: 14px;
-    }
-
-    .btn-status-login:hover {
-        background-color: #fff0f0;
-        border-color: #800000;
-        color: #800000;
-    }
-
     .password-wrapper { position: relative; }
     .no-native-password-reveal::-ms-reveal,
     .no-native-password-reveal::-ms-clear {
@@ -108,13 +88,6 @@
 </style>
 
 <div class="container mt-4">
-    
-    <div class="row justify-content-center mb-4">
-        <div class="col-md-8">
-            <img src="<?php echo e(asset('images/spanduktoko.png')); ?>" class="w-100 rounded-4 shadow-sm" style="height: 200px; object-fit: cover;" alt="Banner">
-        </div>
-    </div>
-
     
     <div class="card auth-card">
         <div class="card-header-custom">
@@ -164,17 +137,28 @@
                     <a href="<?php echo e(Route::has('password.request') ? route('password.request') : url('/forgot-password')); ?>" class="forgot-link">Lupa password?</a>
                 </div>
 
-                <button type="submit" class="btn-masuk-trenmart shadow">MASUK</button>
+                <button type="submit" class="btn-masuk-trenmart shadow mb-4">MASUK</button>
+                </form>
+
+                <?php if(old('login') || $errors->first('login')): ?>
+                    <?php $loginValue = old('login') ?? ''; ?>
+                    <?php if(stripos($errors->first('login') ?? '', 'verifik') !== false || !empty($loginValue)): ?>
+                        <div class="mt-3 mb-4 small text-center">
+                            <p class="text-muted mb-2">Belum menerima email verifikasi? Kirim ulang ke alamat di bawah.</p>
+                            <form action="<?php echo e(route('verification.resend_from_login')); ?>" method="POST" class="d-flex justify-content-center" style="gap:8px;">
+                                <?php echo csrf_field(); ?>
+                                <input type="email" name="email" value="<?php echo e($loginValue); ?>" placeholder="Email untuk verifikasi" class="form-control form-control-custom" style="max-width:320px;" required>
+                                <button type="submit" class="btn btn-outline-primary">Kirim Ulang</button>
+                            </form>
+                        </div>
+                    <?php endif; ?>
+                <?php endif; ?>
+
+                <div class="register-link text-center mt-4">
+                    <span class="text-muted">Belum punya akun?</span> 
+                    <a href="<?php echo e(route('register')); ?>" class="fw-bold text-decoration-none" style="color: #800000;">Daftar Sekarang</a>
+                </div>
             </form>
-
-            <a href="https://mail.google.com/" target="_blank" rel="noopener noreferrer" class="btn-status-login">
-                Cek Status di Gmail
-            </a>
-
-            <div class="register-link">
-                <span class="text-muted">Belum punya akun?</span> 
-                <a href="<?php echo e(route('register')); ?>" class="fw-bold text-decoration-none" style="color: #800000;">Daftar Sekarang</a>
-            </div>
         </div>
     </div>
 </div>

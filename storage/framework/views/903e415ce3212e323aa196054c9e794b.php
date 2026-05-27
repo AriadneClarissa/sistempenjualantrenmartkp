@@ -8,8 +8,8 @@
         font-weight: 500;
         transition: all 0.2s ease;
         white-space: nowrap;
-        min-width: 148px;
         min-height: 40px;
+        width: 100%;
         display: inline-flex;
         align-items: center;
         justify-content: center;
@@ -17,13 +17,36 @@
     }
     .admin-header-actions {
         display: flex;
-        flex-wrap: wrap;
+        flex-wrap: nowrap;
         gap: 0.5rem;
         align-items: center;
         justify-content: flex-end;
+        width: min(100%, 1000px);
+        overflow-x: auto;
+        padding-bottom: 2px;
     }
     .admin-header-actions .admin-nav-btn {
-        flex: 0 0 auto;
+        flex: 0 0 165px;
+        width: 165px;
+        min-width: 165px;
+    }
+    @media (max-width: 768px) {
+        .admin-nav-btn {
+            width: 100%;
+        }
+        .admin-header-actions .admin-nav-btn {
+            flex: 0 0 165px;
+            width: 165px;
+        }
+    }
+    @media (max-width: 576px) {
+        .admin-nav-btn {
+            width: 100%;
+        }
+        .admin-header-actions .admin-nav-btn {
+            flex: 0 0 165px;
+            width: 165px;
+        }
     }
     .admin-nav-btn.active {
         background-color: var(--maroon);

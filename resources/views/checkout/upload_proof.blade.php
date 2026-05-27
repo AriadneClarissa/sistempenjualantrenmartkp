@@ -110,6 +110,7 @@
                 <div class="mt-3 p-2 px-3 rounded-3 small" style="background: #fff9e6; border: 1px solid #ffeeba; color: #856404;">
                     <i class="bi bi-exclamation-triangle-fill me-2"></i>
                     Pastikan nominal transfer sesuai dengan total tagihan agar verifikasi lebih cepat.
+                    <br>Untuk mencegah error unggahan di Vercel, foto akan dikompres otomatis sebelum dikirim.
                 </div>
             </div>
 
@@ -199,7 +200,9 @@
     }
 
     // Fungsi validasi sebelum submit form (mencegah klik ganda)
-    function validateAndSubmit() {
+    async function validateAndSubmit(event) {
+        if (event) event.preventDefault();
+
         const fileInput = document.getElementById('bukti_tf');
         const btn = document.getElementById('confirm-btn');
 
@@ -210,16 +213,79 @@
 
         if (btn.disabled) return; // sudah diklik sebelumnya
 
+        const originalFile = fileInput.files[0];
+        let uploadFile = originalFile;
+
+        try {
+            if (originalFile.size > 900 * 1024) {
+                uploadFile = await compressProofImage(originalFile);
+                replaceFileInputFile(fileInput, uploadFile);
+            }
+        } catch (error) {
+            console.error('Gagal mengompres gambar bukti transfer:', error);
+            alert('Gagal menyiapkan gambar bukti transfer. Coba pakai foto yang lebih kecil.');
+            return;
+        }
+
         // Disable button dan tampilkan feedback singkat
         try {
             btn.disabled = true;
             btn.style.opacity = '0.7';
-            btn.innerText = 'Mengunggah...';
+            btn.innerText = uploadFile !== originalFile ? 'Mengompres & Mengunggah...' : 'Mengunggah...';
         } catch (e) {
             // ignore
         }
 
         document.getElementById('final-form').submit();
+    }
+
+    function replaceFileInputFile(input, file) {
+        const dataTransfer = new DataTransfer();
+        dataTransfer.items.add(file);
+        input.files = dataTransfer.files;
+    }
+
+    function compressProofImage(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+
+            reader.onerror = () => reject(new Error('Gagal membaca file.'));
+            reader.onload = function (event) {
+                const image = new Image();
+                image.onerror = () => reject(new Error('Gagal memuat gambar.'));
+                image.onload = function () {
+                    const maxWidth = 1600;
+                    const scale = Math.min(1, maxWidth / image.width);
+                    const width = Math.round(image.width * scale);
+                    const height = Math.round(image.height * scale);
+
+                    const canvas = document.createElement('canvas');
+                    canvas.width = width;
+                    canvas.height = height;
+
+                    const context = canvas.getContext('2d');
+                    if (!context) {
+                        reject(new Error('Canvas tidak tersedia.'));
+                        return;
+                    }
+
+                    context.drawImage(image, 0, 0, width, height);
+
+                    canvas.toBlob(function (blob) {
+                        if (!blob) {
+                            reject(new Error('Gagal mengompres gambar.'));
+                            return;
+                        }
+
+                        const safeName = file.name.replace(/\.[^.]+$/, '') + '.jpg';
+                        resolve(new File([blob], safeName, { type: 'image/jpeg', lastModified: Date.now() }));
+                    }, 'image/jpeg', 0.78);
+                };
+                image.src = event.target.result;
+            };
+
+            reader.readAsDataURL(file);
+        });
     }
 </script>
 @endpush

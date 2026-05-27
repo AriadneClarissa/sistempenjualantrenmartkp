@@ -122,8 +122,10 @@
                 <div class="card-header bg-white border-bottom">
                     <h5 class="card-title mb-0 fw-bold">Distribusi Status</h5>
                 </div>
-                <div class="card-body d-flex align-items-center justify-content-center" style="min-height: 300px;">
-                    <canvas id="statusChart" style="max-width: 300px;"></canvas>
+                <div class="card-body d-flex align-items-center justify-content-center">
+                    <div style="width: min(100%, 320px); aspect-ratio: 1 / 1; position: relative;">
+                        <canvas id="statusChart" style="width: 100%; height: 100%; display: block;"></canvas>
+                    </div>
                 </div>
             </div>
         </div>
@@ -199,7 +201,7 @@
         },
         options: {
             responsive: true,
-            maintainAspectRatio: true,
+            maintainAspectRatio: false,
             plugins: {
                 legend: {
                     position: 'bottom',

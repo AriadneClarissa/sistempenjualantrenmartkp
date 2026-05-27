@@ -1,3 +1,5 @@
+
+
 <?php $__env->startSection('content'); ?>
 <div class="container mt-4 mb-5">
     <div class="card border-0 shadow-sm p-4" style="border-radius: 15px;">
@@ -132,8 +134,8 @@
         const container = document.getElementById('bundling-container');
         
         const currentSelections = [];
-        $('.product-select').each(function() {
-            currentSelections.push($(this).val());
+        document.querySelectorAll('.product-id').forEach(function(el) {
+            currentSelections.push(el.value || '');
         });
 
         container.innerHTML = '';
@@ -144,16 +146,9 @@
                 <div class="row g-2 mb-3 align-items-end item-row">
                     <div class="col-8">
                         <label class="small text-muted fw-bold">Slot Produk ${i}</label>
-                        <div class="select2-wrapper" style="position: relative;">
-                            <select name="product_id[]" class="form-select product-select select2" required onchange="calculatePrices(this)">
-                                <option value=""></option>
-                                ${produkData.map(p => {
-                                    let merkText = p.merk ? p.merk.nama_merk : 'Tanpa Merk';
-                                    return `<option value="${p.kd_produk}" data-price="${p.harga_jual_umum}" ${oldValue == p.kd_produk ? 'selected' : ''}>
-                                        ${p.nama_produk} (${merkText})
-                                    </option>`;
-                                }).join('')}
-                            </select>
+                        <div class="product-slot" style="position: relative;">
+                            <input type="hidden" name="product_id[]" class="product-id" value="${oldValue}">
+                            <input type="text" class="form-control product-display" placeholder="Belum ada produk" readonly ${oldValue ? 'value="' + oldValue + '"' : ''}>
                         </div>
                     </div>
                     <div class="col-4">
@@ -163,35 +158,38 @@
             container.insertAdjacentHTML('beforeend', rowHtml);
         }
 
-        $('.select2').each(function() {
-            $(this).select2({
-                theme: 'bootstrap-5',
-                width: '100%',
-                placeholder: 'Cari atau pilih produk...',
-                allowClear: true,
-                dropdownParent: $(this).parent() 
-            });
-        });
-
-        $('.product-select').each(function() {
-            if($(this).val()) calculatePrices(this);
+        // If old selections exist (editing), populate display names and prices
+        document.querySelectorAll('.item-row').forEach(function(row) {
+            const hid = row.querySelector('.product-id');
+            const disp = row.querySelector('.product-display');
+            if (hid && hid.value) {
+                const prod = produkData.find(p => p.kd_produk == hid.value);
+                if (prod) {
+                    const merkText = prod.merk ? prod.merk.nama_merk : 'Tanpa Merk';
+                    disp.value = prod.nama_produk + ' (' + merkText + ')';
+                    disp.dataset.price = prod.harga_jual_umum || 0;
+                    disp.dataset.id = prod.kd_produk;
+                    calculatePricesForRow(row);
+                }
+            }
         });
     }
 
-    function calculatePrices(select) {
-        const selectedOption = select.options[select.selectedIndex];
-        const price = (selectedOption && selectedOption.getAttribute('data-price')) ? parseFloat(selectedOption.getAttribute('data-price')) : 0;
-        const row = select.closest('.item-row');
-        row.querySelector('.price-display').value = "Rp " + price.toLocaleString('id-ID');
+    function calculatePricesForRow($row) {
+        // read product-id and price from data-price attribute on product-display (set when selected)
+        const priceDisplay = $row.querySelector('.price-display');
+        const prodDisplay = $row.querySelector('.product-display');
+        const price = prodDisplay ? parseFloat(prodDisplay.dataset.price || 0) : 0;
+        priceDisplay.value = "Rp " + (isNaN(price) ? 0 : price).toLocaleString('id-ID');
         updateGrandTotal();
     }
 
     function updateGrandTotal() {
         let total = 0;
-        $('.product-select').each(function() {
-            const selectedOption = this.options[this.selectedIndex];
-            if (selectedOption && selectedOption.getAttribute('data-price')) {
-                total += parseFloat(selectedOption.getAttribute('data-price'));
+        document.querySelectorAll('.item-row').forEach(function(row) {
+            const prodDisplay = row.querySelector('.product-display');
+            if (prodDisplay && prodDisplay.dataset.price) {
+                total += parseFloat(prodDisplay.dataset.price || 0);
             }
         });
         document.getElementById('display_total_normal').innerText = total.toLocaleString('id-ID');
@@ -260,24 +258,24 @@
         let nama = $(this).data('nama');
         let price = $(this).data('price');
 
-        let targetSelect = null;
-        $('.product-select').each(function() {
-            if (!$(this).val()) {
-                targetSelect = $(this);
-                return false; 
+        let targetRow = null;
+        document.querySelectorAll('.item-row').forEach(function(row) {
+            const hidden = row.querySelector('.product-id');
+            if (hidden && !hidden.value && !targetRow) {
+                targetRow = row;
             }
         });
 
-        if (targetSelect) {
-            // Pastikan opsi ada di Select2 agar bisa terpilih
-            if (targetSelect.find("option[value='" + id + "']").length === 0) {
-                let newOption = new Option(nama, id, true, true);
-                $(newOption).attr('data-price', price);
-                targetSelect.append(newOption).trigger('change');
-            } else {
-                targetSelect.val(id).trigger('change');
-            }
-            
+        if (targetRow) {
+            const hidden = targetRow.querySelector('.product-id');
+            const display = targetRow.querySelector('.product-display');
+            hidden.value = id;
+            display.value = nama;
+            display.dataset.id = id;
+            display.dataset.price = price;
+            // Update price display for this row
+            calculatePricesForRow(targetRow);
+
             $('#hasilPencarian').hide();
             $('#inputNamaProduk, #inputMerkProduk').val('');
         } else {

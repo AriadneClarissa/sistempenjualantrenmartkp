@@ -15,6 +15,11 @@
                     display: none !important;
                     visibility: hidden;
                 }
+
+                .profile-input[readonly] {
+                    background-color: #e9ecef;
+                    cursor: default;
+                }
             </style>
 
             <div class="d-flex justify-content-between align-items-center mb-4">
@@ -45,6 +50,13 @@
                 </script>
             @endif
 
+            @if($errors->any())
+                <div class="alert alert-danger border-0 shadow-sm mb-4">
+                    <div class="fw-bold mb-1">Perubahan belum tersimpan.</div>
+                    <div class="small mb-0">{{ $errors->first() }}</div>
+                </div>
+            @endif
+
             <div class="card border-0 shadow-sm rounded-3">
                 <div class="card-body p-4">
                     <form action="{{ route('profile.update') }}" method="POST" id="profileForm">
@@ -54,12 +66,12 @@
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label class="form-label small fw-bold">Nama Lengkap</label>
-                                <input type="text" name="name" class="form-control profile-input" value="{{ old('name', $user->name) }}" disabled required>
+                                <input type="text" name="name" class="form-control profile-input" value="{{ old('name', $user->name) }}" readonly required>
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label class="form-label small fw-bold">Email</label>
                                 @if($user->customer_type === 'langganan' && $user->isCustomer())
-                                    <input type="email" name="email" class="form-control profile-input" value="{{ old('email', $user->email) }}" disabled required>
+                                    <input type="email" name="email" class="form-control profile-input" value="{{ old('email', $user->email) }}" readonly required>
                                     <small class="text-muted d-block mt-1">Email ini bisa diganti dengan email asli Anda.</small>
                                     <div class="mt-2 d-flex flex-column gap-2">
                                         @if($user->hasVerifiedEmail())
@@ -79,12 +91,12 @@
                                 @if($user->isCustomer())
                                 <div class="col-md-6 mb-3">
                                     <label class="form-label small fw-bold">Nomor WhatsApp</label>
-                                    <input type="text" name="phone_number" class="form-control profile-input" value="{{ old('phone_number', $user->phone_number) }}" disabled required>
+                                    <input type="text" name="phone_number" class="form-control profile-input" value="{{ old('phone_number', $user->phone_number) }}" readonly required>
                                 </div>
 
                                 <div class="col-12 mb-3">
                                     <label class="form-label small fw-bold">Alamat Rumah</label>
-                                    <textarea name="home_address" class="form-control profile-input" rows="2" disabled required>{{ old('home_address', $user->home_address) }}</textarea>
+                                    <textarea name="home_address" class="form-control profile-input" rows="2" readonly required>{{ old('home_address', $user->home_address) }}</textarea>
                                 </div>
                             @endif
 
@@ -92,11 +104,11 @@
                                 <div class="col-12 mt-2"><hr class="opacity-25"></div>
                                 <div class="col-md-6 mb-3">
                                     <label class="form-label small fw-bold">Nama Perusahaan/Toko</label>
-                                    <input type="text" name="organization_name" class="form-control profile-input" value="{{ old('organization_name', $user->organization_name) }}" disabled required>
+                                    <input type="text" name="organization_name" class="form-control profile-input" value="{{ old('organization_name', $user->organization_name) }}" readonly required>
                                 </div>
                                 <div class="col-md-6 mb-3">
                                     <label class="form-label small fw-bold">Jenis Bidang Usaha</label>
-                                    <input type="text" name="organization_type" class="form-control profile-input" value="{{ old('organization_type', $user->organization_type) }}" disabled required>
+                                    <input type="text" name="organization_type" class="form-control profile-input" value="{{ old('organization_type', $user->organization_type) }}" readonly required>
                                 </div>
                             @endif
 
@@ -207,7 +219,7 @@
     function enableEditing() {
         inputs.forEach(function(input) {
             originalData[input.name] = input.value;
-            input.disabled = false;
+            input.readOnly = false;
         });
 
         if(editBtn) editBtn.style.display = 'none';
@@ -221,7 +233,7 @@
     function disableEditing() {
         inputs.forEach(function(input) {
             input.value = originalData[input.name] || input.value;
-            input.disabled = true;
+            input.readOnly = true;
         });
 
         if(editBtn) editBtn.style.display = 'inline-block';
