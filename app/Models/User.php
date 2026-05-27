@@ -7,6 +7,9 @@ use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Facades\Log;
 
 class User extends \Illuminate\Foundation\Auth\User implements MustVerifyEmail
 {
@@ -120,6 +123,30 @@ class User extends \Illuminate\Foundation\Auth\User implements MustVerifyEmail
     public function sendPasswordResetNotification($token): void
     {
         $this->notify(new TrenmartResetPasswordNotification($token));
+    }
+
+    /**
+     * Send a custom email verification message with a signed URL.
+     * This overrides the default notification to ensure our app builds
+     * the same signed route used by EmailVerificationController@verify.
+     */
+    public function sendEmailVerificationNotification(): void
+    {
+        try {
+            $url = URL::temporarySignedRoute(
+                'verification.verify',
+                now()->addMinutes(60),
+                ['id' => $this->id, 'hash' => sha1($this->email)]
+            );
+
+            Mail::send('emails.verify-email', ['url' => $url, 'user' => $this], function ($message) {
+                $message->to($this->email)
+                        ->subject('Konfirmasi Email Trenmart');
+            });
+        } catch (\Throwable $e) {
+            Log::error('Gagal mengirim custom verifikasi email: ' . $e->getMessage());
+            report($e);
+        }
     }
 
     

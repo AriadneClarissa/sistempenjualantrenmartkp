@@ -92,7 +92,11 @@ class AuthController extends Controller
                 $isInternal = method_exists($user, 'isInternalStaff') ? $user->isInternalStaff() : false;
 
                 if (! $isInternal) {
-                    $this->sendVerificationEmailIfAllowed($user);
+                    if (! $this->sendVerificationEmailIfAllowed($user)) {
+                        return back()->withErrors([
+                            'login' => 'Email verifikasi gagal dikirim. Periksa konfigurasi SMTP Gmail atau gunakan fitur kirim ulang.',
+                        ])->onlyInput('login');
+                    }
 
                     return back()->withErrors(['login' => 'Akun Anda belum terverifikasi. Email konfirmasi telah dikirim ke alamat yang Anda daftarkan.'])->onlyInput('login');
                 }
@@ -117,19 +121,23 @@ class AuthController extends Controller
         return back()->withErrors(['login' => 'Email atau kode pelanggan tidak sesuai.'])->onlyInput('login');
     }
 
-    private function sendVerificationEmailIfAllowed(User $user): void
+    private function sendVerificationEmailIfAllowed(User $user): bool
     {
         $cacheKey = 'verification-email-sent:'.strtolower($user->email);
 
         if (Cache::has($cacheKey)) {
-            return;
+            return true;
         }
 
         try {
             $user->sendEmailVerificationNotification();
             Cache::put($cacheKey, true, now()->addMinutes(5));
+
+            return true;
         } catch (\Throwable $e) {
             Log::error('Gagal mengirim email verifikasi saat login: ' . $e->getMessage());
+
+            return false;
         }
     }
 
