@@ -8,43 +8,38 @@
         font-weight: 500;
         transition: all 0.2s ease;
         white-space: nowrap;
-        width: 180px;
-        min-width: 180px;
-        max-width: 180px;
         min-height: 40px;
+        width: 100%;
         display: inline-flex;
         align-items: center;
         justify-content: center;
         text-align: center;
     }
     .admin-header-actions {
-        display: flex;
-        flex-wrap: wrap;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(155px, 1fr));
         gap: 0.5rem;
         align-items: center;
         justify-content: flex-end;
+        width: min(100%, 860px);
     }
     .admin-header-actions .admin-nav-btn {
-        flex: 0 0 180px;
+        width: 100%;
     }
     @media (max-width: 768px) {
         .admin-nav-btn {
-            width: calc(50% - 0.25rem);
-            min-width: calc(50% - 0.25rem);
-            max-width: calc(50% - 0.25rem);
+            width: 100%;
         }
         .admin-header-actions .admin-nav-btn {
-            flex: 0 0 calc(50% - 0.25rem);
+            width: 100%;
         }
     }
     @media (max-width: 576px) {
         .admin-nav-btn {
             width: 100%;
-            min-width: 100%;
-            max-width: 100%;
         }
         .admin-header-actions .admin-nav-btn {
-            flex: 0 0 100%;
+            width: 100%;
         }
     }
     .admin-nav-btn.active {

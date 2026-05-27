@@ -64,7 +64,10 @@ class AdminUserController extends Controller
     {
         $customers = User::where('role', 'customer')->orderBy('created_at', 'desc')->get();
 
-        return view('admin.customers.index', compact('customers'));
+        return view('admin.customers.index', [
+            'customers' => $customers,
+            'page' => 'customers',
+        ]);
     }
 
     public function create()
