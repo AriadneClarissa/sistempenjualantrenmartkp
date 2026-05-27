@@ -444,7 +444,7 @@
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title" id="profileCompleteModalLabel">Lengkapi Profil Anda</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="profileModalCloseBtn"></button>
                     </div>
                     <div class="modal-body">
                         <p class="small text-muted">Sebelum melakukan pesanan, mohon lengkapi nomor WhatsApp dan alamat pengiriman Anda.</p>
@@ -460,7 +460,7 @@
                                 <textarea name="home_address" class="form-control" rows="3" placeholder="Alamat lengkap untuk pengiriman" required>{{ old('home_address', auth()->user()->home_address) }}</textarea>
                             </div>
                             <div class="d-flex justify-content-end" style="gap:8px;">
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Ingatkan Nanti</button>
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="profileModalRemindLater">Ingatkan Nanti</button>
                                 <button type="submit" class="btn btn-primary">Simpan</button>
                             </div>
                         </form>
@@ -668,16 +668,34 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-// Profile completion modal handler
+// Profile completion modal utilities
 document.addEventListener('DOMContentLoaded', function() {
     const profileForm = document.getElementById('profileCompleteForm');
     const profileModalEl = document.getElementById('profileCompleteModal');
-    const profileModal = profileModalEl ? new bootstrap.Modal(profileModalEl) : null;
 
-    // Show modal if present (only once per session)
+    // Expose current user's needsProfileCompletion state to client
+    window.currentUserNeedsProfileCompletion = @json(auth()->check() && auth()->user()->needsProfileCompletion());
+
+    // Reusable function to show modal; if forced=true the modal is non-dismissible
+    window.showProfileModal = function(forced = false) {
+        if (!profileModalEl) return;
+        const closeBtn = document.getElementById('profileModalCloseBtn');
+        const remindBtn = document.getElementById('profileModalRemindLater');
+
+        if (closeBtn) closeBtn.style.display = forced ? 'none' : '';
+        if (remindBtn) remindBtn.style.display = forced ? 'none' : '';
+
+        const modalOptions = { backdrop: forced ? 'static' : true, keyboard: !forced };
+        const modal = new bootstrap.Modal(profileModalEl, modalOptions);
+        modal.show();
+
+        if (!forced) sessionStorage.setItem('profileModalShown', '1');
+    };
+
+    // Auto-show modal once per session for non-forced flows
     if (profileModalEl && sessionStorage.getItem('profileModalShown') !== '1') {
-        profileModal.show();
-        sessionStorage.setItem('profileModalShown', '1');
+        // show non-forced by default
+        window.showProfileModal(false);
     }
 
     if (profileForm) {
@@ -697,9 +715,9 @@ document.addEventListener('DOMContentLoaded', function() {
             }).then(async response => {
                 if (response.ok) {
                     showFlashToast('success', 'Tersimpan', 'Profil berhasil diperbarui.');
-                    if (profileModal) profileModal.hide();
-                    // Optionally reload to reflect changes
-                    setTimeout(() => location.reload(), 900);
+                    // hide modal and reload to reflect changes
+                    try { const m = bootstrap.Modal.getInstance(profileModalEl); if (m) m.hide(); } catch(e) {}
+                    setTimeout(() => location.reload(), 700);
                 } else {
                     const ct = response.headers.get('content-type') || '';
                     if (ct.indexOf('application/json') !== -1) {

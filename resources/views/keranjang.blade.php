@@ -195,7 +195,7 @@
                 </div>
 
                 @if(count($items) > 0)
-                <a href="{{ route('checkout.index') }}" class="btn-checkout shadow-sm">
+                <a href="{{ route('checkout.index') }}" id="btnProceedCheckout" class="btn-checkout shadow-sm">
                     Lanjut ke Pembayaran <i class="bi bi-chevron-right ms-2"></i>
                 </a>
                 @else
@@ -207,3 +207,26 @@
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const btn = document.getElementById('btnProceedCheckout');
+    if (!btn) return;
+
+    btn.addEventListener('click', function(e) {
+        // If user needs profile completion, show forced modal and prevent navigation
+        try {
+            if (window.currentUserNeedsProfileCompletion === true) {
+                e.preventDefault();
+                if (window.showProfileModal) window.showProfileModal(true);
+                return false;
+            }
+        } catch (err) {
+            // ignore and allow default
+        }
+        // otherwise, proceed normally
+    });
+});
+</script>
+@endpush
