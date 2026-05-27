@@ -5,7 +5,7 @@ namespace App\Providers;
 use Illuminate\Auth\Notifications\VerifyEmail;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Support\ServiceProvider;
-use Illuminate\Support\Facades\URL; // Wajib dipanggil
+use Illuminate\Support\Facades\URL; 
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\Facades\Auth;
 
@@ -24,11 +24,19 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        // Paksa HTTPS bekerja jika terdeteksi koneksi dari Vercel (Forwarded Proto)
-        // atau jika APP_ENV bukan local
-        if (request()->header('x-forwarded-proto') === 'https' || env('APP_ENV') !== 'local') {
+        // --- PERBAIKAN VERCEL DIMULAI DI SINI ---
+        // Menggunakan config() karena env() akan gagal/null saat di-cache oleh Vercel
+        if (config('app.env') === 'production') {
+            
+            // 1. Paksa semua link yang dibuat Laravel (termasuk email) menjadi HTTPS
             URL::forceScheme('https');
+            
+            // 2. Paksa sistem pembaca URL Laravel agar menganggap koneksi ini murni HTTPS.
+            // Ini adalah kunci agar fungsi hasValidSignature() tidak menggagalkan URL!
+            request()->server->set('HTTPS', 'on');
         }
+        // --- PERBAIKAN VERCEL SELESAI ---
+
 
         VerifyEmail::toMailUsing(function (object $notifiable, string $url) {
             return (new MailMessage)
