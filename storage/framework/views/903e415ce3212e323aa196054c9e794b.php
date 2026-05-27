@@ -116,26 +116,12 @@
                     <a href="<?php echo e(route('produk.index')); ?>" class="btn btn-sm admin-nav-btn <?php echo e(request()->routeIs('produk.*') ? 'active' : 'btn-outline-secondary'); ?>">
                         <i class="bi bi-box-seam me-1"></i> Produk
                     </a>
-                <?php elseif(auth()->user()->isOwner()): ?>
-                    <a href="<?php echo e(route('admin.dashboard')); ?>" class="btn btn-sm admin-nav-btn <?php echo e($activePage === 'users' ? 'active btn-outline-secondary' : 'btn-outline-secondary'); ?>">
-                        <i class="bi bi-people me-1"></i> Semua Pengguna
-                    </a>
-                    <a href="<?php echo e(route('admin.users.internal')); ?>" class="btn btn-sm admin-nav-btn <?php echo e($activePage === 'internal_users' ? 'active btn-outline-secondary' : 'btn-outline-secondary'); ?>">
-                        <i class="bi bi-shield-lock me-1"></i> User Internal
-                    </a>
-                    <a href="<?php echo e(route('admin.customers.index')); ?>" class="btn btn-sm admin-nav-btn <?php echo e($activePage === 'customers' ? 'active btn-outline-secondary' : 'btn-outline-secondary'); ?>">
-                        <i class="bi bi-person-badge me-1"></i> Pelanggan
-                    </a>
-                    <a href="<?php echo e(route('admin.payment_methods.index')); ?>" class="btn btn-sm admin-nav-btn <?php echo e($activePage === 'payment' ? 'active btn-outline-secondary' : 'btn-outline-secondary'); ?>">
-                        <i class="bi bi-credit-card-2-back me-1"></i> Metode Pembayaran
-                    </a>
-                    <a href="<?php echo e(route('admin.users.create')); ?>" class="btn btn-sm btn-primary admin-nav-btn">
-                        <i class="bi bi-person-plus me-1"></i> Buat Pelanggan
-                    </a>
-                    <a href="<?php echo e(route('admin.admins.create')); ?>" class="btn btn-sm btn-warning admin-nav-btn text-dark">
-                        <i class="bi bi-shield-check me-1"></i> Buat User Internal
-                    </a>
-                <?php elseif(auth()->user()->isAdmin()): ?>
+                <?php elseif(auth()->user()->isOwner() || auth()->user()->isAdmin()): ?>
+                    <?php if(auth()->user()->isOwner()): ?>
+                        <a href="<?php echo e(route('admin.dashboard')); ?>" class="btn btn-sm admin-nav-btn <?php echo e($activePage === 'users' ? 'active btn-outline-secondary' : 'btn-outline-secondary'); ?>">
+                            <i class="bi bi-people me-1"></i> Semua Pengguna
+                        </a>
+                    <?php endif; ?>
                     <a href="<?php echo e(route('admin.users.internal')); ?>" class="btn btn-sm admin-nav-btn <?php echo e($activePage === 'internal_users' ? 'active btn-outline-secondary' : 'btn-outline-secondary'); ?>">
                         <i class="bi bi-shield-lock me-1"></i> User Internal
                     </a>
