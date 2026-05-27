@@ -172,7 +172,7 @@
 @endpush
 
 @section('content')
-<div class="container-fluid mt-4 mb-5 px-0">
+<div class="container-fluid mt-4 mb-5">
     <div class="row">
         @php
             $canManageProducts = auth()->check() && auth()->user()->isAdmin();

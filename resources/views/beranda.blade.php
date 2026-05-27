@@ -290,12 +290,15 @@
                                         Rp {{ number_format($b->bundling_price, 0, ',', '.') }}
                                     </h4>
                                     
-                                    {{-- Tombol Tambah (khusus pelanggan) --}}
-                                    @if(!Auth::check() || (Auth::check() && Auth::user()->isCustomer()))
+                                    {{-- Tombol Tambah (hanya untuk pelanggan login) --}}
+                                    @if(Auth::check() && Auth::user()->isCustomer())
                                         {{-- Gunakan span karena aksi klik sudah diambil alih oleh stretched-link di atas --}}
                                         <span class="btn-tambah-card shadow-sm d-flex align-items-center justify-content-center" style="position: relative; z-index: 2;" data-action="{{ route('cart.add', ['id' => $b->id, 'type' => 'bundling']) }}" data-bundling-id="{{ $b->id }}">
                                             <i class="bi bi-plus-lg me-1"></i> Tambah
                                         </span>
+                                    @else
+                                        {{-- Untuk pengunjung, tampilkan tombol login cepat --}}
+                                        <a href="{{ route('login') }}" class="btn btn-outline-primary">Masuk untuk Tambah</a>
                                     @endif
                                 </div>
                             </div>
