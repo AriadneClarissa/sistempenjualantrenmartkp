@@ -18,10 +18,12 @@
                             <th class="py-1 px-2" style="width: 11%;">Kode Pelanggan</th>
                             <th class="py-1 px-2" style="width: 18%;">Nama</th>
                             <th class="py-1 px-2" style="width: 26%;">Email</th>
-                            <th class="py-1 px-2" style="width: 12%;">Jenis</th>
+                            <th class="py-1 px-2" style="width: 12%;">Jenis Pelanggan</th>
                             <th class="py-1 px-2" style="width: 12%;">No. Telepon</th>
-                            <th class="py-1 px-2" style="width: 8%;">Alamat</th>
-                            <th class="py-1 px-2" style="width: 10%;">Organisasi (jika ada)</th>
+                            <th class="py-1 px-2" style="width: 12%;">Alamat</th>
+                            <th class="py-1 px-2" style="width: 12%;">Organisasi</th>
+                            <th class="py-1 px-2" style="width: 8%;">Status</th>
+                            <th class="py-1 px-2" style="width: 10%;">Aksi</th>
                             <th class="py-1 px-2" style="width: 8%;">Tgl Daftar</th>
                         </tr>
                     </thead>
@@ -36,6 +38,8 @@
                             <td class="py-1 px-2 text-truncate">{{ $c->phone_number ?? '-' }}</td>
                             <td class="py-1 px-2 text-truncate">{{ $c->home_address ?? '-' }}</td>
                             <td class="py-1 px-2 text-truncate">{{ $c->organization_name ?? '-' }}</td>
+                            <td class="py-1 px-2"><span class="badge bg-light text-secondary border">-</span></td>
+                            <td class="py-1 px-2"><span class="text-muted">-</span></td>
                             <td class="py-1 px-2">{{ $c->created_at ? $c->created_at->format('d M Y') : '-' }}</td>
                         </tr>
                         @endforeach
