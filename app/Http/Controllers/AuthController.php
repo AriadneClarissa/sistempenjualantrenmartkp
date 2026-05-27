@@ -53,8 +53,8 @@ class AuthController extends Controller
         'home_address' => $validated['home_address'],
         'is_active' => true,
     ]);
-        // Send verification email only for regular customers.
-        if ($user->role === 'customer' && $user->customer_type !== 'langganan') {
+        // Semua pelanggan wajib verifikasi email.
+        if ($user->role === 'customer') {
             try {
                 $user->sendEmailVerificationNotification();
             } catch (\Throwable $e) {
@@ -62,9 +62,7 @@ class AuthController extends Controller
             }
         }
 
-        $successMessage = $user->customer_type === 'langganan'
-            ? 'Pendaftaran berhasil! Silakan login menggunakan kode pelanggan dan password Anda.'
-            : 'Pendaftaran berhasil! Silakan cek email Anda untuk tautan verifikasi.';
+        $successMessage = 'Pendaftaran berhasil! Silakan cek email Anda untuk tautan verifikasi.';
 
         return redirect()->route('login')->with('success', $successMessage);
     }
@@ -91,9 +89,8 @@ class AuthController extends Controller
                 return back()->withErrors(['login' => 'Akun Anda telah dinonaktifkan oleh pemilik sistem.'])->onlyInput('login');
             }
 
-            // Pelanggan langganan boleh langsung login tanpa verifikasi email.
-            // Pelanggan regular tetap wajib verifikasi email.
-            if ($user->isCustomer() && $user->customer_type !== 'langganan' && ! $user->hasVerifiedEmail()) {
+            // Semua pelanggan wajib verifikasi email sebelum login.
+            if ($user->isCustomer() && ! $user->hasVerifiedEmail()) {
                 $isInternal = method_exists($user, 'isInternalStaff') ? $user->isInternalStaff() : false;
 
                 if (! $isInternal) {
@@ -299,6 +296,8 @@ class AuthController extends Controller
 
         $validated = $request->validate($rules);
 
+        $emailChanged = array_key_exists('email', $validated) && $validated['email'] !== $user->email;
+
         $user->name = $validated['name'];
 
         if (array_key_exists('email', $validated)) {
@@ -321,7 +320,15 @@ class AuthController extends Controller
             $user->organization_type = $validated['organization_type'];
         }
 
+        if ($emailChanged) {
+            $user->email_verified_at = null;
+        }
+
         $user->save();
+
+        if ($emailChanged && $user->isCustomer()) {
+            return back()->with('success', 'Profil berhasil diperbarui. Silakan klik tombol Kirim Verifikasi Email untuk mengirim tautan verifikasi ke alamat baru Anda.');
+        }
 
         return back()->with('success', 'Profil berhasil diperbarui!');
     }

@@ -48,7 +48,9 @@ Route::get('/storage-proxy/{path}', [StorageProxyController::class, 'show'])->wh
 Route::get('/bundling/{id}', [BundlingController::class, 'show'])->name('bundling.show'); 
 // Email verification route (signed)
 Route::get('/email/verify/{id}/{hash}', [\App\Http\Controllers\EmailVerificationController::class, 'verify'])->name('verification.verify');
+Route::get('/email/verify-profile/{id}/{hash}', [\App\Http\Controllers\EmailVerificationController::class, 'verifyFromProfile'])->name('verification.verify_profile');
 Route::post('/email/resend', [\App\Http\Controllers\EmailVerificationController::class, 'resend'])->name('verification.resend');
+Route::post('/email/resend-profile', [\App\Http\Controllers\EmailVerificationController::class, 'resendFromProfile'])->name('verification.resend_profile');
 Route::post('/email/resend-from-login', [AuthController::class, 'resendVerification'])->name('verification.resend_from_login');
 Route::get('/katalog', [ProdukController::class, 'katalog'])->name('katalog');
 Route::get('/produk/detail/{id}', [ProdukController::class, 'show'])->name('produk.detail');

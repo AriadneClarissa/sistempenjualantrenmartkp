@@ -61,6 +61,16 @@
                                 @if($user->customer_type === 'langganan' && $user->isCustomer())
                                     <input type="email" name="email" class="form-control profile-input" value="{{ old('email', $user->email) }}" disabled required>
                                     <small class="text-muted d-block mt-1">Email ini bisa diganti dengan email asli Anda.</small>
+                                    <div class="mt-2 d-flex flex-column gap-2">
+                                        @if($user->hasVerifiedEmail())
+                                            <span class="badge bg-success align-self-start">Email Terverifikasi</span>
+                                        @else
+                                            <span class="badge bg-warning text-dark align-self-start">Email belum terverifikasi</span>
+                                            <button type="button" class="btn btn-sm btn-outline-primary px-3 align-self-start" onclick="document.getElementById('resendVerificationForm').submit();">
+                                                Kirim Verifikasi Email
+                                            </button>
+                                        @endif
+                                    </div>
                                 @else
                                     <input type="email" class="form-control bg-light" value="{{ $user->email }}" disabled>
                                 @endif
@@ -118,6 +128,10 @@
                     </form>
                 </div>
             </div>
+
+            <form id="resendVerificationForm" action="{{ route('verification.resend_profile') }}" method="POST" class="d-none">
+                @csrf
+            </form>
 
             <div class="card border-0 shadow-sm rounded-3 mt-4">
                 <div class="card-body p-4">

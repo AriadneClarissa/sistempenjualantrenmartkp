@@ -54,15 +54,20 @@ class KeranjangController extends Controller
      */
     public function store(Request $request, $id)
     {
-        // Ambil tipe dari request (kita kirim via hidden input atau parameter)
-        $type = $request->input('type', 'reguler'); 
+        // Ambil tipe dari route atau request body supaya tombol bundling dan form biasa sama-sama terbaca.
+        $type = $request->route('type') ?? $request->input('type', 'reguler');
 
         if ($type === 'bundling') {
             // 1a. Validasi Bundling
-            $bundling = \App\Models\Bundling::findOrFail($id);
+            $bundling = \App\Models\Bundling::with('items')->findOrFail($id);
+
+            if ($bundling->items->isEmpty()) {
+                return $this->errorResponse($request, 'Paket bundling tidak memiliki isi produk.');
+            }
+
             $stokTersedia = 999; // Atau logic stok bundling kamu
             $identifierColumn = 'bundling_id'; 
-            $kdProdukValue = null;
+            $kdProdukValue = $bundling->items->first()->product_id;
             $bundlingIdValue = $id;
         } else {
             // 1b. Validasi Produk Reguler
