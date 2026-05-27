@@ -17,38 +17,53 @@
     }
     .admin-header-actions {
         display: flex;
-        flex-wrap: wrap;
+        flex-wrap: nowrap;
         gap: 0.5rem;
         align-items: center;
         justify-content: flex-end;
-        width: 100%;
+        width: auto;
         max-width: 100%;
+        overflow-x: auto;
         padding-bottom: 2px;
     }
     .admin-header-actions .admin-nav-btn {
-        flex: 0 0 165px;
-        width: 165px;
-        min-width: 165px;
+        flex: 0 0 auto;
+        width: auto;
+        min-width: 150px;
+        padding-left: 0.85rem;
+        padding-right: 0.85rem;
     }
     .admin-header > .container-fluid > .d-flex {
-        flex-wrap: wrap;
+        flex-wrap: nowrap;
         gap: 1rem;
     }
     .admin-header > .container-fluid > .d-flex > h2 {
-        flex: 1 1 280px;
+        flex: 0 0 auto;
         min-width: 0;
     }
     .admin-header > .container-fluid > .d-flex > .admin-header-actions {
-        flex: 1 1 560px;
+        flex: 1 1 auto;
+        min-width: 0;
     }
     @media (max-width: 768px) {
+        .admin-header > .container-fluid > .d-flex {
+            flex-wrap: wrap;
+        }
+        .admin-header > .container-fluid > .d-flex > h2 {
+            flex: 1 1 100%;
+        }
+        .admin-header > .container-fluid > .d-flex > .admin-header-actions {
+            flex: 1 1 100%;
+            width: 100%;
+            overflow-x: auto;
+        }
         .admin-nav-btn {
             width: 100%;
         }
         .admin-header-actions .admin-nav-btn {
-            flex: 1 1 100%;
-            width: 100%;
-            min-width: 0;
+            flex: 0 0 auto;
+            width: auto;
+            min-width: 150px;
         }
     }
     @media (max-width: 576px) {
@@ -56,9 +71,9 @@
             width: 100%;
         }
         .admin-header-actions .admin-nav-btn {
-            flex: 1 1 100%;
-            width: 100%;
-            min-width: 0;
+            flex: 0 0 auto;
+            width: auto;
+            min-width: 150px;
         }
     }
     .admin-nav-btn.active {
