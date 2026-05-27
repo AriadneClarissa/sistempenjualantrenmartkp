@@ -26,7 +26,7 @@ class AuthController extends Controller
 {
     $rules = [
         'name' => 'required|string|max:255',
-        'email' => 'required|string|email|max:255|unique:users',
+        'email' => 'required|string|email:rfc,dns|max:255|unique:users',
         'password' => 'required|string|min:8|confirmed',
         // Tambahkan regex: wajib angka dan diawali 08
         'phone_number' => ['required', 'string', 'min:10', 'max:13', 'regex:/^08[0-9]{8,11}$/'],
