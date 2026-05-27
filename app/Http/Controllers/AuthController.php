@@ -244,26 +244,30 @@ class AuthController extends Controller
     {
         /** @var \App\Models\User $user */
         $user = Auth::user();
-        
-        // Sesuaikan pengecekan dengan name input dari form Anda
-        $isLangganan = ($user->customer_type === 'langganan'); 
 
         $rules = [
-            'name' => 'required|string|max:255',
             'phone_number' => 'required|string|min:10|max:15',
             'home_address' => 'required|string',
         ];
 
         $validated = $request->validate($rules);
         
-        // Update data profil dan setujui akun
+        // Update data profil dasar dari modal lengkapi profil.
         $user->update([
-            'name' => $validated['name'],
+            'name' => $user->name,
             'phone_number' => $validated['phone_number'],
             'home_address' => $validated['home_address'],
             'is_approved' => true, 
         ]);
-        return redirect()->route('beranda');
+
+        if ($request->expectsJson() || $request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Profil berhasil dilengkapi.',
+            ]);
+        }
+
+        return redirect()->route('beranda')->with('success', 'Profil berhasil dilengkapi.');
     }
 
     /**

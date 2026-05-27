@@ -448,9 +448,8 @@
                     </div>
                     <div class="modal-body">
                         <p class="small text-muted">Sebelum melakukan pesanan, mohon lengkapi nomor WhatsApp dan alamat pengiriman Anda.</p>
-                        <form id="profileCompleteForm">
+                        <form id="profileCompleteForm" action="{{ route('profile.initial.update') }}" method="POST">
                             @csrf
-                            <input type="hidden" name="_method" value="PUT">
                             <div class="mb-3">
                                 <label class="form-label">Nomor WhatsApp</label>
                                 <input type="text" name="phone_number" id="profile_phone_number" class="form-control" placeholder="Contoh: 081234567890" inputmode="numeric" maxlength="13" oninput="validateWAForModal(this)" value="{{ old('phone_number', auth()->user()->phone_number) }}" required>
@@ -702,7 +701,6 @@ document.addEventListener('DOMContentLoaded', function() {
     if (profileForm) {
         profileForm.addEventListener('submit', function(e) {
             e.preventDefault();
-            const action = "{{ route('profile.update') }}";
             // client-side validation for WA
             const phoneInput = document.getElementById('profile_phone_number');
             const phoneError = document.getElementById('profile-phone-error');
@@ -717,7 +715,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             const formData = new FormData(profileForm);
 
-            fetch(action, {
+            fetch(profileForm.action, {
                 method: 'POST',
                 headers: {
                     'X-Requested-With': 'XMLHttpRequest',
