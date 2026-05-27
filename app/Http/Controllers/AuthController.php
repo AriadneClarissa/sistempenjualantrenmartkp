@@ -13,6 +13,8 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Facades\Log;
 
 class AuthController extends Controller
 {
@@ -49,8 +51,22 @@ class AuthController extends Controller
         'home_address' => $validated['home_address'],
         'is_active' => true,
     ]);
-        // Log the user in or redirect to login with success
-        return redirect()->route('login')->with('success', 'Pendaftaran berhasil! Silakan masuk.');
+        // Send email verification link (signed, expires in 60 minutes)
+        try {
+            $verifyUrl = URL::temporarySignedRoute(
+                'verification.verify', now()->addMinutes(60), ['id' => $user->id, 'hash' => sha1($user->email)]
+            );
+
+            $message = "Halo {$user->name},\n\nTerima kasih telah mendaftar di Trenmart. Klik tautan berikut untuk memverifikasi alamat email Anda:\n\n{$verifyUrl}\n\nTautan ini akan kadaluarsa dalam 60 menit. Jika Anda tidak mendaftar, abaikan email ini.";
+
+            Mail::raw($message, function ($mail) use ($user) {
+                $mail->to($user->email)->subject('Verifikasi Email - Trenmart');
+            });
+        } catch (\Throwable $e) {
+            Log::error('Gagal mengirim email verifikasi: ' . $e->getMessage());
+        }
+
+        return redirect()->route('login')->with('success', 'Pendaftaran berhasil! Silakan cek email Anda untuk tautan verifikasi.');
     }
 
     /**
@@ -70,6 +86,11 @@ class AuthController extends Controller
         if ($user && Hash::check($credentials['password'], $user->password)) {
             if (!$user->isActive()) {
                 return back()->withErrors(['login' => 'Akun Anda telah dinonaktifkan oleh pemilik sistem.'])->onlyInput('login');
+            }
+
+            // Require email verification
+            if (is_null($user->email_verified_at)) {
+                return back()->withErrors(['login' => 'Email belum terverifikasi. Silakan cek inbox untuk tautan verifikasi.'])->onlyInput('login');
             }
 
             Auth::login($user, $request->boolean('remember'));

@@ -25,6 +25,9 @@ Route::get('/', [ProdukController::class, 'index'])->name('beranda');
 // Proxy route to serve storage/app/public files when public/storage is missing
 Route::get('/storage-proxy/{path}', [StorageProxyController::class, 'show'])->where('path', '.*');
 Route::get('/bundling/{id}', [BundlingController::class, 'show'])->name('bundling.show'); 
+// Email verification route (signed)
+Route::get('/email/verify/{id}/{hash}', [\App\Http\Controllers\EmailVerificationController::class, 'verify'])->name('verification.verify');
+Route::post('/email/resend', [\App\Http\Controllers\EmailVerificationController::class, 'resend'])->name('verification.resend');
 Route::get('/katalog', [ProdukController::class, 'katalog'])->name('katalog');
 Route::get('/produk/detail/{id}', [ProdukController::class, 'show'])->name('produk.detail');
 Route::get('/tentang-kami', [TentangController::class, 'index'])->name('tentang');

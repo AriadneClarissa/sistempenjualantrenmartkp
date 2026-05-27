@@ -365,6 +365,7 @@
         text-decoration: none;
         position: relative; /* pastikan z-index berlaku */
         z-index: 1060; /* di atas stretched-link overlay */
+        cursor: pointer; /* tunjukkan klikable */
     }
 
     .btn-tambah-card:hover {
@@ -553,6 +554,7 @@ document.addEventListener('click', function(e) {
 
     fetch(action, {
         method: 'POST',
+        credentials: 'same-origin',
         headers: {
             'X-CSRF-TOKEN': token,
             'Accept': 'application/json',
@@ -560,13 +562,22 @@ document.addEventListener('click', function(e) {
             'Content-Type': 'application/json'
         },
         body: JSON.stringify({ type: 'bundling' })
-    }).then(r => r.json())
-    .then(data => {
-        if (data.success) {
+    }).then(async (r) => {
+        let text = await r.text();
+        let data = null;
+        try { data = JSON.parse(text); } catch (e) { /* not json */ }
+        if (!r.ok) {
+            const msg = (data && data.message) ? data.message : (text || 'Server error');
+            if (window.showFlashToast) showFlashToast('error', 'Gagal', msg);
+            console.error('Bundling add failed', r.status, text);
+            return;
+        }
+        if (data && data.success) {
             if (window.updateCartBadge) window.updateCartBadge(data.cartCount || 0);
             if (window.showFlashToast) showFlashToast('success', 'Berhasil', 'Paket bundling ditambahkan ke keranjang.');
         } else {
-            if (window.showFlashToast) showFlashToast('error', 'Gagal', data.message || 'Gagal menambahkan ke keranjang.');
+            const msg = (data && data.message) ? data.message : 'Gagal menambahkan ke keranjang.';
+            if (window.showFlashToast) showFlashToast('error', 'Gagal', msg);
         }
     }).catch(err => {
         if (window.showFlashToast) showFlashToast('error', 'Gagal', 'Terjadi kesalahan jaringan.');
