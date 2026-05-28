@@ -123,6 +123,7 @@
                 - Trenmart
             </h2>
             <div class="admin-header-actions custom-scrollbar">
+                <div class="d-flex admin-nav-links">
                 @if(method_exists(auth()->user(), 'isCashier') && auth()->user()->isCashier())
                     <a href="{{ route('admin.orders.index') }}" class="btn btn-sm admin-nav-btn {{ request()->routeIs('admin.orders.*') ? 'active' : 'btn-outline-secondary' }}">
                         <i class="bi bi-receipt me-1"></i> Pesanan
@@ -143,12 +144,6 @@
                     <a href="{{ route('admin.payment_methods.index') }}" class="btn btn-sm admin-nav-btn {{ $activePage === 'payment' ? 'active btn-outline-secondary' : 'btn-outline-secondary' }}">
                         <i class="bi bi-credit-card-2-back me-1"></i> Metode Pembayaran
                     </a>
-                    <a href="{{ route('admin.users.create') }}" class="btn btn-sm btn-primary admin-nav-btn">
-                        <i class="bi bi-person-plus me-1"></i> Buat Pelanggan
-                    </a>
-                    <a href="{{ route('admin.admins.create') }}" class="btn btn-sm btn-warning admin-nav-btn text-dark">
-                        <i class="bi bi-shield-check me-1"></i> Buat User Internal
-                    </a>
                 @elseif(auth()->user()->isAdmin())
                     <a href="{{ route('admin.users.internal') }}" class="btn btn-sm admin-nav-btn {{ $activePage === 'internal_users' ? 'active btn-outline-secondary' : 'btn-outline-secondary' }}">
                         <i class="bi bi-shield-lock me-1"></i> User Internal
@@ -159,16 +154,22 @@
                     <a href="{{ route('admin.payment_methods.index') }}" class="btn btn-sm admin-nav-btn {{ $activePage === 'payment' ? 'active btn-outline-secondary' : 'btn-outline-secondary' }}">
                         <i class="bi bi-credit-card-2-back me-1"></i> Metode Pembayaran
                     </a>
-                    <a href="{{ route('admin.users.create') }}" class="btn btn-sm btn-primary admin-nav-btn">
-                        <i class="bi bi-person-plus me-1"></i> Buat Pelanggan
-                    </a>
-                    <a href="{{ route('admin.admins.create') }}" class="btn btn-sm btn-warning admin-nav-btn text-dark">
-                        <i class="bi bi-shield-check me-1"></i> Buat User Internal
-                    </a>
                 @endif
-                <a href="{{ route('beranda') }}" class="btn btn-sm btn-outline-secondary admin-nav-btn">
-                    <i class="bi bi-house-door-fill me-1"></i> Kembali ke Beranda
-                </a>
+                </div>
+
+                <div class="d-flex admin-actions ms-auto">
+                    @if(auth()->user()->isOwner() || auth()->user()->isAdmin())
+                        <a href="{{ route('admin.users.create') }}" class="btn btn-sm btn-primary admin-nav-btn">
+                            <i class="bi bi-person-plus me-1"></i> Buat Pelanggan
+                        </a>
+                        <a href="{{ route('admin.admins.create') }}" class="btn btn-sm btn-warning admin-nav-btn text-dark">
+                            <i class="bi bi-shield-check me-1"></i> Buat User Internal
+                        </a>
+                    @endif
+                    <a href="{{ route('beranda') }}" class="btn btn-sm btn-outline-secondary admin-nav-btn">
+                        <i class="bi bi-house-door-fill me-1"></i> Kembali ke Beranda
+                    </a>
+                </div>
             </div>
         </div>
     </div>
