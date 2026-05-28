@@ -11,7 +11,6 @@
         transition: all 0.2s ease;
         white-space: nowrap;
         min-height: 36px;
-        width: 100%;
         display: inline-flex;
         align-items: center;
         justify-content: center;
@@ -23,21 +22,19 @@
         flex-wrap: nowrap;
         gap: 0.4rem;
         align-items: center;
-        justify-content: flex-start;
+        /* Mengubah ke flex-end agar deretan tombol merapat ke kanan */
+        justify-content: flex-end; 
         width: auto;
         max-width: 100%;
         overflow-x: auto;
-        padding-bottom: 2px; /* Dikecilkan karena scrollbar akan dihilangkan */
+        padding-bottom: 2px;
         -webkit-overflow-scrolling: touch;
         
-        /* PAKSA SEMBUNYIKAN SCROLLBAR (Firefox/IE/Edge) */
         scrollbar-width: none !important; 
         -ms-overflow-style: none !important; 
     }
 
-    /* PAKSA SEMBUNYIKAN SCROLLBAR (Chrome/Safari/Opera/Edge WebKit) */
-    .admin-header-actions::-webkit-scrollbar,
-    .custom-scrollbar::-webkit-scrollbar {
+    .admin-header-actions::-webkit-scrollbar {
         display: none !important;
         width: 0 !important;
         height: 0 !important;
@@ -45,62 +42,34 @@
         -webkit-appearance: none !important;
     }
     
+    /* Mengatur agar Judul dan Tombol sejajar (Kiri - Kanan) */
     .admin-header > .container-fluid > .d-flex {
         flex-wrap: nowrap;
         gap: 1rem;
+        align-items: center;
+        justify-content: space-between;
     }
     .admin-header > .container-fluid > .d-flex > h2 {
         flex: 0 0 auto;
-        min-width: 0;
+        margin-bottom: 0;
         white-space: nowrap;
     }
     .admin-header > .container-fluid > .d-flex > .admin-header-actions {
         flex: 1 1 auto;
-        min-width: 0;
     }
     
-    @media (max-width: 768px) {
+    /* Hanya diturunkan (atas-bawah) jika dibuka di HP atau Tablet kecil */
+    @media (max-width: 992px) {
         .admin-header > .container-fluid > .d-flex {
             flex-wrap: wrap;
         }
         .admin-header > .container-fluid > .d-flex > h2 {
             flex: 1 1 100%;
+            margin-bottom: 0.5rem !important;
         }
         .admin-header > .container-fluid > .d-flex > .admin-header-actions {
             flex: 1 1 100%;
-            width: 100%;
-        }
-        .admin-nav-btn {
-            width: 100%;
-        }
-        .admin-header-actions .admin-nav-btn {
-            flex: 0 0 auto;
-            width: auto;
-            min-width: 120px;
-        }
-    }
-    
-    @media (max-width: 1600px) {
-        .admin-header > .container-fluid > .d-flex {
-            flex-wrap: wrap;
-        }
-        .admin-header > .container-fluid > .d-flex > h2 {
-            flex: 1 1 100%;
-        }
-        .admin-header > .container-fluid > .d-flex > .admin-header-actions {
-            flex: 1 1 100%;
-            width: 100%;
-        }
-    }
-    
-    @media (max-width: 576px) {
-        .admin-nav-btn {
-            width: 100%;
-        }
-        .admin-header-actions .admin-nav-btn {
-            flex: 0 0 auto;
-            width: auto;
-            min-width: 120px;
+            justify-content: flex-start; /* Tombol rata kiri jika di HP */
         }
     }
     
