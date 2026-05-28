@@ -117,10 +117,11 @@
     .admin-nav-btn:not(.active) {
         border: 2px solid #dee2e6;
         color: #495057;
+        background-color: transparent !important;
     }
     .admin-nav-btn:not(.active):hover {
         border-color: #adb5bd;
-        background-color: #f8f9fa;
+        background-color: transparent !important;
     }
 </style>
 
