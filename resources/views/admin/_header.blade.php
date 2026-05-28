@@ -158,10 +158,10 @@
                     <a href="{{ route('admin.payment_methods.index') }}" class="btn btn-sm admin-nav-btn {{ $activePage === 'payment' ? 'active btn-outline-secondary' : 'btn-outline-secondary' }}">
                         <i class="bi bi-credit-card-2-back me-1"></i> Metode Pembayaran
                     </a>
-                    <a href="{{ route('admin.users.create') }}" class="btn btn-sm btn-primary admin-nav-btn">
+                    <a href="{{ route('admin.users.create') }}" class="btn btn-sm admin-nav-btn {{ request()->routeIs('admin.users.create') ? 'active' : 'btn-outline-secondary' }}">
                         <i class="bi bi-person-plus me-1"></i> Buat Pelanggan
                     </a>
-                    <a href="{{ route('admin.admins.create') }}" class="btn btn-sm btn-warning admin-nav-btn text-dark">
+                    <a href="{{ route('admin.admins.create') }}" class="btn btn-sm admin-nav-btn {{ request()->routeIs('admin.admins.create') ? 'active' : 'btn-outline-secondary' }}">
                         <i class="bi bi-shield-check me-1"></i> Buat User Internal
                     </a>
                 @elseif(auth()->user()->isAdmin())
@@ -174,10 +174,10 @@
                     <a href="{{ route('admin.payment_methods.index') }}" class="btn btn-sm admin-nav-btn {{ $activePage === 'payment' ? 'active btn-outline-secondary' : 'btn-outline-secondary' }}">
                         <i class="bi bi-credit-card-2-back me-1"></i> Metode Pembayaran
                     </a>
-                    <a href="{{ route('admin.users.create') }}" class="btn btn-sm btn-primary admin-nav-btn">
+                    <a href="{{ route('admin.users.create') }}" class="btn btn-sm admin-nav-btn {{ request()->routeIs('admin.users.create') ? 'active' : 'btn-outline-secondary' }}">
                         <i class="bi bi-person-plus me-1"></i> Buat Pelanggan
                     </a>
-                    <a href="{{ route('admin.admins.create') }}" class="btn btn-sm btn-warning admin-nav-btn text-dark">
+                    <a href="{{ route('admin.admins.create') }}" class="btn btn-sm admin-nav-btn {{ request()->routeIs('admin.admins.create') ? 'active' : 'btn-outline-secondary' }}">
                         <i class="bi bi-shield-check me-1"></i> Buat User Internal
                     </a>
                 @endif
