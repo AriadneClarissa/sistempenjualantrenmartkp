@@ -23,18 +23,19 @@
         flex-wrap: nowrap;
         gap: 0.4rem;
         align-items: center;
-        justify-content: flex-end; /* Memaksa ke kanan */
+        justify-content: flex-start;
         width: auto;
         max-width: 100%;
         overflow-x: auto;
-        padding-bottom: 2px;
-        margin-left: auto !important; 
+        padding-bottom: 2px; /* Dikecilkan karena scrollbar akan dihilangkan */
         -webkit-overflow-scrolling: touch;
         
+        /* PAKSA SEMBUNYIKAN SCROLLBAR (Firefox/IE/Edge) */
         scrollbar-width: none !important; 
         -ms-overflow-style: none !important; 
     }
 
+    /* PAKSA SEMBUNYIKAN SCROLLBAR (Chrome/Safari/Opera/Edge WebKit) */
     .admin-header-actions::-webkit-scrollbar,
     .custom-scrollbar::-webkit-scrollbar {
         display: none !important;
@@ -45,34 +46,29 @@
     }
     
     .admin-header > .container-fluid > .d-flex {
-        display: flex !important;
         flex-wrap: nowrap;
         gap: 1rem;
-        align-items: center;
-        justify-content: space-between !important;
-        width: 100% !important; 
     }
     .admin-header > .container-fluid > .d-flex > h2 {
         flex: 0 0 auto;
-        margin-bottom: 0;
+        min-width: 0;
         white-space: nowrap;
     }
     .admin-header > .container-fluid > .d-flex > .admin-header-actions {
         flex: 1 1 auto;
+        min-width: 0;
     }
     
-    @media (max-width: 992px) {
+    @media (max-width: 768px) {
         .admin-header > .container-fluid > .d-flex {
-            flex-wrap: wrap !important;
+            flex-wrap: wrap;
         }
         .admin-header > .container-fluid > .d-flex > h2 {
             flex: 1 1 100%;
-            margin-bottom: 0.5rem !important;
         }
-        .admin-header-actions {
-            margin-left: 0 !important;
+        .admin-header > .container-fluid > .d-flex > .admin-header-actions {
+            flex: 1 1 100%;
             width: 100%;
-            justify-content: flex-start;
         }
         .admin-nav-btn {
             width: 100%;
@@ -84,19 +80,40 @@
         }
     }
     
-    /* GAYA TOMBOL AKTIF */
+    @media (max-width: 1600px) {
+        .admin-header > .container-fluid > .d-flex {
+            flex-wrap: wrap;
+        }
+        .admin-header > .container-fluid > .d-flex > h2 {
+            flex: 1 1 100%;
+        }
+        .admin-header > .container-fluid > .d-flex > .admin-header-actions {
+            flex: 1 1 100%;
+            width: 100%;
+        }
+    }
+    
+    @media (max-width: 576px) {
+        .admin-nav-btn {
+            width: 100%;
+        }
+        .admin-header-actions .admin-nav-btn {
+            flex: 0 0 auto;
+            width: auto;
+            min-width: 120px;
+        }
+    }
+    
     .admin-nav-btn.active {
-        background-color: var(--maroon) !important;
-        color: white !important;
-        border-color: var(--maroon) !important;
+        background-color: var(--maroon);
+        color: white;
+        border-color: var(--maroon);
         border-width: 2px;
     }
     .admin-nav-btn.active:hover {
-        background-color: #550000 !important;
-        border-color: #550000 !important;
+        background-color: #800000;
+        border-color: #800000;
     }
-    
-    /* GAYA TOMBOL TIDAK AKTIF (TRANSPARAN) */
     .admin-nav-btn:not(.active) {
         border: 2px solid #dee2e6;
         color: #495057;
@@ -129,9 +146,8 @@
                     <a href="{{ route('produk.index') }}" class="btn btn-sm admin-nav-btn {{ request()->routeIs('produk.*') ? 'active' : 'btn-outline-secondary' }}">
                         <i class="bi bi-box-seam me-1"></i> Produk
                     </a>
-                
                 @elseif(auth()->user()->isOwner())
-                    <a href="{{ route('admin.dashboard') }}" class="btn btn-sm admin-nav-btn {{ request()->routeIs('admin.dashboard') || request()->routeIs('admin.users.index') ? 'active' : 'btn-outline-secondary' }}">
+                    <a href="{{ route('admin.dashboard') }}" class="btn btn-sm admin-nav-btn {{ request()->routeIs('admin.dashboard') ? 'active' : 'btn-outline-secondary' }}">
                         <i class="bi bi-people me-1"></i> Semua Pengguna
                     </a>
                     <a href="{{ route('admin.users.internal') }}" class="btn btn-sm admin-nav-btn {{ request()->routeIs('admin.users.internal') ? 'active' : 'btn-outline-secondary' }}">
@@ -149,15 +165,14 @@
                     <a href="{{ route('admin.admins.create') }}" class="btn btn-sm admin-nav-btn {{ request()->routeIs('admin.admins.create') ? 'active' : 'btn-outline-secondary' }}">
                         <i class="bi bi-shield-check me-1"></i> Buat User Internal
                     </a>
-                
                 @elseif(auth()->user()->isAdmin())
-                    <a href="{{ route('admin.users.internal') }}" class="btn btn-sm admin-nav-btn {{ request()->routeIs('admin.users.internal') ? 'active' : 'btn-outline-secondary' }}">
+                    <a href="{{ route('admin.users.internal') }}" class="btn btn-sm admin-nav-btn {{ $activePage === 'internal_users' ? 'active btn-outline-secondary' : 'btn-outline-secondary' }}">
                         <i class="bi bi-shield-lock me-1"></i> User Internal
                     </a>
-                    <a href="{{ route('admin.customers.index') }}" class="btn btn-sm admin-nav-btn {{ request()->routeIs('admin.customers.*') ? 'active' : 'btn-outline-secondary' }}">
+                    <a href="{{ route('admin.customers.index') }}" class="btn btn-sm admin-nav-btn {{ $activePage === 'customers' ? 'active btn-outline-secondary' : 'btn-outline-secondary' }}">
                         <i class="bi bi-person-badge me-1"></i> Pelanggan
                     </a>
-                    <a href="{{ route('admin.payment_methods.index') }}" class="btn btn-sm admin-nav-btn {{ request()->routeIs('admin.payment_methods.*') ? 'active' : 'btn-outline-secondary' }}">
+                    <a href="{{ route('admin.payment_methods.index') }}" class="btn btn-sm admin-nav-btn {{ $activePage === 'payment' ? 'active btn-outline-secondary' : 'btn-outline-secondary' }}">
                         <i class="bi bi-credit-card-2-back me-1"></i> Metode Pembayaran
                     </a>
                     <a href="{{ route('admin.users.create') }}" class="btn btn-sm admin-nav-btn {{ request()->routeIs('admin.users.create') ? 'active' : 'btn-outline-secondary' }}">
@@ -167,7 +182,6 @@
                         <i class="bi bi-shield-check me-1"></i> Buat User Internal
                     </a>
                 @endif
-                
                 <a href="{{ route('beranda') }}" class="btn btn-sm btn-outline-secondary admin-nav-btn">
                     <i class="bi bi-house-door-fill me-1"></i> Kembali ke Beranda
                 </a>
