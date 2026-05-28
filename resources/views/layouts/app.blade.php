@@ -39,18 +39,21 @@
             background-color: #ffffff !important; 
             position: relative; /* Tambahan untuk wadah absolute */
         }
-        /* Mengunci ruang logo agar tidak menggeser elemen lain saat loading */
+        /* Mengunci ruang logo agar sama sekali tidak bergerak */
         .navbar-brand {
             display: inline-flex;
             align-items: center;
-            min-width: 160px; /* Cadangan ruang untuk logo */
+            height: 40px;
+            min-width: 160px; 
         }
         
         .navbar-brand img { 
             height: 40px; 
             width: auto;
-            /* Batasi animasi HANYA pada efek transform, jangan animasikan lebar/loading gambar */
-            transition: transform 0.3s ease; 
+            max-width: 160px;
+            object-fit: contain;
+            object-position: left center;
+            /* PASTIKAN TIDAK ADA KODE 'transition' SAMA SEKALI DI SINI */
         }
         
         .navbar-nav { margin-left: auto !important; margin-right: auto !important; }
@@ -279,9 +282,8 @@
 <body>
 
 <nav class="navbar navbar-expand-lg bg-white sticky-top shadow-sm">
-    <div class="container">
-        <a class="navbar-brand" href="{{ route('beranda') }}">
-            <img src="{{ asset('images/logoTrenmart.png') }}" alt="Logo" style="height: 40px; width: auto; object-fit: contain;">
+    <div class="container-fluid" style="width: 92%; max-width: 1600px;"> <a class="navbar-brand" href="{{ route('beranda') }}">
+            <img src="{{ asset('images/logoTrenmart.png') }}" alt="Logo" fetchpriority="high" decoding="sync">
         </a>
         
         <div class="d-flex d-lg-none ms-auto me-2 align-items-center">
@@ -569,27 +571,28 @@
                 </div>
             </div>
 
-            <div class="col-lg-4 footer-divider">
-                <h5>Jam Operasional</h5>
-                <div class="footer-info-item">
-                    <i class="bi bi-clock"></i>
-                    <table class="table-jam">
-                        <tr>
-                            <td class="td-hari">Senin - Jumat</td>
-                            <td class="td-pemisah">:</td>
-                            <td>08.00 - 21.00</td>
-                        </tr>
-                        <tr>
-                            <td class="td-hari">Sabtu</td>
-                            <td class="td-pemisah">:</td>
-                            <td>08.00 - 20.00</td>
-                        </tr>
-                        <tr>
-                            <td class="td-hari">Minggu</td>
-                            <td class="td-pemisah">:</td>
-                            <td>09.00 - 20.00</td>
-                        </tr>
-                    </table>
+            <div class="col-lg-4 footer-divider d-flex justify-content-lg-center">
+                <div> <h5>Jam Operasional</h5>
+                    <div class="footer-info-item">
+                        <i class="bi bi-clock"></i>
+                        <table class="table-jam">
+                            <tr>
+                                <td class="td-hari">Senin - Jumat</td>
+                                <td class="td-pemisah">:</td>
+                                <td>08.00 - 21.00</td>
+                            </tr>
+                            <tr>
+                                <td class="td-hari">Sabtu</td>
+                                <td class="td-pemisah">:</td>
+                                <td>08.00 - 20.00</td>
+                            </tr>
+                            <tr>
+                                <td class="td-hari">Minggu</td>
+                                <td class="td-pemisah">:</td>
+                                <td>09.00 - 20.00</td>
+                            </tr>
+                        </table>
+                    </div>
                 </div>
             </div>
 
