@@ -39,33 +39,39 @@
             background-color: #ffffff !important; 
             position: relative; /* Tambahan untuk wadah absolute */
         }
-        
-        /* Mengunci ruang logo agar tidak bergeser (Mencegah CLS/Kedip) */
+        /* Mengunci ruang logo agar tidak menggeser elemen lain saat loading */
         .navbar-brand {
             display: inline-flex;
             align-items: center;
-            width: 160px !important;
-            min-width: 160px !important;
-            height: 48px;
-            padding: 0;
-            margin-right: 1rem;
+            justify-content: flex-start;
+            flex: 0 0 180px;
+            min-width: 180px; /* Cadangan ruang untuk logo */
+            min-height: 48px;
         }
         
         .navbar-brand img { 
             display: block;
-            width: 160px !important;
-            height: 40px !important; 
-            object-fit: contain;
+            width: 160px;
+            height: 40px; 
+            width: auto;
+            max-width: 100%;
+            /* Batasi animasi HANYA pada efek transform, jangan animasikan lebar/loading gambar */
+            transition: none; 
         }
-
+        
         .navbar-nav { margin-left: auto !important; margin-right: auto !important; }
         .nav-link { font-weight: 600; font-size: 1.05rem; color: #444 !important; padding: 8px 18px !important; transition: 0.2s; position: relative; }
         .nav-link:hover, .nav-link.active { color: var(--maroon-trenmart) !important; }
 
         @media (min-width: 992px) {
-            /* Sesuaikan ruang logo di layar besar */
-            .navbar-brand { width: 180px !important; min-width: 180px !important; }
-            .navbar-brand img { width: 180px !important; height: 45px !important; }
+            .navbar-brand {
+                min-width: 180px; /* Sesuaikan ruang logo di layar besar */
+                flex-basis: 180px;
+            }
+            .navbar-brand img {
+                width: 180px;
+                height: 48px;
+            }
             
             /* KEMBALIKAN GARIS BAWAH MERAH DI SINI */
             .nav-link.active::after {
@@ -282,7 +288,7 @@
 <nav class="navbar navbar-expand-lg bg-white sticky-top shadow-sm">
     <div class="container">
         <a class="navbar-brand" href="{{ route('beranda') }}">
-            <img src="{{ asset('images/logoTrenmart.png') }}" alt="Logo Trenmart" loading="eager" fetchpriority="high">
+            <img src="{{ asset('images/logoTrenmart.png') }}" alt="Logo" width="180" height="48" loading="eager" decoding="async" fetchpriority="high" style="object-fit: contain;">
         </a>
         
         <div class="d-flex d-lg-none ms-auto me-2 align-items-center">
@@ -570,21 +576,28 @@
             </div>
 
             <div class="col-lg-4 footer-divider d-flex justify-content-lg-center">
+                <!-- Kolom Tengah: Jam Operasional -->
                 <div class="d-flex flex-column" style="width: 100%; max-width: 250px;">
+                    <!-- Judul & Ikon Sejajar -->
                     <div class="d-flex align-items-center mb-3">
+                        <!-- Menyamakan ukuran ikon dengan ikon di Hubungi Kami -->
                         <i class="bi bi-clock me-2" style="font-size: 1.1rem; color: rgba(255, 255, 255, 0.8);"></i>
                         <h5 class="mb-0">Jam Operasional</h5>
                     </div>
                     
+                    <!-- Daftar Hari dan Jam (Ditambahkan class 'small' agar ukurannya sama dengan kolom lain) -->
                     <div class="d-flex flex-column gap-2 small">
+                        <!-- Baris 1 -->
                         <div class="d-flex justify-content-between align-items-center border-bottom border-white border-opacity-25 pb-2">
                             <span class="opacity-90">Senin - Jumat</span>
                             <span class="fw-medium text-white">08.00 - 21.00</span>
                         </div>
+                        <!-- Baris 2 -->
                         <div class="d-flex justify-content-between align-items-center border-bottom border-white border-opacity-25 pb-2">
                             <span class="opacity-90">Sabtu</span>
                             <span class="fw-medium text-white">08.00 - 20.00</span>
                         </div>
+                        <!-- Baris 3 -->
                         <div class="d-flex justify-content-between align-items-center pb-2">
                             <span class="opacity-90">Minggu</span>
                             <span class="fw-medium text-white">09.00 - 20.00</span>
