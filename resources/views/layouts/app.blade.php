@@ -61,13 +61,19 @@
             .navbar-brand { min-width: 180px; } /* Sesuaikan ruang logo di layar besar */
             .navbar-brand img { height: 48px; }
             
-            /* JURUS KUNCI: Memaku menu ke titik tengah layar secara absolut */
+            /* KEMBALIKAN GARIS BAWAH MERAH DI SINI */
+            .nav-link.active::after {
+                content: ""; position: absolute; bottom: 2px; left: 18px; right: 18px;
+                height: 3px; background-color: var(--maroon-trenmart); border-radius: 10px;
+            }
+            
+            /* KUNCI MENU DI TENGAH LAYAR */
             .navbar-nav {
                 position: absolute !important;
                 left: 50% !important;
                 transform: translateX(-50%) !important;
                 margin: 0 !important;
-                width: max-content; /* Mencegah menu terlipat ke bawah */
+                width: max-content; 
             }
         }
 
