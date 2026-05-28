@@ -28,39 +28,43 @@
         </form>
     </div>
 
-    <div class="table-responsive">
-        <table class="table table-bordered table-hover bg-white mb-0">
-            <thead>
-                <tr>
-                    <th width="5%">#</th>
-                    <th width="25%">Nama Metode</th>
-                    <th width="25%">Pemilik Rekening</th>
-                    <th width="25%">No. Rekening</th>
-                    <th width="20%">Aksi</th>
-                </tr>
-            </thead>
-            <tbody>
-                @forelse($methods as $index => $m)
-                <tr>
-                    <td>{{ $index + 1 }}</td>
-                    <td>{{ $m->name }}</td>
-                    <td>{{ $m->account_name ?: '-' }}</td>
-                    <td>{{ $m->account_number ?: '-' }}</td>
-                    <td>
-                        <form action="{{ route('admin.payment_methods.destroy', $m->id) }}" method="POST" class="m-0">
-                            @csrf 
-                            @method('DELETE')
-                            <button type="submit" class="btn btn-sm btn-danger px-3">Hapus</button>
-                        </form>
-                    </td>
-                </tr>
-                @empty
-                <tr>
-                    <td colspan="5" class="text-center text-muted py-3">Belum ada metode pembayaran yang ditambahkan.</td>
-                </tr>
-                @endforelse
-            </tbody>
-        </table>
+    <div class="card shadow-sm w-100">
+        <div class="card-body p-3">
+            <div class="table-responsive">
+                <table class="table table-hover table-bordered align-middle w-100 mb-0" style="font-size: 0.95rem; table-layout: fixed;">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="py-1 px-2" style="width: 5%;">#</th>
+                            <th class="py-1 px-2" style="width: 25%;">Nama Metode</th>
+                            <th class="py-1 px-2" style="width: 30%;">Pemilik Rekening</th>
+                            <th class="py-1 px-2" style="width: 30%;">No. Rekening</th>
+                            <th class="py-1 px-2" style="width: 10%;">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse($methods as $index => $m)
+                        <tr>
+                            <td class="py-1 px-2 text-truncate">{{ $index + 1 }}</td>
+                            <td class="py-1 px-2 text-truncate">{{ $m->name }}</td>
+                            <td class="py-1 px-2 text-truncate">{{ $m->account_name ?? '-' }}</td>
+                            <td class="py-1 px-2 text-truncate">{{ $m->account_number ?? '-' }}</td>
+                            <td class="py-1 px-2 text-truncate">
+                                <form action="{{ route('admin.payment_methods.destroy', $m->id) }}" method="POST" class="m-0">
+                                    @csrf 
+                                    @method('DELETE')
+                                    <button type="submit" class="btn btn-sm btn-danger px-3 py-0">Hapus</button>
+                                </form>
+                            </td>
+                        </tr>
+                        @empty
+                        <tr>
+                            <td colspan="5" class="py-3 px-2 text-center text-muted">Belum ada metode pembayaran yang ditambahkan.</td>
+                        </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 </div>
 @endsection
