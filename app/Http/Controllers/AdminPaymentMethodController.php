@@ -10,7 +10,12 @@ class AdminPaymentMethodController extends Controller
     public function index()
     {
         $methods = PaymentMethod::orderBy('created_at','desc')->get();
-        return view('admin.payment_methods.index', compact('methods'));
+        
+        // Tambahkan variabel page ini
+        $page = 'payment'; 
+        
+        // Tambahkan 'page' ke dalam compact
+        return view('admin.payment_methods.index', compact('methods', 'page')); 
     }
 
     public function store(Request $request)

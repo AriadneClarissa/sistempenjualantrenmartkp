@@ -493,7 +493,7 @@
         </div>
     </div>
 </div>
-<main class="main-container {{ isset($page) && in_array($page, ['all', 'internal', 'customers'], true) ? 'full-width-page' : '' }} mt-4 mb-5">
+<main class="main-container {{ isset($page) && in_array($page, ['all', 'internal', 'customers', 'payment'], true) ? 'full-width-page' : '' }} mt-4 mb-5">
     @yield('content')
 </main>
 
