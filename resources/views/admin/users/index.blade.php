@@ -17,11 +17,15 @@
                     <thead class="table-light">
                         <tr>
                             <th class="py-1 px-2" style="width: 5%;">#</th>
-                            <th class="py-1 px-2" style="width: 11%;">Kode Pelanggan</th>
+                            @if($page !== 'internal')
+                                <th class="py-1 px-2" style="width: 11%;">Kode Pelanggan</th>
+                            @endif
                             <th class="py-1 px-2" style="width: 18%;">Nama</th>
                             <th class="py-1 px-2" style="width: 26%;">Email</th>
                             <th class="py-1 px-2" style="width: 12%;">Role</th>
-                            <th class="py-1 px-2" style="width: 12%;">Jenis Pelanggan</th>
+                            @if($page !== 'internal')
+                                <th class="py-1 px-2" style="width: 12%;">Jenis Pelanggan</th>
+                            @endif
                             @if($page === 'internal')
                                 <th class="py-1 px-2" style="width: 8%;">Status</th>
                                 <th class="py-1 px-2" style="width: 10%;">Aksi</th>
@@ -33,11 +37,15 @@
                         @foreach($users as $u)
                         <tr>
                             <td class="py-1 px-2 text-truncate">{{ $u->id }}</td>
-                            <td class="py-1 px-2 text-truncate">{{ $u->kd_pelanggan ?? '-' }}</td>
+                            @if($page !== 'internal')
+                                <td class="py-1 px-2 text-truncate">{{ $u->kd_pelanggan ?? '-' }}</td>
+                            @endif
                             <td class="py-1 px-2 text-truncate">{{ $u->name }}</td>
                             <td class="py-1 px-2 text-truncate">{{ $u->email }}</td>
                             <td class="py-1 px-2 text-truncate">{{ $u->roleLabel() }}</td>
-                            <td class="py-1 px-2 text-truncate">{{ $u->customer_type ?? '-' }}</td>
+                            @if($page !== 'internal')
+                                <td class="py-1 px-2 text-truncate">{{ $u->customer_type ?? '-' }}</td>
+                            @endif
                             @if($page === 'internal')
                                 <td class="py-1 px-2">
                                     @if($u->isActive())
