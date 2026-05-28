@@ -27,6 +27,11 @@
         overflow-x: auto;
         padding-bottom: 4px;
         -webkit-overflow-scrolling: touch;
+        scrollbar-width: none; 
+        -ms-overflow-style: none;
+    }
+        .admin-header-actions::-webkit-scrollbar {
+        display: none;
     }
     .admin-header-actions .admin-nav-btn {
         flex: 0 0 auto;
