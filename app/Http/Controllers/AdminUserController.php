@@ -11,7 +11,7 @@ class AdminUserController extends Controller
     public function index()
     {
         $users = User::orderBy('created_at', 'desc')->get();
-
+        
         return view('admin.users.index', [
             'users' => $users,
             'page' => 'all',
@@ -72,7 +72,10 @@ class AdminUserController extends Controller
 
     public function create()
     {
-        return view('admin.users.create');
+        // Tambahkan 'page' => 'customers' agar layout-nya membentang penuh
+        return view('admin.users.create', [
+            'page' => 'customers' 
+        ]);
     }
 
     public function store(\Illuminate\Http\Request $request)
@@ -105,7 +108,10 @@ class AdminUserController extends Controller
 
     public function createAdmin()
     {
-        return view('admin.admins.create');
+        // Tambahkan 'page' => 'internal' agar layout-nya membentang penuh
+        return view('admin.admins.create', [
+            'page' => 'internal'
+        ]);
     }
 
     public function storeAdmin(\Illuminate\Http\Request $request)
