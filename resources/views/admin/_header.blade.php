@@ -111,8 +111,8 @@
         border-width: 2px;
     }
     .admin-nav-btn.active:hover {
-        background-color: #550000;
-        border-color: #550000;
+        background-color: #800000;
+        border-color: #800000;
     }
     .admin-nav-btn:not(.active) {
         border: 2px solid #dee2e6;
