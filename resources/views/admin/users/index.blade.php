@@ -45,7 +45,7 @@
                             <td class="py-1 px-2 text-truncate">{{ $u->roleLabel() }}</td>
                             @if($page !== 'internal')
                                 <td class="py-1 px-2 text-truncate">
-                                    @if(isset($u->customer_type))
+                                    @if(method_exists($u, 'isCustomer') ? $u->isCustomer() : ($u->role === 'customer'))
                                         {{ $u->customer_type === 'langganan' ? 'Langganan' : 'Umum' }}
                                     @else
                                         -
