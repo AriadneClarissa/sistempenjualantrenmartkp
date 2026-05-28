@@ -36,20 +36,27 @@
             background-color: #ffffff !important; 
             position: relative; /* Tambahan untuk wadah absolute */
         }
-        .navbar-brand img { height: 40px; transition: 0.3s; }
+        /* Mengunci ruang logo agar tidak menggeser elemen lain saat loading */
+        .navbar-brand {
+            display: inline-flex;
+            align-items: center;
+            min-width: 160px; /* Cadangan ruang untuk logo */
+        }
         
+        .navbar-brand img { 
+            height: 40px; 
+            width: auto;
+            /* Batasi animasi HANYA pada efek transform, jangan animasikan lebar/loading gambar */
+            transition: transform 0.3s ease; 
+        }
+        
+        .navbar-nav { margin-left: auto !important; margin-right: auto !important; }
         .nav-link { font-weight: 600; font-size: 1.05rem; color: #444 !important; padding: 8px 18px !important; transition: 0.2s; position: relative; }
         .nav-link:hover, .nav-link.active { color: var(--maroon-trenmart) !important; }
 
-        /* Posisi standar untuk HP (tetap pakai margin auto) */
-        .navbar-nav { margin-left: auto !important; margin-right: auto !important; }
-
         @media (min-width: 992px) {
+            .navbar-brand { min-width: 180px; } /* Sesuaikan ruang logo di layar besar */
             .navbar-brand img { height: 48px; }
-            .nav-link.active::after {
-                content: ""; position: absolute; bottom: 2px; left: 18px; right: 18px;
-                height: 3px; background-color: var(--maroon-trenmart); border-radius: 10px;
-            }
             
             /* JURUS KUNCI: Memaku menu ke titik tengah layar secara absolut */
             .navbar-nav {
