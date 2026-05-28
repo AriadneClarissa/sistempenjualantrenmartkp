@@ -553,7 +553,7 @@
 </main>
 
 <footer class="main-footer">
-    <div class="container">
+    <div class="container-fluid" style="width: 92%; max-width: 1600px;">
         <div class="row gy-4">
             <div class="col-lg-4">
                 <h5>Hubungi Kami</h5>
