@@ -39,21 +39,18 @@
             background-color: #ffffff !important; 
             position: relative; /* Tambahan untuk wadah absolute */
         }
-        /* Mengunci ruang logo agar sama sekali tidak bergerak */
+        /* Mengunci ruang logo agar tidak menggeser elemen lain saat loading */
         .navbar-brand {
             display: inline-flex;
             align-items: center;
-            height: 40px;
-            min-width: 160px; 
+            min-width: 160px; /* Cadangan ruang untuk logo */
         }
         
         .navbar-brand img { 
             height: 40px; 
             width: auto;
-            max-width: 160px;
-            object-fit: contain;
-            object-position: left center;
-            /* PASTIKAN TIDAK ADA KODE 'transition' SAMA SEKALI DI SINI */
+            /* Batasi animasi HANYA pada efek transform, jangan animasikan lebar/loading gambar */
+            transition: transform 0.3s ease; 
         }
         
         .navbar-nav { margin-left: auto !important; margin-right: auto !important; }
@@ -282,8 +279,9 @@
 <body>
 
 <nav class="navbar navbar-expand-lg bg-white sticky-top shadow-sm">
-    <div class="container-fluid" style="width: 92%; max-width: 1600px;"> <a class="navbar-brand" href="{{ route('beranda') }}">
-            <img src="{{ asset('images/logoTrenmart.png') }}" alt="Logo" fetchpriority="high" decoding="sync">
+    <div class="container">
+        <a class="navbar-brand" href="{{ route('beranda') }}">
+            <img src="{{ asset('images/logoTrenmart.png') }}" alt="Logo" style="height: 40px; width: auto; object-fit: contain;">
         </a>
         
         <div class="d-flex d-lg-none ms-auto me-2 align-items-center">
