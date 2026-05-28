@@ -211,13 +211,35 @@
 
         .main-container { width: 100%; padding-right: .75rem; padding-left: .75rem; margin-right: auto; margin-left: auto; }
         .main-container.full-width-page {
-            width: calc(100vw - 1rem) !important;
-            max-width: calc(100vw - 1rem) !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            padding-left: 1.5rem !important; 
+            padding-right: 1.5rem !important; 
         }
         @media (min-width: 576px) { .main-container { max-width: 540px; } }
         @media (min-width: 768px) { .main-container { max-width: 720px; } }
         @media (min-width: 992px) { .main-container { max-width: 960px; } }
         @media (min-width: 1200px) { .main-container { max-width: 1140px; } }
+
+        /* --- KUSTOMISASI DROPDOWN ITEM --- */
+        .dropdown-menu .dropdown-item {
+            transition: background-color 0.2s ease;
+        }
+        
+        .dropdown-menu .dropdown-item:hover {
+            background-color: #f8f9fa !important; 
+            color: #212529 !important;
+        }
+
+        .dropdown-menu .dropdown-item:active, 
+        .dropdown-menu .dropdown-item:focus {
+            background-color: #e9ecef !important; /* Warna abu-abu terang, memblokir biru */
+            color: #212529 !important; 
+        }
+        .icon-nav {
+            min-width: 32px; 
+            justify-content: center;
+        }
     </style>
     @stack('styles')
 </head>
