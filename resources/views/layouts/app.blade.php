@@ -667,6 +667,20 @@ window.showFlashToast = window.showFlashToast || function(type, title, body) {
 };
 
 document.addEventListener('DOMContentLoaded', function() {
+    // Konfirmasi keluar akun untuk semua form logout di halaman yang memakai layout ini.
+    document.addEventListener('submit', function(e) {
+        const form = e.target;
+        if (!(form instanceof HTMLFormElement)) return;
+
+        const action = (form.getAttribute('action') || '').toLowerCase();
+        if (!action.includes('/logout')) return;
+
+        const confirmed = window.confirm('Yakin ingin keluar dari akun?');
+        if (!confirmed) {
+            e.preventDefault();
+        }
+    });
+
     // Expose global function to update cart badges across the layout
     window.updateCartBadge = function(count) {
         const els = document.querySelectorAll('.cart-count');
