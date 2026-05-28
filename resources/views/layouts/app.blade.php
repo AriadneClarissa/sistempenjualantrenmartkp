@@ -548,6 +548,25 @@
         </div>
     </div>
 </div>
+
+<div class="modal fade" id="logoutConfirmModal" tabindex="-1" aria-labelledby="logoutConfirmModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header">
+                <h5 class="modal-title" id="logoutConfirmModalLabel">Konfirmasi Keluar</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Yakin ingin keluar dari akun?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" id="logoutConfirmNo" data-bs-dismiss="modal">Batal</button>
+                <button type="button" class="btn btn-danger" id="logoutConfirmYes">Ya, Keluar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <main class="main-container {{ isset($page) && in_array($page, ['all', 'internal', 'customers', 'payment'], true) ? 'full-width-page' : '' }} mt-4 mb-5">
     @yield('content')
 </main>
@@ -667,6 +686,34 @@ window.showFlashToast = window.showFlashToast || function(type, title, body) {
 };
 
 document.addEventListener('DOMContentLoaded', function() {
+    const logoutModalEl = document.getElementById('logoutConfirmModal');
+    const logoutConfirmYes = document.getElementById('logoutConfirmYes');
+    const logoutConfirmNo = document.getElementById('logoutConfirmNo');
+    const logoutModal = logoutModalEl ? new bootstrap.Modal(logoutModalEl) : null;
+    let pendingLogoutForm = null;
+
+    const resetPendingLogout = function() {
+        pendingLogoutForm = null;
+    };
+
+    if (logoutConfirmYes) {
+        logoutConfirmYes.addEventListener('click', function() {
+            if (!pendingLogoutForm) return;
+
+            pendingLogoutForm.dataset.logoutConfirmed = '1';
+            pendingLogoutForm.submit();
+            resetPendingLogout();
+        });
+    }
+
+    if (logoutConfirmNo) {
+        logoutConfirmNo.addEventListener('click', resetPendingLogout);
+    }
+
+    if (logoutModalEl) {
+        logoutModalEl.addEventListener('hidden.bs.modal', resetPendingLogout);
+    }
+
     // Konfirmasi keluar akun untuk semua form logout di halaman yang memakai layout ini.
     document.addEventListener('submit', function(e) {
         const form = e.target;
@@ -675,10 +722,27 @@ document.addEventListener('DOMContentLoaded', function() {
         const action = (form.getAttribute('action') || '').toLowerCase();
         if (!action.includes('/logout')) return;
 
-        const confirmed = window.confirm('Yakin ingin keluar dari akun?');
-        if (!confirmed) {
-            e.preventDefault();
+        if (form.dataset.logoutConfirmed === '1') {
+            return;
         }
+
+        e.preventDefault();
+        pendingLogoutForm = form;
+
+        if (logoutModal) {
+            logoutModal.show();
+            return;
+        }
+
+        // Fallback jika komponen modal tidak tersedia.
+        const confirmed = window.confirm('Yakin ingin keluar dari akun?');
+        if (confirmed) {
+            form.dataset.logoutConfirmed = '1';
+            form.submit();
+            return;
+        }
+
+        resetPendingLogout();
     });
 
     // Expose global function to update cart badges across the layout
