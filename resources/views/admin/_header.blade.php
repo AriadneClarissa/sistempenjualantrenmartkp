@@ -147,7 +147,10 @@
                         <i class="bi bi-box-seam me-1"></i> Produk
                     </a>
                 @elseif(auth()->user()->isOwner())
-                    <a href="{{ route('admin.dashboard') }}" class="btn btn-sm admin-nav-btn {{ request()->routeIs('admin.dashboard', 'admin.users.index') ? 'active' : 'btn-outline-secondary' }}">
+                    @php
+                        $isAllUsersPage = request()->routeIs('admin.dashboard', 'admin.users.index') || ($activePage ?? null) === 'dashboard' || ($activePage ?? null) === 'users';
+                    @endphp
+                    <a href="{{ route('admin.dashboard') }}" class="btn btn-sm admin-nav-btn {{ $isAllUsersPage ? 'active' : 'btn-outline-secondary' }}">
                         <i class="bi bi-people me-1"></i> Semua Pengguna
                     </a>
                     <a href="{{ route('admin.users.internal') }}" class="btn btn-sm admin-nav-btn {{ request()->routeIs('admin.users.internal') ? 'active' : 'btn-outline-secondary' }}">

@@ -43,14 +43,20 @@
         .navbar-brand {
             display: inline-flex;
             align-items: center;
-            min-width: 160px; /* Cadangan ruang untuk logo */
+            justify-content: flex-start;
+            flex: 0 0 180px;
+            min-width: 180px; /* Cadangan ruang untuk logo */
+            min-height: 48px;
         }
         
         .navbar-brand img { 
+            display: block;
+            width: 160px;
             height: 40px; 
             width: auto;
+            max-width: 100%;
             /* Batasi animasi HANYA pada efek transform, jangan animasikan lebar/loading gambar */
-            transition: transform 0.3s ease; 
+            transition: none; 
         }
         
         .navbar-nav { margin-left: auto !important; margin-right: auto !important; }
@@ -58,8 +64,14 @@
         .nav-link:hover, .nav-link.active { color: var(--maroon-trenmart) !important; }
 
         @media (min-width: 992px) {
-            .navbar-brand { min-width: 180px; } /* Sesuaikan ruang logo di layar besar */
-            .navbar-brand img { height: 48px; }
+            .navbar-brand {
+                min-width: 180px; /* Sesuaikan ruang logo di layar besar */
+                flex-basis: 180px;
+            }
+            .navbar-brand img {
+                width: 180px;
+                height: 48px;
+            }
             
             /* KEMBALIKAN GARIS BAWAH MERAH DI SINI */
             .nav-link.active::after {
@@ -276,7 +288,7 @@
 <nav class="navbar navbar-expand-lg bg-white sticky-top shadow-sm">
     <div class="container">
         <a class="navbar-brand" href="{{ route('beranda') }}">
-            <img src="{{ asset('images/logoTrenmart.png') }}" alt="Logo" style="height: 40px; width: auto; object-fit: contain;">
+            <img src="{{ asset('images/logoTrenmart.png') }}" alt="Logo" width="180" height="48" loading="eager" decoding="async" fetchpriority="high" style="object-fit: contain;">
         </a>
         
         <div class="d-flex d-lg-none ms-auto me-2 align-items-center">
@@ -564,24 +576,41 @@
             </div>
 
             <div class="col-lg-4 footer-divider d-flex justify-content-lg-center">
-                <div class="d-flex flex-column" style="width: 100%; max-width: 250px;">
-                    <div class="d-flex align-items-center gap-2 mb-3">
-                        <i class="bi bi-clock fs-5"></i>
-                        <h5 class="mb-0 m-0 p-0" style="margin-bottom: 0 !important;">Jam Operasional</h5>
+                <div class="d-flex flex-column" style="width: 100%; max-width: 290px;">
+                    <div class="d-flex align-items-center gap-3 mb-3">
+                        <div class="bg-white rounded-circle d-flex align-items-center justify-content-center shadow-sm" style="width: 36px; height: 36px; color: var(--maroon-trenmart);">
+                            <i class="bi bi-clock-history fs-5"></i>
+                        </div>
+                        <h5 class="mb-0 fw-bold" style="letter-spacing: 0.5px;">Jam Operasional</h5>
                     </div>
                     
-                    <div class="d-flex flex-column gap-2 text-sm text-gray-200">
-                        <div class="d-flex justify-content-between align-items-center border-bottom border-white border-opacity-25 pb-2">
-                            <span class="opacity-90">Senin - Jumat</span>
-                            <span class="fw-medium text-white">08.00 - 21.00</span>
-                        </div>
-                        <div class="d-flex justify-content-between align-items-center border-bottom border-white border-opacity-25 pb-2">
-                            <span class="opacity-90">Sabtu</span>
-                            <span class="fw-medium text-white">08.00 - 20.00</span>
-                        </div>
-                        <div class="d-flex justify-content-between align-items-center pb-2">
-                            <span class="opacity-90">Minggu</span>
-                            <span class="fw-medium text-white">09.00 - 20.00</span>
+                    <div class="rounded-4 p-3 shadow-sm" style="background-color: rgba(0, 0, 0, 0.15); border: 1px solid rgba(255, 255, 255, 0.1);">
+                        <div class="d-flex flex-column gap-3 text-white">
+                            
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="d-flex align-items-center gap-2 opacity-90">
+                                    <i class="bi bi-calendar-range small"></i>
+                                    <span class="fw-medium">Senin - Jumat</span>
+                                </div>
+                                <span class="badge bg-white rounded-pill px-3 py-2 shadow-sm" style="color: var(--maroon-trenmart); font-size: 0.75rem;">08.00 - 21.00</span>
+                            </div>
+                            
+                            <div class="d-flex justify-content-between align-items-center border-top pt-3" style="border-color: rgba(255,255,255,0.1) !important;">
+                                <div class="d-flex align-items-center gap-2 opacity-90">
+                                    <i class="bi bi-calendar-check small"></i>
+                                    <span class="fw-medium">Sabtu</span>
+                                </div>
+                                <span class="badge bg-white rounded-pill px-3 py-2 shadow-sm" style="color: var(--maroon-trenmart); font-size: 0.75rem;">08.00 - 20.00</span>
+                            </div>
+                            
+                            <div class="d-flex justify-content-between align-items-center border-top pt-3" style="border-color: rgba(255,255,255,0.1) !important;">
+                                <div class="d-flex align-items-center gap-2 text-warning">
+                                    <i class="bi bi-calendar-heart small"></i>
+                                    <span class="fw-bold">Minggu</span>
+                                </div>
+                                <span class="badge bg-warning text-dark rounded-pill px-3 py-2 shadow-sm" style="font-size: 0.75rem;">09.00 - 20.00</span>
+                            </div>
+                            
                         </div>
                     </div>
                 </div>
