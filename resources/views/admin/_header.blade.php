@@ -2,6 +2,7 @@
     :root { --maroon: #660000; }
     .admin-header { background-color: #f8f9fa; border-bottom: 2px solid #e9ecef; }
     .admin-header h2 { color: var(--maroon); font-weight: bold; }
+    
     .admin-nav-btn { 
         border-radius: 50px; 
         padding: 0.4rem 0.72rem; 
@@ -16,6 +17,7 @@
         justify-content: center;
         text-align: center;
     }
+    
     .admin-header-actions {
         display: flex;
         flex-wrap: nowrap;
@@ -25,19 +27,24 @@
         width: auto;
         max-width: 100%;
         overflow-x: auto;
-        padding-bottom: 4px;
+        padding-bottom: 2px; /* Dikecilkan karena scrollbar akan dihilangkan */
         -webkit-overflow-scrolling: touch;
-        scrollbar-width: none; 
-        -ms-overflow-style: none;
+        
+        /* PAKSA SEMBUNYIKAN SCROLLBAR (Firefox/IE/Edge) */
+        scrollbar-width: none !important; 
+        -ms-overflow-style: none !important; 
     }
-        .admin-header-actions::-webkit-scrollbar {
-        display: none;
+
+    /* PAKSA SEMBUNYIKAN SCROLLBAR (Chrome/Safari/Opera/Edge WebKit) */
+    .admin-header-actions::-webkit-scrollbar,
+    .custom-scrollbar::-webkit-scrollbar {
+        display: none !important;
+        width: 0 !important;
+        height: 0 !important;
+        background: transparent !important;
+        -webkit-appearance: none !important;
     }
-    .admin-header-actions .admin-nav-btn {
-        flex: 0 0 auto;
-        width: auto;
-        min-width: 0;
-    }
+    
     .admin-header > .container-fluid > .d-flex {
         flex-wrap: nowrap;
         gap: 1rem;
@@ -51,6 +58,7 @@
         flex: 1 1 auto;
         min-width: 0;
     }
+    
     @media (max-width: 768px) {
         .admin-header > .container-fluid > .d-flex {
             flex-wrap: wrap;
@@ -61,7 +69,6 @@
         .admin-header > .container-fluid > .d-flex > .admin-header-actions {
             flex: 1 1 100%;
             width: 100%;
-            overflow-x: auto;
         }
         .admin-nav-btn {
             width: 100%;
@@ -72,6 +79,7 @@
             min-width: 120px;
         }
     }
+    
     @media (max-width: 1600px) {
         .admin-header > .container-fluid > .d-flex {
             flex-wrap: wrap;
@@ -84,6 +92,7 @@
             width: 100%;
         }
     }
+    
     @media (max-width: 576px) {
         .admin-nav-btn {
             width: 100%;
@@ -94,6 +103,7 @@
             min-width: 120px;
         }
     }
+    
     .admin-nav-btn.active {
         background-color: var(--maroon);
         color: white;
