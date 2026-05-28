@@ -18,11 +18,21 @@
         @endif
 
         @if($isLowStock)
-            <div class="position-absolute" style="top: 44px; left: 12px; z-index: 10;">
-                <span class="badge bg-warning text-dark px-2 py-1" style="border-radius: 7px; font-size: 0.68rem;">
-                    Warning Stok
-                </span>
-            </div>
+            @php
+                $showWarning = true;
+                // Jangan tampilkan warning stok untuk user yang merupakan pelanggan (umum atau langganan)
+                if(auth()->check() && auth()->user()->isCustomer()) {
+                    $showWarning = false;
+                }
+            @endphp
+
+            @if($showWarning)
+                <div class="position-absolute" style="top: 44px; left: 12px; z-index: 10;">
+                    <span class="badge bg-warning text-dark px-2 py-1" style="border-radius: 7px; font-size: 0.68rem;">
+                        Warning Stok
+                    </span>
+                </div>
+            @endif
         @endif
 
         {{-- Area Foto Produk --}}

@@ -44,7 +44,13 @@
                             <td class="py-1 px-2 text-truncate">{{ $u->email }}</td>
                             <td class="py-1 px-2 text-truncate">{{ $u->roleLabel() }}</td>
                             @if($page !== 'internal')
-                                <td class="py-1 px-2 text-truncate">{{ $u->customer_type ?? '-' }}</td>
+                                <td class="py-1 px-2 text-truncate">
+                                    @if(isset($u->customer_type))
+                                        {{ $u->customer_type === 'langganan' ? 'Langganan' : 'Umum' }}
+                                    @else
+                                        -
+                                    @endif
+                                </td>
                             @endif
                             @if($page === 'internal')
                                 <td class="py-1 px-2">
