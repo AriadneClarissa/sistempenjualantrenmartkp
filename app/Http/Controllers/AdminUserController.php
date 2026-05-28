@@ -80,24 +80,35 @@ class AdminUserController extends Controller
 
     public function store(\Illuminate\Http\Request $request)
     {
-        $data = $request->validate([
+        $customerType = $request->input('customer_type', 'langganan');
+
+        $rules = [
             'name' => 'required|string|max:255',
-            'kd_pelanggan' => 'required|string|max:50|unique:users,kd_pelanggan',
             'customer_type' => 'required|in:regular,langganan',
             'default_password' => 'required|string|min:8',
             'organization_name' => 'nullable|string|max:255',
             'organization_type' => 'nullable|string|max:255',
-        ]);
+        ];
 
-        $generatedEmail = strtolower(trim($data['kd_pelanggan'])) . '@trenmart.local';
+        if ($customerType === 'langganan') {
+            $rules['kd_pelanggan'] = 'required|string|max:50|unique:users,kd_pelanggan';
+        }
+
+        $data = $request->validate($rules);
+
+        $kdPelanggan = $customerType === 'regular'
+            ? User::generateCustomerCode()
+            : $data['kd_pelanggan'];
+
+        $generatedEmail = strtolower(trim($kdPelanggan)) . '@trenmart.local';
 
         User::create([
             'name' => $data['name'],
             'email' => $generatedEmail,
-            'kd_pelanggan' => $data['kd_pelanggan'],
+            'kd_pelanggan' => $kdPelanggan,
             'password' => \Illuminate\Support\Facades\Hash::make($data['default_password']),
             'role' => 'customer',
-            'customer_type' => $data['customer_type'],
+            'customer_type' => $customerType,
             'organization_name' => $data['organization_name'] ?? null,
             'organization_type' => $data['organization_type'] ?? null,
             'is_approved' => true,

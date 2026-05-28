@@ -43,12 +43,18 @@ class AuthController extends Controller
         'phone_number.regex' => 'Nomor WhatsApp harus diawali dengan 08.',
     ]);
 
+        $customerType = $request->customer_type === 'langganan' ? 'langganan' : 'regular';
+        $customerCode = $customerType === 'regular'
+            ? User::generateCustomerCode()
+            : null;
+
         $user = User::create([
         'name' => $validated['name'],
         'email' => $validated['email'],
         'password' => Hash::make($validated['password']),
         'role' => 'customer',
-        'customer_type' => $request->customer_type === 'langganan' ? 'langganan' : 'regular',
+        'customer_type' => $customerType,
+        'kd_pelanggan' => $customerCode,
         'phone_number' => $validated['phone_number'],
         'home_address' => $validated['home_address'],
         'is_active' => true,
@@ -64,7 +70,7 @@ class AuthController extends Controller
 
         $successMessage = $user->customer_type === 'langganan'
             ? 'Pendaftaran berhasil! Silakan login menggunakan kode pelanggan dan password Anda.'
-            : 'Pendaftaran berhasil! Silakan cek email Anda untuk tautan verifikasi.';
+            : 'Pendaftaran berhasil! Kode pelanggan Anda: ' . ($user->kd_pelanggan ?? '-') . '. Silakan cek email Anda untuk tautan verifikasi.';
 
         return redirect()->route('login')->with('success', $successMessage);
     }

@@ -123,5 +123,17 @@ class User extends \Illuminate\Foundation\Auth\User implements MustVerifyEmail
         $this->notify(new TrenmartResetPasswordNotification($token));
     }
 
+    public static function generateCustomerCode(string $prefix = 'PR', int $digits = 4): string
+    {
+        $startPosition = strlen($prefix) + 1;
+
+        $maxNumber = (int) static::query()
+            ->where('kd_pelanggan', 'like', $prefix . '%')
+            ->selectRaw('MAX(CAST(SUBSTRING(kd_pelanggan, ?) AS UNSIGNED)) as max_number', [$startPosition])
+            ->value('max_number');
+
+        return $prefix . str_pad((string) ($maxNumber + 1), $digits, '0', STR_PAD_LEFT);
+    }
+
     
 }

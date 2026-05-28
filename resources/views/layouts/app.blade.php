@@ -121,11 +121,6 @@
             .footer-divider { border-left: 1px solid rgba(255, 255, 255, 0.2); padding-left: 40px; height: 100%; }
         }
 
-        .table-jam { color: rgba(255, 255, 255, 0.9); font-size: 0.875rem; width: 100%; border-collapse: collapse; }
-        .table-jam td { padding: 2px 0; vertical-align: top; }
-        .td-hari { width: 110px; }
-        .td-pemisah { width: 15px; }
-
         .social-box { width: 40px; height: 40px; background-color: rgba(255, 255, 255, 0.1); display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; color: white; margin-right: 12px; transition: all 0.3s ease; text-decoration: none; }
         .social-box:hover { background-color: rgba(255, 255, 255, 0.25); transform: translateY(-3px); color: white; }
         .border-top-footer { border-top: 1px solid rgba(255, 255, 255, 0.1); padding-top: 25px; margin-top: 40px; }
@@ -458,11 +453,11 @@
                                                     <span class="badge rounded-pill bg-primary-subtle text-primary-emphasis border border-primary-subtle mt-1">Admin</span>
                                                 @elseif(auth()->user()->isCashier())
                                                     <span class="badge rounded-pill bg-warning-subtle text-warning-emphasis border border-warning-subtle mt-1">Kasir</span>
-                                        @elseif(auth()->user()->customer_type === 'langganan')
-                                            <span class="badge rounded-pill bg-warning-subtle text-warning-emphasis border border-warning-subtle mt-1">Pelanggan Langganan</span>
-                                        @else
-                                            <span class="badge rounded-pill bg-secondary-subtle text-secondary-emphasis border border-secondary-subtle mt-1">Pelanggan Umum</span>
-                                        @endif
+                                                @elseif(auth()->user()->customer_type === 'langganan')
+                                                    <span class="badge rounded-pill bg-warning-subtle text-warning-emphasis border border-warning-subtle mt-1">Pelanggan Langganan</span>
+                                                @else
+                                                    <span class="badge rounded-pill bg-secondary-subtle text-secondary-emphasis border border-secondary-subtle mt-1">Pelanggan Umum</span>
+                                                @endif
                                     </div>
                                 </li>
                                 <li><a class="dropdown-item rounded-3" href="{{ route('profile.edit') }}"><i class="bi bi-person me-2"></i>Profil</a></li>
@@ -493,7 +488,6 @@
 
 @auth
     @if(auth()->user()->isCustomer() && auth()->user()->needsProfileCompletion())
-        <!-- Profile completion modal -->
         <div class="modal fade" id="profileCompleteModal" tabindex="-1" aria-labelledby="profileCompleteModalLabel" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content">
@@ -570,26 +564,25 @@
             </div>
 
             <div class="col-lg-4 footer-divider d-flex justify-content-lg-center">
-                <div> <h5>Jam Operasional</h5>
-                    <div class="footer-info-item">
-                        <i class="bi bi-clock"></i>
-                        <table class="table-jam">
-                            <tr>
-                                <td class="td-hari">Senin - Jumat</td>
-                                <td class="td-pemisah">:</td>
-                                <td>08.00 - 21.00</td>
-                            </tr>
-                            <tr>
-                                <td class="td-hari">Sabtu</td>
-                                <td class="td-pemisah">:</td>
-                                <td>08.00 - 20.00</td>
-                            </tr>
-                            <tr>
-                                <td class="td-hari">Minggu</td>
-                                <td class="td-pemisah">:</td>
-                                <td>09.00 - 20.00</td>
-                            </tr>
-                        </table>
+                <div class="d-flex flex-column" style="width: 100%; max-width: 250px;">
+                    <div class="d-flex align-items-center gap-2 mb-3">
+                        <i class="bi bi-clock fs-5"></i>
+                        <h5 class="mb-0 m-0 p-0" style="margin-bottom: 0 !important;">Jam Operasional</h5>
+                    </div>
+                    
+                    <div class="d-flex flex-column gap-2 text-sm text-gray-200">
+                        <div class="d-flex justify-content-between align-items-center border-bottom border-white border-opacity-25 pb-2">
+                            <span class="opacity-90">Senin - Jumat</span>
+                            <span class="fw-medium text-white">08.00 - 21.00</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center border-bottom border-white border-opacity-25 pb-2">
+                            <span class="opacity-90">Sabtu</span>
+                            <span class="fw-medium text-white">08.00 - 20.00</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center pb-2">
+                            <span class="opacity-90">Minggu</span>
+                            <span class="fw-medium text-white">09.00 - 20.00</span>
+                        </div>
                     </div>
                 </div>
             </div>
