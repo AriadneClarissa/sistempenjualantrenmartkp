@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Models\ActivityLog;
+use App\Notifications\InternalAccountCreatedNotification;
 use Illuminate\Support\Facades\Auth;
 
 class AdminUserController extends Controller
@@ -178,9 +179,11 @@ class AdminUserController extends Controller
         if ($request->boolean('send_email')) {
             try {
                 $roleLabel = $data['role'] === 'kasir' ? 'Kasir' : 'Admin';
-                \Illuminate\Support\Facades\Mail::raw("Halo {$admin->name},\n\nAkun {$roleLabel} Anda telah dibuat.\nEmail: {$admin->email}\nPassword: {$data['default_password']}\n\nSilakan masuk di: " . url('/login') . " dan segera ganti kata sandi melalui halaman profil.", function ($m) use ($admin, $roleLabel) {
-                    $m->to($admin->email)->subject('Akun ' . $roleLabel . ' Trenmart');
-                });
+                $admin->notify(new InternalAccountCreatedNotification(
+                    roleLabel: $roleLabel,
+                    plainPassword: $data['default_password'],
+                    loginUrl: url('/login'),
+                ));
             } catch (\Throwable $e) {
                 report($e);
             }
