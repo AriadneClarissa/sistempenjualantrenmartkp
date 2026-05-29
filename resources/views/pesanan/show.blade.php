@@ -223,7 +223,7 @@
                 @elseif($order->payment_status === 'waiting_confirmation')
                     Menunggu konfirmasi pembayaran dari admin.
                 @elseif($order->payment_status === 'rejected')
-                    Pembayaran ditolak karena bukti transfer tidak valid. Silakan lakukan pemesanan ulang.
+                    Pembayaran ditolak. Silakan unggah ulang bukti transfer.
                 @endif
             </div>
         </div>
