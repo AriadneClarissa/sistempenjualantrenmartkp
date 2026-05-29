@@ -25,6 +25,18 @@
     .btn-qty { border: none; background: transparent; width: 30px; height: 30px; border-radius: 8px; font-weight: bold; transition: 0.2s; cursor: pointer; }
     .btn-qty:hover { background: #fceaea; color: var(--maroon-trenmart); }
 
+    .stock-out-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 3px 10px;
+        border-radius: 999px;
+        background: #ffe5e5;
+        color: #c5163e;
+        font-size: 0.72rem;
+        font-weight: 700;
+    }
+
     /* Sidebar Sticky: Menempel saat scroll tanpa getar */
     .summary-card { 
         background: white; 
@@ -99,9 +111,15 @@
 
                 @forelse($items as $item)
                 <div class="d-flex align-items-center py-3 border-bottom {{ $loop->last ? 'border-0' : '' }}">
+                    @php
+                        $isBundling = $item->bundling_id != null && $item->bundling;
+                        $stokHabis = $isBundling
+                            ? $item->bundling->isOutOfStock()
+                            : (($item->produk->stok_tersedia ?? 0) <= 0);
+                    @endphp
                     
                     {{-- LOGIKA PEMISAHAN TAMPILAN BUNDLING & REGULER --}}
-                    @if($item->bundling_id != null && $item->bundling)
+                    @if($isBundling)
                         {{-- 1. Tampilan Paket Bundling --}}
                         @php
                             $gambarBundling = null;
@@ -113,7 +131,12 @@
                         <img src="{{ \App\Helpers\StorageProxy::url($gambarBundling ?? 'images/no-image.png') }}" class="product-img me-3" style="object-fit: cover;">
                         
                         <div class="flex-grow-1">
-                            <h6 class="fw-bold mb-0 text-danger">{{ $item->bundling->name }}</h6>
+                            <div class="d-flex align-items-center gap-2 flex-wrap mb-1">
+                                <h6 class="fw-bold mb-0 {{ $stokHabis ? 'text-muted' : 'text-danger' }}">{{ $item->bundling->name }}</h6>
+                                @if($stokHabis)
+                                    <span class="stock-out-badge"><i class="bi bi-exclamation-circle"></i> Habis</span>
+                                @endif
+                            </div>
                             <p class="text-muted small mb-1">Paket Bundling Hemat</p>
                             <h6 class="text-accent fw-bold mb-0">Rp {{ number_format($item->harga_at_time, 0, ',', '.') }}</h6>
                         </div>
@@ -122,20 +145,27 @@
                         <img src="{{ \App\Helpers\StorageProxy::url($item->produk->gambar ?? 'images/no-image.png') }}" class="product-img me-3">
                         
                         <div class="flex-grow-1">
-                            <h6 class="fw-bold mb-0">{{ $item->produk->nama_produk }}</h6>
+                            <div class="d-flex align-items-center gap-2 flex-wrap mb-1">
+                                <h6 class="fw-bold mb-0 {{ $stokHabis ? 'text-muted' : '' }}">{{ $item->produk->nama_produk }}</h6>
+                                @if($stokHabis)
+                                    <span class="stock-out-badge"><i class="bi bi-exclamation-circle"></i> Habis</span>
+                                @endif
+                            </div>
                             <p class="text-muted small mb-1">{{ $item->produk->merk->nama_merk ?? 'Trenmart' }}</p>
                             <h6 class="text-accent fw-bold mb-0">Rp {{ number_format($item->harga_at_time, 0, ',', '.') }}</h6>
                         </div>
                     @endif {{-- INI PENUTUP YANG SANGAT PENTING --}}
 
                     <div class="text-end">
-                        <form action="{{ route('cart.update', $item->id) }}" method="POST" class="qty-container mb-2">
-                            @csrf
-                            @method('PUT')
-                            <button class="btn-qty" type="submit" name="action" value="decrease">-</button>
-                            <input type="text" class="qty-input" value="{{ $item->jumlah }}" readonly>
-                            <button class="btn-qty" type="submit" name="action" value="increase">+</button>
-                        </form>
+                        @unless($stokHabis)
+                            <form action="{{ route('cart.update', $item->id) }}" method="POST" class="qty-container mb-2">
+                                @csrf
+                                @method('PUT')
+                                <button class="btn-qty" type="submit" name="action" value="decrease">-</button>
+                                <input type="text" class="qty-input" value="{{ $item->jumlah }}" readonly>
+                                <button class="btn-qty" type="submit" name="action" value="increase">+</button>
+                            </form>
+                        @endunless
                         <div class="fw-bold d-block">Rp {{ number_format($item->harga_at_time * $item->jumlah, 0, ',', '.') }}</div>
                         <form action="{{ route('cart.remove', $item->id) }}" method="POST" class="m-0 mt-1">
                             @csrf
