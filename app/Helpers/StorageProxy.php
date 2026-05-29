@@ -31,11 +31,6 @@ class StorageProxy
                 return Storage::disk($mediaDisk)->url($path);
             } catch (\Throwable $e) {
                 report($e);
-
-                // Jika driver cloud gagal di production, tampilkan fallback aman agar halaman tidak 500.
-                if (Storage::disk('public')->exists($path)) {
-                    return asset('storage/' . $path);
-                }
             }
         }
 
