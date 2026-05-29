@@ -33,6 +33,31 @@ class Bundling extends Model
         return $this->hasMany(BundlingItem::class, 'bundling_id', 'id');
     }
 
+    public function availableStock(): int
+    {
+        $items = $this->relationLoaded('items')
+            ? $this->items
+            : $this->items()->with('produk')->get();
+
+        if ($items->isEmpty()) {
+            return 0;
+        }
+
+        return (int) $items->min(function ($item) {
+            return (int) ($item->produk->stok_tersedia ?? 0);
+        });
+    }
+
+    public function isOutOfStock(): bool
+    {
+        return $this->availableStock() <= 0;
+    }
+
+    public function stockBadgeLabel(): string
+    {
+        return $this->isOutOfStock() ? 'Habis' : 'Tersedia';
+    }
+
     public function hasPriceDivergence()
     {
         foreach ($this->items as $item) {

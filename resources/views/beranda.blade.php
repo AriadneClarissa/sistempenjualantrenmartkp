@@ -245,6 +245,10 @@
                     {{-- Tambahkan position-relative pada card agar link mencakup seluruh area card --}}
                     <div class="card h-100 border-0 shadow-sm card-bundling-hover position-relative" style="border-radius: 20px;">
                         <div class="card-body p-3 d-flex flex-column">
+                            @php
+                                $bundlingStock = method_exists($b, 'availableStock') ? $b->availableStock() : 0;
+                                $bundlingIsOut = method_exists($b, 'isOutOfStock') ? $b->isOutOfStock() : ($bundlingStock <= 0);
+                            @endphp
                             
                             <div class="d-flex justify-content-between align-items-start mb-3">
                                 {{-- Gunakan class stretched-link di sini --}}
@@ -266,7 +270,7 @@
                                 <ul class="list-unstyled mb-0">
                                     @foreach($b->items as $item)
                                         <li class="small d-flex align-items-center mb-2">
-                                            <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                            <i class="bi {{ ($item->produk->stok_tersedia ?? 0) > 0 ? 'bi-check-circle-fill text-success' : 'bi-x-circle-fill text-danger' }} me-2"></i>
                                             <span>
                                                 {{ $item->produk->nama_produk }} 
                                                 <small class="text-muted">({{ $item->produk->merk->nama_merk ?? 'Tanpa Merk' }})</small>
@@ -294,10 +298,16 @@
                                     
                                     {{-- Tombol Tambah (hanya untuk pelanggan login) --}}
                                     @if(Auth::check() && Auth::user()->isCustomer())
-                                        {{-- Gunakan span karena aksi klik sudah diambil alih oleh stretched-link di atas --}}
-                                        <span class="btn-tambah-card shadow-sm d-flex align-items-center justify-content-center" style="position: relative; z-index: 2;" data-action="{{ route('cart.add', ['id' => $b->id, 'type' => 'bundling']) }}" data-bundling-id="{{ $b->id }}">
-                                            <i class="bi bi-plus-lg me-1"></i> Tambah
-                                        </span>
+                                        @if($bundlingIsOut)
+                                            <span class="btn btn-secondary rounded-pill px-3 py-2 disabled" style="pointer-events: none; opacity: .65; position: relative; z-index: 2;">
+                                                <i class="bi bi-x-circle me-1"></i> Stok Habis
+                                            </span>
+                                        @else
+                                            {{-- Gunakan span karena aksi klik sudah diambil alih oleh stretched-link di atas --}}
+                                            <span class="btn-tambah-card shadow-sm d-flex align-items-center justify-content-center" style="position: relative; z-index: 2;" data-action="{{ route('cart.add', ['id' => $b->id, 'type' => 'bundling']) }}" data-bundling-id="{{ $b->id }}">
+                                                <i class="bi bi-plus-lg me-1"></i> Tambah
+                                            </span>
+                                        @endif
                                     @else
                                         {{-- Untuk pengunjung, tampilkan tombol login cepat --}}
                                         <a href="{{ route('login') }}" class="btn btn-outline-primary">Masuk untuk Tambah</a>

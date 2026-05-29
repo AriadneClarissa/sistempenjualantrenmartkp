@@ -59,15 +59,21 @@ class KeranjangController extends Controller
 
         if ($type === 'bundling') {
             // 1a. Validasi Bundling
-            $bundling = \App\Models\Bundling::with('items')->findOrFail($id);
+            $bundling = \App\Models\Bundling::with('items.produk')->findOrFail($id);
+            $bundlingItems = $bundling->items()->with('produk')->get();
 
-            if ($bundling->items->isEmpty()) {
+            if ($bundlingItems->isEmpty()) {
                 return $this->errorResponse($request, 'Paket bundling tidak memiliki isi produk.');
             }
 
-            $stokTersedia = 999; // Atau logic stok bundling kamu
+            $stokTersedia = $bundling->availableStock();
+
+            if ($stokTersedia <= 0) {
+                return $this->errorResponse($request, 'Paket bundling sedang habis karena salah satu produk di dalamnya habis.');
+            }
+
             $identifierColumn = 'bundling_id'; 
-            $kdProdukValue = $bundling->items->first()->product_id;
+            $kdProdukValue = $bundlingItems->first()->product_id;
             $bundlingIdValue = $id;
         } else {
             // 1b. Validasi Produk Reguler
@@ -159,10 +165,15 @@ class KeranjangController extends Controller
 
         if ($action == 'increase') {
             $item->increment('jumlah');
-        } elseif ($action == 'decrease' && $item->jumlah > 1) {
+        } elseif ($action == 'decrease') {
+            if ($item->jumlah <= 1) {
+                $item->delete();
+                return back()->with('success', 'Item berhasil dihapus dari keranjang.');
+            }
+
             $item->decrement('jumlah');
         }
 
-        return back();
+        return back()->with('success', 'Jumlah item berhasil diperbarui.');
     }
 }
