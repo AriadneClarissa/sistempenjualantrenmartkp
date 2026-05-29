@@ -183,7 +183,7 @@
                     {{ $order->order_status === 'processing' ? 'Diproses' : ($order->order_status === 'ready_to_ship' ? 'Siap Dikirim' : ($order->order_status === 'completed' ? 'Selesai' : ucfirst(str_replace('_',' ', $order->order_status ?? 'new')))) }}
                 </div>
                 <div class="fw-bold mt-2">Rp {{ number_format($order->total,0,',','.') }}</div>
-                @if($order->payment_status === 'confirmed' && in_array($order->order_status, ['ready_to_ship', 'processing'], true))
+                @if($order->payment_status === 'confirmed' && $order->order_status === 'ready_to_ship')
                     <form action="{{ route('pesanan.complete', $order->id) }}" method="POST" class="mt-3">
                         @csrf
                         <button type="submit" class="btn btn-success btn-sm w-100" onclick="return confirm('Tandai pesanan ini sudah selesai diterima?');">
