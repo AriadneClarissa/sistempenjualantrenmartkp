@@ -183,7 +183,13 @@
                         </h6>
                     </div>
                     <div class="card-body">
-                        <p class="small text-muted">Pesanan dalam status <strong>Diproses</strong>. Siap untuk dikemas dan dikirim.</p>
+                        @if($order->order_status === 'processing')
+                            <p class="small text-muted">Pesanan dalam status <strong>Diproses</strong>. Siap untuk dikemas dan dikirim.</p>
+                        @elseif($order->order_status === 'ready_to_ship')
+                            <p class="small text-muted">Pesanan dalam status <strong>Siap Dikirim</strong>. Siap untuk diserahkan ke pengiriman.</p>
+                        @elseif($order->order_status === 'completed')
+                            <p class="small text-muted">Pesanan sudah <strong>selesai</strong>.</p>
+                        @endif
                         <div class="d-grid gap-2 mt-3">
                             @if($order->order_status === 'processing')
                                 <form action="{{ route('admin.orders.status', $order->id) }}" method="POST">
@@ -202,7 +208,7 @@
                                     </button>
                                 </form>
                             @elseif($order->order_status === 'completed')
-                                <span class="badge bg-success-subtle text-success-emphasis py-2">Pesanan sudah selesai diproses.</span>
+                                <span class="badge bg-success-subtle text-success-emphasis py-2">Pesanan sudah selesai.</span>
                             @endif
                         </div>
                     </div>
