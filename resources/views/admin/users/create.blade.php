@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-@include('admin._header', ['activePage' => 'users'])
+@include('admin._header', ['activePage' => 'create_customer'])
 
 <style>
     .password-field-wrap {
