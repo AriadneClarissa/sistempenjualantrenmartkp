@@ -61,9 +61,9 @@
                 <span class="text-muted fw-normal" style="font-size: 0.75rem;">/ {{ $satuanNama }}</span>
             </h4>
 
-            {{-- Harga Langganan (Muncul untuk Admin atau User tipe Langganan) --}}
+            {{-- Harga Langganan hanya untuk staf internal --}}
             @auth
-                @if(auth()->user()->isInternalStaff() || auth()->user()->customer_type === 'langganan')
+                @if(auth()->user()->isInternalStaff())
                     <p class="mb-2 fw-semibold" style="color: #f08a24; font-size: 0.85rem;">
                         Langganan: Rp {{ number_format($item->harga_jual_langganan ?? $item->harga_jual_umum, 0, ',', '.') }}
                     </p>
