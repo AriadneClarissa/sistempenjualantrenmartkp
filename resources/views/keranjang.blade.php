@@ -4,14 +4,10 @@
 <style>
     :root { 
         --maroon-trenmart: #800000; 
-        --soft-bg: #f8f9fa;
         --accent-red: #e61e4d;
     }
-    /* Background & Font */
-    body { background-color: var(--soft-bg); font-family: 'Inter', sans-serif; overflow-x: hidden; }
 
-    /* Rapatkan jarak ke Navbar */
-    .main-container { padding-top: 15px !important; }
+    body { overflow-x: hidden; }
 
     /* Layout Wrapper: Menjaga Kiri dan Kanan Sejajar Sempurna */
     .cart-wrapper { 
