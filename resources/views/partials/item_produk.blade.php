@@ -10,32 +10,35 @@
             $satuanNama = $item->satuan?->nama_satuan ?? $item->satuan ?? 'pcs';
         @endphp
         
-        {{-- Badge Status Stok --}}
-        @if($item->stok_tersedia > 0)
-            <div class="position-absolute" style="top: 12px; left: 12px; z-index: 10;">
-                <span class="badge bg-success px-2 py-1" style="border-radius: 7px; font-size: 0.68rem;">
-                    Tersedia
-                </span>
-            </div>
-        @endif
-
-        @if($isLowStock)
-            @php
-                $showWarning = true;
-                // Jangan tampilkan warning stok untuk user yang merupakan pelanggan (umum atau langganan)
-                if(auth()->check() && auth()->user()->isCustomer()) {
-                    $showWarning = false;
-                }
-            @endphp
-
-            @if($showWarning)
-                <div class="position-absolute" style="top: 44px; left: 12px; z-index: 10;">
-                    <span class="badge bg-warning text-dark px-2 py-1" style="border-radius: 7px; font-size: 0.68rem;">
-                        Warning Stok
+        <div class="position-absolute top-0 start-0 p-2" style="z-index: 10;">
+            <div class="d-flex flex-column gap-1 align-items-start">
+                @if($item->stok_tersedia > 0)
+                    <span class="badge bg-success px-2 py-1" style="border-radius: 7px; font-size: 0.68rem;">
+                        Tersedia
                     </span>
-                </div>
-            @endif
-        @endif
+                @else
+                    <span class="badge bg-danger px-2 py-1" style="border-radius: 7px; font-size: 0.68rem;">
+                        Habis
+                    </span>
+                @endif
+
+                @if($isLowStock)
+                    @php
+                        $showWarning = true;
+                        // Jangan tampilkan warning stok untuk user yang merupakan pelanggan (umum atau langganan)
+                        if(auth()->check() && auth()->user()->isCustomer()) {
+                            $showWarning = false;
+                        }
+                    @endphp
+
+                    @if($showWarning)
+                        <span class="badge bg-warning text-dark px-2 py-1" style="border-radius: 7px; font-size: 0.68rem;">
+                            Warning Stok
+                        </span>
+                    @endif
+                @endif
+            </div>
+        </div>
 
            {{-- Area Foto Produk --}}
            <div class="d-flex align-items-center justify-content-center bg-light mb-3 position-relative"
@@ -48,12 +51,12 @@
                      style="max-height: 100%; object-fit: contain; mix-blend-mode: multiply;">
                 </div>
 
-                @if($isCustomerViewer && $isOutOfStock)
-                   <div class="position-absolute top-50 start-50 translate-middle text-center px-3 py-2 bg-white shadow-sm"
-                       style="border-radius: 999px; z-index: 11; pointer-events: none;">
-                      <span class="fw-bold text-danger">Stok Habis</span>
-                   </div>
-                @endif
+                     @if($isCustomerViewer && $isOutOfStock)
+                         <div class="position-absolute bottom-0 start-50 translate-middle-x mb-2 text-center px-3 py-2 bg-white shadow-sm"
+                              style="border-radius: 999px; z-index: 11; pointer-events: none;">
+                             <span class="fw-bold text-danger">Stok Habis</span>
+                         </div>
+                     @endif
         </div>
 
         <div class="card-body p-0 d-flex flex-column flex-grow-1">
