@@ -221,7 +221,7 @@
                         </h6>
                     </div>
                     <div class="card-body">
-                        <p class="small text-muted">Pembayaran telah ditolak. Pelanggan dapat mengirimkan ulang bukti transfer.</p>
+                        <p class="small text-muted">Pembayaran tidak valid, silahkan membuat pesanan baru.</p>
                     </div>
                 </div>
             @endif
