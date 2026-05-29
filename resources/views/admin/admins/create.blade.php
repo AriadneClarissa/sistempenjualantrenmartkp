@@ -34,7 +34,12 @@
 
                 <div class="col-md-6">
                     <label class="form-label">Password <span class="text-danger">*</span></label>
-                    <input type="password" name="default_password" class="form-control" placeholder="Masukkan password manual" required>
+                    <div class="input-group">
+                        <input type="password" name="default_password" id="default-password" class="form-control" placeholder="Masukkan password manual" required>
+                        <button type="button" class="btn btn-outline-secondary" id="toggle-password" aria-label="Tampilkan atau sembunyikan password">
+                            <i class="bi bi-eye" id="toggle-password-icon"></i>
+                        </button>
+                    </div>
                     <small class="text-muted d-block mt-1">Minimal 8 karakter, wajib diisi manual.</small>
                 </div>
 
@@ -66,6 +71,9 @@
         const nameInput = document.getElementById('name-input');
         const emailInput = document.getElementById('email-input');
         const sendEmailLabel = document.getElementById('send-email-label');
+        const passwordInput = document.getElementById('default-password');
+        const togglePasswordButton = document.getElementById('toggle-password');
+        const togglePasswordIcon = document.getElementById('toggle-password-icon');
 
         const applyRoleCopy = (role) => {
             if (role === 'admin') {
@@ -100,6 +108,14 @@
         roleSelect.addEventListener('change', function () {
             applyRoleCopy(this.value);
         });
+
+        if (togglePasswordButton && passwordInput && togglePasswordIcon) {
+            togglePasswordButton.addEventListener('click', function () {
+                const isHidden = passwordInput.type === 'password';
+                passwordInput.type = isHidden ? 'text' : 'password';
+                togglePasswordIcon.className = isHidden ? 'bi bi-eye-slash' : 'bi bi-eye';
+            });
+        }
     });
 </script>
 @endsection
