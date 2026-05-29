@@ -5,7 +5,7 @@
 
 <div class="container-fluid">
     <div class="mb-4">
-        <h4 class="fw-bold ms-0">Buat Akun Admin Baru</h4>
+        <h4 class="fw-bold ms-0" id="internal-user-title">Buat Akun User Internal Baru</h4>
     </div>
 
     <div class="card p-4 shadow-sm w-100">
@@ -14,21 +14,21 @@
             <div class="row g-3">
                 
                 <div class="col-md-6">
-                    <label class="form-label">Nama Lengkap Admin</label>
-                    <input type="text" name="name" class="form-control" placeholder="Nama admin" required>
+                    <label class="form-label" id="name-label">Nama Lengkap User Internal</label>
+                    <input type="text" name="name" class="form-control" id="name-input" placeholder="Nama user internal" value="{{ old('name') }}" required>
                 </div>
 
                 <div class="col-md-6">
-                    <label class="form-label">Email Admin</label>
-                    <input type="email" name="email" class="form-control" placeholder="Email admin" required>
+                    <label class="form-label" id="email-label">Email User Internal</label>
+                    <input type="email" name="email" class="form-control" id="email-input" placeholder="Email user internal" value="{{ old('email') }}" required>
                 </div>
 
                 <div class="col-md-6">
                     <label class="form-label">Role</label>
-                    <select name="role" class="form-select" required>
-                        <option value="">-- Pilih Role --</option>
-                        <option value="admin">Admin</option>
-                        <option value="kasir">Kasir</option>
+                    <select name="role" id="role-select" class="form-select" required>
+                        <option value="" {{ old('role') ? '' : 'selected' }}>-- Pilih Role --</option>
+                        <option value="admin" {{ old('role') === 'admin' ? 'selected' : '' }}>Admin</option>
+                        <option value="kasir" {{ old('role') === 'kasir' ? 'selected' : '' }}>Kasir</option>
                     </select>
                 </div>
 
@@ -41,8 +41,8 @@
                 <div class="col-12 mt-3">
                     <div class="form-check">
                         <input class="form-check-input" type="checkbox" name="send_email" id="send_email" value="1" checked>
-                        <label class="form-check-label" for="send_email">
-                            Kirim email berisi kredensial ke admin baru
+                        <label class="form-check-label" for="send_email" id="send-email-label">
+                            Kirim email berisi kredensial ke user internal baru
                         </label>
                     </div>
                 </div>
@@ -56,4 +56,50 @@
         </form>
     </div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const roleSelect = document.getElementById('role-select');
+        const titleEl = document.getElementById('internal-user-title');
+        const nameLabel = document.getElementById('name-label');
+        const emailLabel = document.getElementById('email-label');
+        const nameInput = document.getElementById('name-input');
+        const emailInput = document.getElementById('email-input');
+        const sendEmailLabel = document.getElementById('send-email-label');
+
+        const applyRoleCopy = (role) => {
+            if (role === 'admin') {
+                titleEl.textContent = 'Buat Akun Admin Baru';
+                nameLabel.textContent = 'Nama Lengkap Admin';
+                emailLabel.textContent = 'Email Admin';
+                nameInput.placeholder = 'Nama admin';
+                emailInput.placeholder = 'Email admin';
+                sendEmailLabel.textContent = 'Kirim email berisi kredensial ke admin baru';
+                return;
+            }
+
+            if (role === 'kasir') {
+                titleEl.textContent = 'Buat Akun Kasir Baru';
+                nameLabel.textContent = 'Nama Lengkap Kasir';
+                emailLabel.textContent = 'Email Kasir';
+                nameInput.placeholder = 'Nama kasir';
+                emailInput.placeholder = 'Email kasir';
+                sendEmailLabel.textContent = 'Kirim email berisi kredensial ke kasir baru';
+                return;
+            }
+
+            titleEl.textContent = 'Buat Akun User Internal Baru';
+            nameLabel.textContent = 'Nama Lengkap User Internal';
+            emailLabel.textContent = 'Email User Internal';
+            nameInput.placeholder = 'Nama user internal';
+            emailInput.placeholder = 'Email user internal';
+            sendEmailLabel.textContent = 'Kirim email berisi kredensial ke user internal baru';
+        };
+
+        applyRoleCopy(roleSelect.value);
+        roleSelect.addEventListener('change', function () {
+            applyRoleCopy(this.value);
+        });
+    });
+</script>
 @endsection
