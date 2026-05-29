@@ -51,35 +51,59 @@
         <form action="{{ route('admin.admins.store') }}" method="POST">
             @csrf
             <div class="row g-3">
+
+                @if ($errors->any())
+                    <div class="col-12">
+                        <div class="alert alert-danger small mb-0">
+                            <ul class="mb-0 ps-3">
+                                @foreach ($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    </div>
+                @endif
                 
                 <div class="col-md-6">
                     <label class="form-label" id="name-label">Nama Lengkap User Internal</label>
-                    <input type="text" name="name" class="form-control" id="name-input" placeholder="Nama user internal" value="{{ old('name') }}" required>
+                    <input type="text" name="name" class="form-control @error('name') is-invalid @enderror" id="name-input" placeholder="Nama user internal" value="{{ old('name') }}" required>
+                    @error('name')
+                        <div class="text-danger small mt-1">{{ $message }}</div>
+                    @enderror
                 </div>
 
                 <div class="col-md-6">
                     <label class="form-label" id="email-label">Email User Internal</label>
-                    <input type="email" name="email" class="form-control" id="email-input" placeholder="Email user internal" value="{{ old('email') }}" required>
+                    <input type="email" name="email" class="form-control @error('email') is-invalid @enderror" id="email-input" placeholder="Email user internal" value="{{ old('email') }}" required>
+                    @error('email')
+                        <div class="text-danger small mt-1">{{ $message }}</div>
+                    @enderror
                 </div>
 
                 <div class="col-md-6">
                     <label class="form-label">Role</label>
-                    <select name="role" id="role-select" class="form-select" required>
+                    <select name="role" id="role-select" class="form-select @error('role') is-invalid @enderror" required>
                         <option value="" {{ old('role') ? '' : 'selected' }}>-- Pilih Role --</option>
                         <option value="admin" {{ old('role') === 'admin' ? 'selected' : '' }}>Admin</option>
                         <option value="kasir" {{ old('role') === 'kasir' ? 'selected' : '' }}>Kasir</option>
                     </select>
+                    @error('role')
+                        <div class="text-danger small mt-1">{{ $message }}</div>
+                    @enderror
                 </div>
 
                 <div class="col-md-6">
                     <label class="form-label">Password <span class="text-danger">*</span></label>
                     <div class="password-field-wrap">
-                        <input type="password" name="default_password" id="default-password" class="form-control no-native-password-reveal" placeholder="Masukkan password manual" required>
+                        <input type="password" name="default_password" id="default-password" class="form-control no-native-password-reveal @error('default_password') is-invalid @enderror" placeholder="Masukkan password manual" required>
                         <button type="button" class="password-eye-btn" id="toggle-password" aria-label="Tampilkan atau sembunyikan password">
                             <i class="bi bi-eye" id="toggle-password-icon"></i>
                         </button>
                     </div>
                     <small class="text-muted d-block mt-1">Minimal 8 karakter, wajib diisi manual.</small>
+                    @error('default_password')
+                        <div class="text-danger small mt-1">{{ $message }}</div>
+                    @enderror
                 </div>
 
                 <div class="col-12 mt-3">
