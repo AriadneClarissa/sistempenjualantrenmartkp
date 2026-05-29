@@ -191,7 +191,7 @@
                             <li class="mb-2"><i class="bi bi-geo-alt me-2 text-danger"></i>{{ $data['tentang_alamat'] }}</li>
                             <li class="mb-2"><i class="bi bi-telephone me-2 text-danger"></i>{{ $data['tentang_telepon'] }}</li>
                             <li class="mb-2"><i class="bi bi-envelope me-2 text-danger"></i>{{ $data['tentang_email'] }}</li>
-                            <li><i class="bi bi-clock me-2 text-danger"></i>{{ $data['tentang_jam_operasional'] }}</li>
+                            <li><i class="bi bi-clock me-2 text-danger"></i><span style="white-space: pre-line;">{{ $data['tentang_jam_operasional'] }}</span></li>
                         </ul>
                         <div class="ratio ratio-16x9 rounded-3 overflow-hidden">
                             <iframe src="{{ $mapEmbedUrl }}" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
