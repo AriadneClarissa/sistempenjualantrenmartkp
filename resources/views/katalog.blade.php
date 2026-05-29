@@ -176,6 +176,8 @@
                         @php
                             $stokMinimal = $p->stok_minimal ?? $p->satuanModel?->stok_minimal ?? 0;
                             $isLowStock = $stokMinimal > 0 && $p->stok_tersedia <= $stokMinimal;
+                            $isCustomerViewer = auth()->check() && auth()->user()->isCustomer();
+                            $isOutOfStock = $p->stok_tersedia <= 0;
                         @endphp
                         <div class="img-container">
                             @if($p->stok_tersedia > 0)
@@ -186,7 +188,17 @@
                             @if($isLowStock)
                                 <span class="badge bg-warning text-dark badge-stok shadow-sm" style="top: 44px;">Warning Stok</span>
                             @endif
-                            <img src="{{ \App\Helpers\StorageProxy::url($p->gambar) }}" class="img-fluid" style="height: 150px; object-fit: contain;" alt="{{ $p->nama_produk }}">
+                            <div class="position-relative" style="height: 150px;">
+                                <div class="w-100 h-100 d-flex align-items-center justify-content-center" style="{{ $isCustomerViewer && $isOutOfStock ? 'filter: blur(3px); opacity: 0.45;' : '' }}">
+                                    <img src="{{ \App\Helpers\StorageProxy::url($p->gambar) }}" class="img-fluid" style="height: 150px; object-fit: contain;" alt="{{ $p->nama_produk }}">
+                                </div>
+                                @if($isCustomerViewer && $isOutOfStock)
+                                    <div class="position-absolute top-50 start-50 translate-middle text-center px-3 py-2 bg-white shadow-sm"
+                                         style="border-radius: 999px; z-index: 11; pointer-events: none;">
+                                        <span class="fw-bold text-danger">Stok Habis</span>
+                                    </div>
+                                @endif
+                            </div>
                         </div>
                         
                         <div class="product-info text-center d-flex flex-column">
@@ -215,12 +227,18 @@
                                     </a>
                                 @else
                                     {{-- Jika Pelanggan, tampilkan Tambah --}}
-                                    <form action="{{ route('cart.add', $p->kd_produk) }}" method="POST" class="mt-2 add-to-cart-form">
-                                        @csrf
-                                        <button type="submit" class="btn-action btn-tambah shadow-sm">
-                                            <i class="bi bi-plus-lg me-1"></i> Tambah
+                                    @if($p->stok_tersedia > 0)
+                                        <form action="{{ route('cart.add', $p->kd_produk) }}" method="POST" class="mt-2 add-to-cart-form">
+                                            @csrf
+                                            <button type="submit" class="btn-action btn-tambah shadow-sm">
+                                                <i class="bi bi-plus-lg me-1"></i> Tambah
+                                            </button>
+                                        </form>
+                                    @else
+                                        <button type="button" class="btn-action btn-tambah shadow-sm" disabled style="background-color: #d9d9d9; color: #7a7a7a; cursor: not-allowed;">
+                                            <i class="bi bi-x-circle me-1"></i> Stok Habis
                                         </button>
-                                    </form>
+                                    @endif
                                 @endif
                             @else
                                 {{-- Jika Guest (Belum Login), tampilkan Tambah (Akan diarahkan ke login) --}}

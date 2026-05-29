@@ -76,6 +76,10 @@ class KeranjangController extends Controller
             $identifierColumn = 'kd_produk';
             $kdProdukValue = $id;
             $bundlingIdValue = null;
+
+            if ($stokTersedia <= 0) {
+                return $this->errorResponse($request, 'Stok produk sudah habis.');
+            }
         }
 
         // 2. Cek apakah barang sudah ada di keranjang user

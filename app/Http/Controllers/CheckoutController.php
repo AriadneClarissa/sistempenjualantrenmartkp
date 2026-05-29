@@ -9,6 +9,8 @@ use App\Models\Keranjang;
 use App\Models\BerandaSetting;
 use App\Models\Order;
 use App\Models\PaymentMethod;
+use App\Models\User;
+use App\Notifications\OrderActivityNotification;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -140,6 +142,8 @@ class CheckoutController extends Controller
                 return $order;
             });
 
+            $this->notifyOrderRecipients($order, $user->name ?? 'Pelanggan');
+
             return redirect()->route('checkout.upload_proof', $order->id)->with('success', 'Pesanan berhasil dibuat. Silakan unggah bukti pembayaran.');
         } catch (\Throwable $e) {
             report($e);
@@ -211,5 +215,24 @@ class CheckoutController extends Controller
             'distance_km' => null,
             'shipping_cost' => $shippingCost,
         ];
+    }
+
+    private function notifyOrderRecipients(Order $order, string $customerName): void
+    {
+        $recipients = User::query()
+            ->whereIn('role', ['owner', 'admin', 'kasir'])
+            ->where('is_active', true)
+            ->get();
+
+        foreach ($recipients as $recipient) {
+            $recipient->notify(new OrderActivityNotification(
+                title: 'Pesanan baru masuk',
+                body: 'Pesanan #' . $order->order_number . ' baru saja dibuat oleh ' . $customerName . '.',
+                url: route('admin.orders.show', $order->id),
+                type: 'new_order',
+                orderNumber: $order->order_number,
+                actorName: $customerName,
+            ));
+        }
     }
 }

@@ -5,6 +5,8 @@
         @php
             $stokMinimal = $item->stok_minimal ?? $item->satuanModel?->stok_minimal ?? 0;
             $isLowStock = $stokMinimal > 0 && $item->stok_tersedia <= $stokMinimal;
+            $isCustomerViewer = auth()->check() && auth()->user()->isCustomer();
+            $isOutOfStock = $item->stok_tersedia <= 0;
             $satuanNama = $item->satuan?->nama_satuan ?? $item->satuan ?? 'pcs';
         @endphp
         
@@ -35,13 +37,23 @@
             @endif
         @endif
 
-        {{-- Area Foto Produk --}}
-        <div class="d-flex align-items-center justify-content-center bg-light mb-3"
-             style="height: 150px; border-radius: 12px; overflow: hidden;">
-              <img src="{{ \App\Helpers\StorageProxy::url($item->gambar) }}"
-                 class="img-fluid"
-                 alt="{{ $item->nama_produk }}"
-                 style="max-height: 100%; object-fit: contain; mix-blend-mode: multiply;">
+           {{-- Area Foto Produk --}}
+           <div class="d-flex align-items-center justify-content-center bg-light mb-3 position-relative"
+               style="height: 150px; border-radius: 12px; overflow: hidden;">
+                <div class="w-100 h-100 d-flex align-items-center justify-content-center"
+                    style="{{ $isCustomerViewer && $isOutOfStock ? 'filter: blur(3px); opacity: 0.45;' : '' }}">
+                   <img src="{{ \App\Helpers\StorageProxy::url($item->gambar) }}"
+                     class="img-fluid"
+                     alt="{{ $item->nama_produk }}"
+                     style="max-height: 100%; object-fit: contain; mix-blend-mode: multiply;">
+                </div>
+
+                @if($isCustomerViewer && $isOutOfStock)
+                   <div class="position-absolute top-50 start-50 translate-middle text-center px-3 py-2 bg-white shadow-sm"
+                       style="border-radius: 999px; z-index: 11; pointer-events: none;">
+                      <span class="fw-bold text-danger">Stok Habis</span>
+                   </div>
+                @endif
         </div>
 
         <div class="card-body p-0 d-flex flex-column flex-grow-1">
@@ -73,13 +85,20 @@
             {{-- Tombol Tambah (Hanya untuk Pelanggan) --}}
             @auth
                 @if(auth()->user()->isCustomer())
-                    <form action="{{ route('cart.add', $item->kd_produk) }}" method="POST" class="add-to-cart-form mt-2">
-                        @csrf
-                        <button type="submit" class="btn w-100 py-2 d-flex align-items-center justify-content-center gap-1"
-                                style="background-color: #800000; color: white; border-radius: 10px; font-weight: 600; font-size: 0.9rem;">
-                            <i class="bi bi-plus-lg"></i> Tambah
+                    @if($item->stok_tersedia > 0)
+                        <form action="{{ route('cart.add', $item->kd_produk) }}" method="POST" class="add-to-cart-form mt-2">
+                            @csrf
+                            <button type="submit" class="btn w-100 py-2 d-flex align-items-center justify-content-center gap-1"
+                                    style="background-color: #800000; color: white; border-radius: 10px; font-weight: 600; font-size: 0.9rem;">
+                                <i class="bi bi-plus-lg"></i> Tambah
+                            </button>
+                        </form>
+                    @else
+                        <button type="button" class="btn w-100 py-2 d-flex align-items-center justify-content-center gap-1" disabled
+                                style="background-color: #d9d9d9; color: #7a7a7a; border-radius: 10px; font-weight: 600; font-size: 0.9rem; cursor: not-allowed;">
+                            <i class="bi bi-x-circle"></i> Stok Habis
                         </button>
-                    </form>
+                    @endif
                 @endif
             @endauth
         </div>
