@@ -5,7 +5,21 @@
 
 <div class="container-fluid">
     <div class="mb-4">
-        <h4 class="fw-bold ms-0">Daftar Pelanggan (Langganan & Regular)</h4>
+        <h4 class="fw-bold ms-0">Daftar Pelanggan (Langganan & Umum)</h4>
+    </div>
+
+    <div class="mb-3 d-flex justify-content-start">
+        <form method="GET" action="{{ route('admin.customers.index') }}">
+            <div class="position-relative">
+                <select name="jenis" class="form-select shadow-sm"
+                        onchange="this.form.submit()"
+                        style="min-width: 160px; border-radius: 999px; border: 1px solid #e5e5e5; padding-left: 16px; padding-right: 40px; height: 42px; color: #495057; background-color: #fff;">
+                    <option value="all" {{ ($customerType ?? 'all') === 'all' ? 'selected' : '' }}>Semua Pelanggan</option>
+                    <option value="regular" {{ ($customerType ?? 'all') === 'regular' ? 'selected' : '' }}>Umum</option>
+                    <option value="langganan" {{ ($customerType ?? 'all') === 'langganan' ? 'selected' : '' }}>Langganan</option>
+                </select>
+            </div>
+        </form>
     </div>
 
     <div class="card shadow-sm w-100">
@@ -26,19 +40,23 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach($customers as $c)
-                        <tr>
-                            <td class="py-1 px-2 text-truncate">{{ $c->id }}</td>
-                            <td class="py-1 px-2 text-truncate">{{ $c->kd_pelanggan ?? '-' }}</td>
-                            <td class="py-1 px-2 text-truncate">{{ $c->name }}</td>
-                            <td class="py-1 px-2 text-truncate">{{ $c->email }}</td>
-                            <td class="py-1 px-2 text-truncate">{{ strtoupper($c->customer_type ?? 'regular') }}</td>
-                            <td class="py-1 px-2 text-truncate">{{ $c->phone_number ?? '-' }}</td>
-                            <td class="py-1 px-2 text-truncate">{{ $c->home_address ?? '-' }}</td>
-                            <td class="py-1 px-2 text-truncate">{{ $c->organization_name ?? '-' }}</td>
-                            <td class="py-1 px-2">{{ $c->created_at ? $c->created_at->format('d M Y') : '-' }}</td>
-                        </tr>
-                        @endforeach
+                        @forelse($customers as $c)
+                            <tr>
+                                <td class="py-1 px-2 text-truncate">{{ $c->id }}</td>
+                                <td class="py-1 px-2 text-truncate">{{ $c->kd_pelanggan ?? '-' }}</td>
+                                <td class="py-1 px-2 text-truncate">{{ $c->name }}</td>
+                                <td class="py-1 px-2 text-truncate">{{ $c->email }}</td>
+                                <td class="py-1 px-2 text-truncate">{{ ($c->customer_type ?? 'regular') === 'langganan' ? 'LANGGANAN' : 'UMUM' }}</td>
+                                <td class="py-1 px-2 text-truncate">{{ $c->phone_number ?? '-' }}</td>
+                                <td class="py-1 px-2 text-truncate">{{ $c->home_address ?? '-' }}</td>
+                                <td class="py-1 px-2 text-truncate">{{ $c->organization_name ?? '-' }}</td>
+                                <td class="py-1 px-2">{{ $c->created_at ? $c->created_at->format('d M Y') : '-' }}</td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="9" class="text-center text-muted py-4">Tidak ada pelanggan untuk filter yang dipilih.</td>
+                            </tr>
+                        @endforelse
                     </tbody>
                 </table>
             </div>

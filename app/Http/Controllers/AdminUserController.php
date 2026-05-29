@@ -60,12 +60,25 @@ class AdminUserController extends Controller
         return back()->with('success', 'Status user berhasil diperbarui.');
     }
 
-    public function customers()
+    public function customers(\Illuminate\Http\Request $request)
     {
-        $customers = User::where('role', 'customer')->orderBy('created_at', 'desc')->get();
+        $customerType = strtolower((string) $request->query('jenis', 'all'));
+        $allowedTypes = ['all', 'regular', 'langganan'];
+
+        if (! in_array($customerType, $allowedTypes, true)) {
+            $customerType = 'all';
+        }
+
+        $customers = User::where('role', 'customer')
+            ->when($customerType !== 'all', function ($query) use ($customerType) {
+                $query->where('customer_type', $customerType);
+            })
+            ->orderBy('created_at', 'desc')
+            ->get();
 
         return view('admin.customers.index', [
             'customers' => $customers,
+            'customerType' => $customerType,
             'page' => 'customers',
         ]);
     }
