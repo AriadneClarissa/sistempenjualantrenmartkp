@@ -4,12 +4,10 @@
 @include('admin._header', ['activePage' => 'customers'])
 
 <div class="container-fluid">
-    <div class="mb-4">
-        <h4 class="fw-bold ms-0">Daftar Pelanggan (Langganan & Umum)</h4>
-    </div>
+    <div class="mb-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <h4 class="fw-bold ms-0 mb-0">Daftar Pelanggan (Langganan & Umum)</h4>
 
-    <div class="mb-3 d-flex justify-content-start">
-        <form method="GET" action="{{ route('admin.customers.index') }}">
+        <form method="GET" action="{{ route('admin.customers.index') }}" class="ms-auto">
             <div class="position-relative">
                 <select name="jenis" class="form-select shadow-sm"
                         onchange="this.form.submit()"
@@ -46,7 +44,7 @@
                                 <td class="py-1 px-2 text-truncate">{{ $c->kd_pelanggan ?? '-' }}</td>
                                 <td class="py-1 px-2 text-truncate">{{ $c->name }}</td>
                                 <td class="py-1 px-2 text-truncate">{{ $c->email }}</td>
-                                <td class="py-1 px-2 text-truncate">{{ ($c->customer_type ?? 'regular') === 'langganan' ? 'LANGGANAN' : 'UMUM' }}</td>
+                                <td class="py-1 px-2 text-truncate">{{ ($c->customer_type ?? 'regular') === 'langganan' ? 'Langganan' : 'Umum' }}</td>
                                 <td class="py-1 px-2 text-truncate">{{ $c->phone_number ?? '-' }}</td>
                                 <td class="py-1 px-2 text-truncate">{{ $c->home_address ?? '-' }}</td>
                                 <td class="py-1 px-2 text-truncate">{{ $c->organization_name ?? '-' }}</td>
