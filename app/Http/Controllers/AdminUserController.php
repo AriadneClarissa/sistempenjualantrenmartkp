@@ -180,9 +180,11 @@ class AdminUserController extends Controller
             try {
                 $roleLabel = $data['role'] === 'kasir' ? 'Kasir' : 'Admin';
                 $admin->notify(new InternalAccountCreatedNotification(
-                    roleLabel: $roleLabel,
-                    plainPassword: $data['default_password'],
-                    loginUrl: url('/login'),
+                    $admin->name,
+                    $admin->email,
+                    $roleLabel,
+                    $data['default_password'],
+                    url('/login'),
                 ));
             } catch (\Throwable $e) {
                 report($e);

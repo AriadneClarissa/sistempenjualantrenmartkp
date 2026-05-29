@@ -11,6 +11,8 @@ class InternalAccountCreatedNotification extends Notification
     use Queueable;
 
     public function __construct(
+        public string $accountName,
+        public string $accountEmail,
         public string $roleLabel,
         public string $plainPassword,
         public string $loginUrl,
@@ -26,10 +28,12 @@ class InternalAccountCreatedNotification extends Notification
     {
         return (new MailMessage)
             ->subject('Akun ' . $this->roleLabel . ' Trenmart')
-            ->greeting('Halo ' . ($notifiable->name ?? $this->roleLabel) . ',')
-            ->line('Akun ' . $this->roleLabel . ' Anda sudah berhasil dibuat di sistem Trenmart.')
-            ->line('Berikut detail akun Anda:')
-            ->line('Email: ' . ($notifiable->email ?? '-'))
+            ->greeting('Halo ' . ($this->accountName ?: $this->roleLabel) . ',')
+            ->line('Akun Anda sudah berhasil dibuat di sistem Trenmart.')
+            ->line('Berikut informasi akun Anda:')
+            ->line('Nama: ' . $this->accountName)
+            ->line('Email: ' . $this->accountEmail)
+            ->line('Role: ' . $this->roleLabel)
             ->line('Password awal: ' . $this->plainPassword)
             ->action('Masuk ke Trenmart', $this->loginUrl)
             ->line('Silakan login menggunakan kredensial di atas, lalu segera ubah password Anda setelah masuk.')
