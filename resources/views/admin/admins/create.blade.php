@@ -3,6 +3,45 @@
 @section('content')
 @include('admin._header', ['activePage' => 'internal_users'])
 
+<style>
+    .password-field-wrap {
+        position: relative;
+    }
+
+    .password-field-wrap .form-control {
+        padding-right: 44px;
+    }
+
+    .password-eye-btn {
+        position: absolute;
+        top: 50%;
+        right: 12px;
+        transform: translateY(-50%);
+        border: 0;
+        background: transparent;
+        color: #6c757d;
+        padding: 0;
+        line-height: 1;
+        z-index: 3;
+    }
+
+    .password-eye-btn:hover,
+    .password-eye-btn:focus {
+        color: #495057;
+        outline: none;
+        box-shadow: none;
+    }
+
+    .no-native-password-reveal::-ms-reveal,
+    .no-native-password-reveal::-ms-clear,
+    .no-native-password-reveal::-webkit-password-toggle-button,
+    .no-native-password-reveal::-webkit-credentials-auto-fill-button {
+        display: none;
+        visibility: hidden;
+        pointer-events: none;
+    }
+</style>
+
 <div class="container-fluid">
     <div class="mb-4">
         <h4 class="fw-bold ms-0" id="internal-user-title">Buat Akun User Internal Baru</h4>
@@ -34,7 +73,12 @@
 
                 <div class="col-md-6">
                     <label class="form-label">Password <span class="text-danger">*</span></label>
-                    <input type="password" name="default_password" class="form-control" placeholder="Masukkan password manual" required>
+                    <div class="password-field-wrap">
+                        <input type="password" name="default_password" id="default-password" class="form-control no-native-password-reveal" placeholder="Masukkan password manual" required>
+                        <button type="button" class="password-eye-btn" id="toggle-password" aria-label="Tampilkan atau sembunyikan password">
+                            <i class="bi bi-eye" id="toggle-password-icon"></i>
+                        </button>
+                    </div>
                     <small class="text-muted d-block mt-1">Minimal 8 karakter, wajib diisi manual.</small>
                 </div>
 
@@ -66,6 +110,9 @@
         const nameInput = document.getElementById('name-input');
         const emailInput = document.getElementById('email-input');
         const sendEmailLabel = document.getElementById('send-email-label');
+        const passwordInput = document.getElementById('default-password');
+        const togglePasswordButton = document.getElementById('toggle-password');
+        const togglePasswordIcon = document.getElementById('toggle-password-icon');
 
         const applyRoleCopy = (role) => {
             if (role === 'admin') {
@@ -100,6 +147,14 @@
         roleSelect.addEventListener('change', function () {
             applyRoleCopy(this.value);
         });
+
+        if (togglePasswordButton && passwordInput && togglePasswordIcon) {
+            togglePasswordButton.addEventListener('click', function () {
+                const isHidden = passwordInput.type === 'password';
+                passwordInput.type = isHidden ? 'text' : 'password';
+                togglePasswordIcon.className = isHidden ? 'bi bi-eye-slash' : 'bi bi-eye';
+            });
+        }
     });
 </script>
 @endsection
