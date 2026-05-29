@@ -20,8 +20,7 @@ class StorageProxy
             return asset($path);
         }
 
-        $public = public_path('storage/' . $path);
-        if (file_exists($public)) {
+        if (Storage::disk('public')->exists($path)) {
             return asset('storage/' . $path);
         }
 
