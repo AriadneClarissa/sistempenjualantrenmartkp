@@ -58,7 +58,10 @@
 
                 <div class="col-md-6">
                     <label class="form-label">Kode Pelanggan <span class="text-danger">*</span></label>
-                    <input type="text" name="kd_pelanggan" class="form-control" placeholder="Contoh: PL0001" required>
+                    <input type="text" name="kd_pelanggan" class="form-control @error('kd_pelanggan') is-invalid @enderror" value="{{ old('kd_pelanggan') }}" placeholder="Contoh: PL0001" required>
+                    @error('kd_pelanggan')
+                        <div class="text-danger small mt-1">{{ $message }}</div>
+                    @enderror
                 </div>
 
                 <div class="col-md-6">

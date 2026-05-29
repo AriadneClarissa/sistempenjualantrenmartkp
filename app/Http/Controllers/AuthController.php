@@ -40,6 +40,7 @@ class AuthController extends Controller
     }
 
     $validated = $request->validate($rules, [
+        'email.unique' => 'Email sudah terdaftar. Silakan gunakan email lain.',
         'phone_number.regex' => 'Nomor WhatsApp harus diawali dengan 08.',
     ]);
 

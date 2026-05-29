@@ -107,7 +107,9 @@ class AdminUserController extends Controller
             $rules['kd_pelanggan'] = 'required|string|max:50|unique:users,kd_pelanggan';
         }
 
-        $data = $request->validate($rules);
+        $data = $request->validate($rules, [
+            'kd_pelanggan.unique' => 'Kode pelanggan sudah terdaftar. Gunakan kode lain.',
+        ]);
 
         $kdPelanggan = $customerType === 'regular'
             ? User::generateCustomerCode()
