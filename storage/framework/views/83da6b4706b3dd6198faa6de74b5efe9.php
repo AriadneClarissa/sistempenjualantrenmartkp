@@ -100,20 +100,38 @@
                     <input type="email" 
                         name="email" 
                         id="email"
-                        class="form-control" 
+                        class="form-control <?php $__errorArgs = ['email'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>" 
+                        value="<?php echo e(old('email')); ?>"
                         placeholder="nama@email.com" 
                         oninput="validateEmail(this)"
                         required>
                     <div id="email-error" class="text-danger small mt-1" style="display: none;">
                         Format email tidak valid (contoh: user@gmail.com)
                     </div>
+                    <?php $__errorArgs = ['email'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                        <div class="text-danger small mt-1"><?php echo e($message); ?></div>
+                    <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                 </div>
 
                 <div class="row">
                     <div class="col-md-6 mb-3">
                         <label class="form-label fw-semibold">Kata Sandi</label>
                         <div class="input-group">
-                            <input type="password" name="password" id="password" class="form-control with-eye" required>
+                            <input type="password" name="password" id="password" class="form-control with-eye" value="<?php echo e(old('password')); ?>" required>
                             <span class="input-group-text" onclick="togglePassword('password', 'icon-pass')">
                                 <i class="bi bi-eye" id="icon-pass"></i>
                             </span>
@@ -124,7 +142,7 @@
                     <div class="col-md-6 mb-3">
                         <label class="form-label fw-semibold">Konfirmasi Sandi</label>
                         <div class="input-group">
-                            <input type="password" name="password_confirmation" id="password_confirmation" class="form-control with-eye" required>
+                            <input type="password" name="password_confirmation" id="password_confirmation" class="form-control with-eye" value="<?php echo e(old('password_confirmation')); ?>" required>
                             <span class="input-group-text" onclick="togglePassword('password_confirmation', 'icon-confirm')">
                                 <i class="bi bi-eye" id="icon-confirm"></i>
                             </span>

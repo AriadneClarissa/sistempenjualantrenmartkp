@@ -174,17 +174,31 @@
                         <?php
                             $stokMinimal = $p->stok_minimal ?? $p->satuanModel?->stok_minimal ?? 0;
                             $isLowStock = $stokMinimal > 0 && $p->stok_tersedia <= $stokMinimal;
+                            $isCustomerViewer = auth()->check() && auth()->user()->isCustomer();
+                            $isOutOfStock = $p->stok_tersedia <= 0;
                         ?>
                         <div class="img-container">
-                            <?php if($p->stok_tersedia > 0): ?>
-                                <span class="badge bg-success badge-stok shadow-sm">Tersedia</span>
-                            <?php else: ?>
-                                <span class="badge bg-danger badge-stok shadow-sm">Habis</span>
-                            <?php endif; ?>
-                            <?php if($isLowStock): ?>
-                                <span class="badge bg-warning text-dark badge-stok shadow-sm" style="top: 44px;">Warning Stok</span>
-                            <?php endif; ?>
-                            <img src="<?php echo e(\App\Helpers\StorageProxy::url($p->gambar)); ?>" class="img-fluid" style="height: 150px; object-fit: contain;" alt="<?php echo e($p->nama_produk); ?>">
+                            <div class="badge-stok-group shadow-sm">
+                                <?php if($p->stok_tersedia > 0): ?>
+                                    <span class="badge bg-success px-2 py-1">Tersedia</span>
+                                <?php else: ?>
+                                    <span class="badge bg-danger px-2 py-1">Habis</span>
+                                <?php endif; ?>
+                                <?php if($isLowStock): ?>
+                                    <span class="badge bg-warning text-dark px-2 py-1">Warning Stok</span>
+                                <?php endif; ?>
+                            </div>
+                            <div class="position-relative" style="height: 150px;">
+                                <div class="w-100 h-100 d-flex align-items-center justify-content-center" style="<?php echo e($isCustomerViewer && $isOutOfStock ? 'filter: blur(3px); opacity: 0.45;' : ''); ?>">
+                                    <img src="<?php echo e(\App\Helpers\StorageProxy::url($p->gambar)); ?>" class="img-fluid" style="height: 150px; object-fit: contain;" alt="<?php echo e($p->nama_produk); ?>">
+                                </div>
+                                <?php if($isCustomerViewer && $isOutOfStock): ?>
+                                    <div class="position-absolute bottom-0 start-50 translate-middle-x mb-2 text-center px-3 py-2 bg-white shadow-sm"
+                                         style="border-radius: 999px; z-index: 11; pointer-events: none;">
+                                        <span class="fw-bold text-danger">Stok Habis</span>
+                                    </div>
+                                <?php endif; ?>
+                            </div>
                         </div>
                         
                         <div class="product-info text-center d-flex flex-column">
@@ -215,12 +229,18 @@
                                     </a>
                                 <?php else: ?>
                                     
-                                    <form action="<?php echo e(route('cart.add', $p->kd_produk)); ?>" method="POST" class="mt-2 add-to-cart-form">
-                                        <?php echo csrf_field(); ?>
-                                        <button type="submit" class="btn-action btn-tambah shadow-sm">
-                                            <i class="bi bi-plus-lg me-1"></i> Tambah
+                                    <?php if($p->stok_tersedia > 0): ?>
+                                        <form action="<?php echo e(route('cart.add', $p->kd_produk)); ?>" method="POST" class="mt-2 add-to-cart-form">
+                                            <?php echo csrf_field(); ?>
+                                            <button type="submit" class="btn-action btn-tambah shadow-sm">
+                                                <i class="bi bi-plus-lg me-1"></i> Tambah
+                                            </button>
+                                        </form>
+                                    <?php else: ?>
+                                        <button type="button" class="btn-action btn-tambah shadow-sm" disabled style="background-color: #d9d9d9; color: #7a7a7a; cursor: not-allowed;">
+                                            <i class="bi bi-x-circle me-1"></i> Stok Habis
                                         </button>
-                                    </form>
+                                    <?php endif; ?>
                                 <?php endif; ?>
                             <?php else: ?>
                                 
@@ -260,6 +280,17 @@
         overflow: hidden;
         border-radius: 16px;
         margin-bottom: 0.9rem;
+    }
+
+    .badge-stok-group {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        z-index: 11;
+        display: inline-flex;
+        flex-direction: column;
+        gap: 6px;
+        align-items: flex-start;
     }
 
     .card-produk .img-container img {

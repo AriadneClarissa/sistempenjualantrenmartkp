@@ -184,7 +184,13 @@
                         </h6>
                     </div>
                     <div class="card-body">
-                        <p class="small text-muted">Pesanan dalam status <strong>Diproses</strong>. Siap untuk dikemas dan dikirim.</p>
+                        <?php if($order->order_status === 'processing'): ?>
+                            <p class="small text-muted">Pesanan dalam status <strong>Diproses</strong>. Siap untuk dikemas dan dikirim.</p>
+                        <?php elseif($order->order_status === 'ready_to_ship'): ?>
+                            <p class="small text-muted">Pesanan dalam status <strong>Siap Dikirim</strong>. Siap untuk diserahkan ke pengiriman.</p>
+                        <?php elseif($order->order_status === 'completed'): ?>
+                            <p class="small text-muted">Pesanan sudah <strong>selesai</strong>.</p>
+                        <?php endif; ?>
                         <div class="d-grid gap-2 mt-3">
                             <?php if($order->order_status === 'processing'): ?>
                                 <form action="<?php echo e(route('admin.orders.status', $order->id)); ?>" method="POST">
@@ -203,7 +209,7 @@
                                     </button>
                                 </form>
                             <?php elseif($order->order_status === 'completed'): ?>
-                                <span class="badge bg-success-subtle text-success-emphasis py-2">Pesanan sudah selesai diproses.</span>
+                                <span class="badge bg-success-subtle text-success-emphasis py-2">Pesanan sudah selesai.</span>
                             <?php endif; ?>
                         </div>
                     </div>
@@ -216,7 +222,7 @@
                         </h6>
                     </div>
                     <div class="card-body">
-                        <p class="small text-muted">Pembayaran telah ditolak. Pelanggan dapat mengirimkan ulang bukti transfer.</p>
+                        <p class="small text-muted">Pembayaran tidak valid, silahkan membuat pesanan baru.</p>
                     </div>
                 </div>
             <?php endif; ?>

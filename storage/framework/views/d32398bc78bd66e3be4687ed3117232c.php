@@ -180,11 +180,11 @@
             </div>
             <div class="text-end">
                 <div class="status-pill status-pill--info d-block mt-2" style="justify-content:center;">
-                    <?php echo e($order->order_status === 'processing' ? 'Diproses' : ($order->order_status === 'ready_to_ship' ? 'Siap Dikirim' : ($order->order_status === 'completed' ? 'Selesai' : ucfirst(str_replace('_',' ', $order->order_status ?? 'new'))))); ?>
+                    <?php echo e($order->order_status === 'processing' ? 'Diproses' : ($order->order_status === 'ready_to_ship' ? 'Siap Dikirim' : ($order->order_status === 'completed' ? 'Selesai' : ($order->order_status === 'payment_rejected' ? 'Pembayaran Ditolak' : ucfirst(str_replace('_',' ', $order->order_status ?? 'new')))))); ?>
 
                 </div>
                 <div class="fw-bold mt-2">Rp <?php echo e(number_format($order->total,0,',','.')); ?></div>
-                <?php if($order->payment_status === 'confirmed' && in_array($order->order_status, ['ready_to_ship', 'processing'], true)): ?>
+                <?php if($order->payment_status === 'confirmed' && $order->order_status === 'ready_to_ship'): ?>
                     <form action="<?php echo e(route('pesanan.complete', $order->id)); ?>" method="POST" class="mt-3">
                         <?php echo csrf_field(); ?>
                         <button type="submit" class="btn btn-success btn-sm w-100" onclick="return confirm('Tandai pesanan ini sudah selesai diterima?');">
@@ -197,38 +197,43 @@
             </div>
         </div>
 
-        <div class="order-status-card mb-4">
-            <div class="d-flex justify-content-between align-items-start gap-3 flex-wrap">
-                <div>
-                    <h6 class="fw-bold mb-1">Status Pengiriman</h6>
-                    <div class="status-note">Ikuti tahapan pesanan sampai selesai. Tahap aktif ditandai merah.</div>
-                </div>
-                <div class="small text-muted">
-                    Terakhir diperbarui: <?php echo e($order->updated_at->format('d M Y H:i')); ?>
-
-                </div>
-            </div>
-
-            <div class="order-stepper mt-4">
-                <?php $__currentLoopData = $stepLabels; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $label): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                    <?php $stepState = $stepClass($index + 1); ?>
-                    <div class="order-step <?php echo e($stepState); ?>">
-                        <div class="order-step-circle"><?php echo e($index + 1); ?></div>
-                        <div class="order-step-label"><?php echo e($label); ?></div>
+        <?php if($order->payment_status !== 'rejected'): ?>
+            <div class="order-status-card mb-4">
+                <div class="d-flex justify-content-between align-items-start gap-3 flex-wrap">
+                    <div>
+                        <h6 class="fw-bold mb-1">Status Pengiriman</h6>
+                        <div class="status-note">Ikuti tahapan pesanan sampai selesai. Tahap aktif ditandai merah.</div>
                     </div>
-                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-            </div>
+                    <div class="small text-muted">
+                        Terakhir diperbarui: <?php echo e($order->updated_at->format('d M Y H:i')); ?>
 
-            <div class="status-note mt-3">
-                <?php if($order->payment_status === 'confirmed'): ?>
-                    Pesanan telah dikonfirmasi dan siap masuk ke proses berikutnya.
-                <?php elseif($order->payment_status === 'waiting_confirmation'): ?>
-                    Menunggu konfirmasi pembayaran dari admin.
-                <?php elseif($order->payment_status === 'rejected'): ?>
-                    Pembayaran ditolak. Silakan unggah ulang bukti transfer.
-                <?php endif; ?>
+                    </div>
+                </div>
+
+                <div class="order-stepper mt-4">
+                    <?php $__currentLoopData = $stepLabels; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $label): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                        <?php $stepState = $stepClass($index + 1); ?>
+                        <div class="order-step <?php echo e($stepState); ?>">
+                            <div class="order-step-circle"><?php echo e($index + 1); ?></div>
+                            <div class="order-step-label"><?php echo e($label); ?></div>
+                        </div>
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                </div>
+
+                <div class="status-note mt-3">
+                    <?php if($order->payment_status === 'confirmed'): ?>
+                        Pesanan telah dikonfirmasi dan siap masuk ke proses berikutnya.
+                    <?php elseif($order->payment_status === 'waiting_confirmation'): ?>
+                        Menunggu konfirmasi pembayaran dari admin.
+                    <?php endif; ?>
+                </div>
             </div>
-        </div>
+        <?php else: ?>
+            <div class="alert alert-danger border-0 mb-4" style="border-radius:18px; background:#fff5f5; color:#8b0000;">
+                <div class="fw-bold mb-1">Pembayaran ditolak</div>
+                <div class="small">Silahkan membuat pesanan baru.</div>
+            </div>
+        <?php endif; ?>
 
         <div class="row">
             <div class="col-md-8">

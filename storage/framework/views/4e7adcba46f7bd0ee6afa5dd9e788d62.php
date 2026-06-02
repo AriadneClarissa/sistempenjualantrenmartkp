@@ -18,11 +18,15 @@
                     <thead class="table-light">
                         <tr>
                             <th class="py-1 px-2" style="width: 5%;">#</th>
-                            <th class="py-1 px-2" style="width: 11%;">Kode Pelanggan</th>
+                            <?php if($page !== 'internal'): ?>
+                                <th class="py-1 px-2" style="width: 11%;">Kode Pelanggan</th>
+                            <?php endif; ?>
                             <th class="py-1 px-2" style="width: 18%;">Nama</th>
                             <th class="py-1 px-2" style="width: 26%;">Email</th>
                             <th class="py-1 px-2" style="width: 12%;">Role</th>
-                            <th class="py-1 px-2" style="width: 12%;">Jenis Pelanggan</th>
+                            <?php if($page !== 'internal'): ?>
+                                <th class="py-1 px-2" style="width: 12%;">Jenis Pelanggan</th>
+                            <?php endif; ?>
                             <?php if($page === 'internal'): ?>
                                 <th class="py-1 px-2" style="width: 8%;">Status</th>
                                 <th class="py-1 px-2" style="width: 10%;">Aksi</th>
@@ -34,11 +38,22 @@
                         <?php $__currentLoopData = $users; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $u): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                         <tr>
                             <td class="py-1 px-2 text-truncate"><?php echo e($u->id); ?></td>
-                            <td class="py-1 px-2 text-truncate"><?php echo e($u->kd_pelanggan ?? '-'); ?></td>
+                            <?php if($page !== 'internal'): ?>
+                                <td class="py-1 px-2 text-truncate"><?php echo e($u->kd_pelanggan ?? '-'); ?></td>
+                            <?php endif; ?>
                             <td class="py-1 px-2 text-truncate"><?php echo e($u->name); ?></td>
                             <td class="py-1 px-2 text-truncate"><?php echo e($u->email); ?></td>
                             <td class="py-1 px-2 text-truncate"><?php echo e($u->roleLabel()); ?></td>
-                            <td class="py-1 px-2 text-truncate"><?php echo e($u->customer_type ?? '-'); ?></td>
+                            <?php if($page !== 'internal'): ?>
+                                <td class="py-1 px-2 text-truncate">
+                                    <?php if(method_exists($u, 'isCustomer') ? $u->isCustomer() : ($u->role === 'customer')): ?>
+                                        <?php echo e($u->customer_type === 'langganan' ? 'Langganan' : 'Umum'); ?>
+
+                                    <?php else: ?>
+                                        -
+                                    <?php endif; ?>
+                                </td>
+                            <?php endif; ?>
                             <?php if($page === 'internal'): ?>
                                 <td class="py-1 px-2">
                                     <?php if($u->isActive()): ?>

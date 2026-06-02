@@ -315,7 +315,7 @@ unset($__errorArgs, $__bag); ?>
                             <li class="mb-2"><i class="bi bi-geo-alt me-2 text-danger"></i><?php echo e($data['tentang_alamat']); ?></li>
                             <li class="mb-2"><i class="bi bi-telephone me-2 text-danger"></i><?php echo e($data['tentang_telepon']); ?></li>
                             <li class="mb-2"><i class="bi bi-envelope me-2 text-danger"></i><?php echo e($data['tentang_email']); ?></li>
-                            <li><i class="bi bi-clock me-2 text-danger"></i><?php echo e($data['tentang_jam_operasional']); ?></li>
+                            <li><i class="bi bi-clock me-2 text-danger"></i><span style="white-space: pre-line;"><?php echo e($data['tentang_jam_operasional']); ?></span></li>
                         </ul>
                         <div class="ratio ratio-16x9 rounded-3 overflow-hidden">
                             <iframe src="<?php echo e($mapEmbedUrl); ?>" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>

@@ -246,6 +246,10 @@
                     
                     <div class="card h-100 border-0 shadow-sm card-bundling-hover position-relative" style="border-radius: 20px;">
                         <div class="card-body p-3 d-flex flex-column">
+                            <?php
+                                $bundlingStock = method_exists($b, 'availableStock') ? $b->availableStock() : 0;
+                                $bundlingIsOut = method_exists($b, 'isOutOfStock') ? $b->isOutOfStock() : ($bundlingStock <= 0);
+                            ?>
                             
                             <div class="d-flex justify-content-between align-items-start mb-3">
                                 
@@ -268,7 +272,7 @@
                                 <ul class="list-unstyled mb-0">
                                     <?php $__currentLoopData = $b->items; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                         <li class="small d-flex align-items-center mb-2">
-                                            <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                            <i class="bi <?php echo e(($item->produk->stok_tersedia ?? 0) > 0 ? 'bi-check-circle-fill text-success' : 'bi-x-circle-fill text-danger'); ?> me-2"></i>
                                             <span>
                                                 <?php echo e($item->produk->nama_produk); ?> 
                                                 <small class="text-muted">(<?php echo e($item->produk->merk->nama_merk ?? 'Tanpa Merk'); ?>)</small>
@@ -298,11 +302,17 @@
                                     </h4>
                                     
                                     
-                                    <?php if(Auth::check() && Auth::user()->isCustomer()): ?>
-                                        
-                                        <span class="btn-tambah-card shadow-sm d-flex align-items-center justify-content-center" style="position: relative; z-index: 2;" data-action="<?php echo e(route('cart.add', ['id' => $b->id, 'type' => 'bundling'])); ?>" data-bundling-id="<?php echo e($b->id); ?>">
-                                            <i class="bi bi-plus-lg me-1"></i> Tambah
-                                        </span>
+                                    <?php if(Auth::check() && !Auth::user()->isOwner()): ?>
+                                        <?php if($bundlingIsOut): ?>
+                                            <span class="btn btn-secondary rounded-pill px-3 py-2 disabled" style="pointer-events: none; opacity: .65; position: relative; z-index: 2;">
+                                                <i class="bi bi-x-circle me-1"></i> Stok Habis
+                                            </span>
+                                        <?php else: ?>
+                                            
+                                            <span class="btn-tambah-card shadow-sm d-flex align-items-center justify-content-center" style="position: relative; z-index: 2;" data-action="<?php echo e(route('cart.add', ['id' => $b->id, 'type' => 'bundling'])); ?>" data-bundling-id="<?php echo e($b->id); ?>">
+                                                <i class="bi bi-plus-lg me-1"></i> Tambah
+                                            </span>
+                                        <?php endif; ?>
                                     <?php else: ?>
                                         
                                         <a href="<?php echo e(route('login')); ?>" class="btn btn-outline-primary">Masuk untuk Tambah</a>

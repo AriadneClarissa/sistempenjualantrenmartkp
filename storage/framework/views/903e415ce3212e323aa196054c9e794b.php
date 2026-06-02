@@ -2,6 +2,7 @@
     :root { --maroon: #660000; }
     .admin-header { background-color: #f8f9fa; border-bottom: 2px solid #e9ecef; }
     .admin-header h2 { color: var(--maroon); font-weight: bold; }
+    
     .admin-nav-btn { 
         border-radius: 50px; 
         padding: 0.4rem 0.72rem; 
@@ -16,6 +17,7 @@
         justify-content: center;
         text-align: center;
     }
+    
     .admin-header-actions {
         display: flex;
         flex-wrap: nowrap;
@@ -25,14 +27,24 @@
         width: auto;
         max-width: 100%;
         overflow-x: auto;
-        padding-bottom: 4px;
+        padding-bottom: 2px; /* Dikecilkan karena scrollbar akan dihilangkan */
         -webkit-overflow-scrolling: touch;
+        
+        /* PAKSA SEMBUNYIKAN SCROLLBAR (Firefox/IE/Edge) */
+        scrollbar-width: none !important; 
+        -ms-overflow-style: none !important; 
     }
-    .admin-header-actions .admin-nav-btn {
-        flex: 0 0 auto;
-        width: auto;
-        min-width: 0;
+
+    /* PAKSA SEMBUNYIKAN SCROLLBAR (Chrome/Safari/Opera/Edge WebKit) */
+    .admin-header-actions::-webkit-scrollbar,
+    .custom-scrollbar::-webkit-scrollbar {
+        display: none !important;
+        width: 0 !important;
+        height: 0 !important;
+        background: transparent !important;
+        -webkit-appearance: none !important;
     }
+    
     .admin-header > .container-fluid > .d-flex {
         flex-wrap: nowrap;
         gap: 1rem;
@@ -46,6 +58,7 @@
         flex: 1 1 auto;
         min-width: 0;
     }
+    
     @media (max-width: 768px) {
         .admin-header > .container-fluid > .d-flex {
             flex-wrap: wrap;
@@ -56,7 +69,6 @@
         .admin-header > .container-fluid > .d-flex > .admin-header-actions {
             flex: 1 1 100%;
             width: 100%;
-            overflow-x: auto;
         }
         .admin-nav-btn {
             width: 100%;
@@ -67,6 +79,7 @@
             min-width: 120px;
         }
     }
+    
     @media (max-width: 1600px) {
         .admin-header > .container-fluid > .d-flex {
             flex-wrap: wrap;
@@ -79,6 +92,7 @@
             width: 100%;
         }
     }
+    
     @media (max-width: 576px) {
         .admin-nav-btn {
             width: 100%;
@@ -89,6 +103,7 @@
             min-width: 120px;
         }
     }
+    
     .admin-nav-btn.active {
         background-color: var(--maroon);
         color: white;
@@ -96,16 +111,17 @@
         border-width: 2px;
     }
     .admin-nav-btn.active:hover {
-        background-color: #550000;
-        border-color: #550000;
+        background-color: #800000;
+        border-color: #800000;
     }
     .admin-nav-btn:not(.active) {
         border: 2px solid #dee2e6;
         color: #495057;
+        background-color: transparent !important;
     }
     .admin-nav-btn:not(.active):hover {
         border-color: #adb5bd;
-        background-color: #f8f9fa;
+        background-color: transparent !important;
     }
 </style>
 
@@ -131,22 +147,25 @@
                         <i class="bi bi-box-seam me-1"></i> Produk
                     </a>
                 <?php elseif(auth()->user()->isOwner()): ?>
-                    <a href="<?php echo e(route('admin.dashboard')); ?>" class="btn btn-sm admin-nav-btn <?php echo e($activePage === 'users' ? 'active btn-outline-secondary' : 'btn-outline-secondary'); ?>">
+                    <?php
+                        $isAllUsersPage = request()->routeIs('admin.dashboard', 'admin.users.index') || ($activePage ?? null) === 'dashboard' || ($activePage ?? null) === 'users';
+                    ?>
+                    <a href="<?php echo e(route('admin.dashboard')); ?>" class="btn btn-sm admin-nav-btn <?php echo e($isAllUsersPage ? 'active' : 'btn-outline-secondary'); ?>">
                         <i class="bi bi-people me-1"></i> Semua Pengguna
                     </a>
-                    <a href="<?php echo e(route('admin.users.internal')); ?>" class="btn btn-sm admin-nav-btn <?php echo e($activePage === 'internal_users' ? 'active btn-outline-secondary' : 'btn-outline-secondary'); ?>">
+                    <a href="<?php echo e(route('admin.users.internal')); ?>" class="btn btn-sm admin-nav-btn <?php echo e(request()->routeIs('admin.users.internal') ? 'active' : 'btn-outline-secondary'); ?>">
                         <i class="bi bi-shield-lock me-1"></i> User Internal
                     </a>
-                    <a href="<?php echo e(route('admin.customers.index')); ?>" class="btn btn-sm admin-nav-btn <?php echo e($activePage === 'customers' ? 'active btn-outline-secondary' : 'btn-outline-secondary'); ?>">
+                    <a href="<?php echo e(route('admin.customers.index')); ?>" class="btn btn-sm admin-nav-btn <?php echo e(request()->routeIs('admin.customers.*') ? 'active' : 'btn-outline-secondary'); ?>">
                         <i class="bi bi-person-badge me-1"></i> Pelanggan
                     </a>
-                    <a href="<?php echo e(route('admin.payment_methods.index')); ?>" class="btn btn-sm admin-nav-btn <?php echo e($activePage === 'payment' ? 'active btn-outline-secondary' : 'btn-outline-secondary'); ?>">
+                    <a href="<?php echo e(route('admin.payment_methods.index')); ?>" class="btn btn-sm admin-nav-btn <?php echo e(request()->routeIs('admin.payment_methods.*') ? 'active' : 'btn-outline-secondary'); ?>">
                         <i class="bi bi-credit-card-2-back me-1"></i> Metode Pembayaran
                     </a>
-                    <a href="<?php echo e(route('admin.users.create')); ?>" class="btn btn-sm btn-primary admin-nav-btn">
+                    <a href="<?php echo e(route('admin.users.create')); ?>" class="btn btn-sm admin-nav-btn <?php echo e(request()->routeIs('admin.users.create') ? 'active' : 'btn-outline-secondary'); ?>">
                         <i class="bi bi-person-plus me-1"></i> Buat Pelanggan
                     </a>
-                    <a href="<?php echo e(route('admin.admins.create')); ?>" class="btn btn-sm btn-warning admin-nav-btn text-dark">
+                    <a href="<?php echo e(route('admin.admins.create')); ?>" class="btn btn-sm admin-nav-btn <?php echo e(request()->routeIs('admin.admins.create') ? 'active' : 'btn-outline-secondary'); ?>">
                         <i class="bi bi-shield-check me-1"></i> Buat User Internal
                     </a>
                 <?php elseif(auth()->user()->isAdmin()): ?>
@@ -159,10 +178,10 @@
                     <a href="<?php echo e(route('admin.payment_methods.index')); ?>" class="btn btn-sm admin-nav-btn <?php echo e($activePage === 'payment' ? 'active btn-outline-secondary' : 'btn-outline-secondary'); ?>">
                         <i class="bi bi-credit-card-2-back me-1"></i> Metode Pembayaran
                     </a>
-                    <a href="<?php echo e(route('admin.users.create')); ?>" class="btn btn-sm btn-primary admin-nav-btn">
+                    <a href="<?php echo e(route('admin.users.create')); ?>" class="btn btn-sm admin-nav-btn <?php echo e(request()->routeIs('admin.users.create') ? 'active' : 'btn-outline-secondary'); ?>">
                         <i class="bi bi-person-plus me-1"></i> Buat Pelanggan
                     </a>
-                    <a href="<?php echo e(route('admin.admins.create')); ?>" class="btn btn-sm btn-warning admin-nav-btn text-dark">
+                    <a href="<?php echo e(route('admin.admins.create')); ?>" class="btn btn-sm admin-nav-btn <?php echo e(request()->routeIs('admin.admins.create') ? 'active' : 'btn-outline-secondary'); ?>">
                         <i class="bi bi-shield-check me-1"></i> Buat User Internal
                     </a>
                 <?php endif; ?>

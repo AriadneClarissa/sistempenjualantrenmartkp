@@ -5,33 +5,58 @@
         <?php
             $stokMinimal = $item->stok_minimal ?? $item->satuanModel?->stok_minimal ?? 0;
             $isLowStock = $stokMinimal > 0 && $item->stok_tersedia <= $stokMinimal;
+            $isCustomerViewer = auth()->check() && auth()->user()->isCustomer();
+            $isOutOfStock = $item->stok_tersedia <= 0;
             $satuanNama = $item->satuan?->nama_satuan ?? $item->satuan ?? 'pcs';
         ?>
         
-        
-        <?php if($item->stok_tersedia > 0): ?>
-            <div class="position-absolute" style="top: 12px; left: 12px; z-index: 10;">
-                <span class="badge bg-success px-2 py-1" style="border-radius: 7px; font-size: 0.68rem;">
-                    Tersedia
-                </span>
-            </div>
-        <?php endif; ?>
+        <div class="position-absolute top-0 start-0 p-2" style="z-index: 10;">
+            <div class="d-flex flex-column gap-1 align-items-start">
+                <?php if($item->stok_tersedia > 0): ?>
+                    <span class="badge bg-success px-2 py-1" style="border-radius: 7px; font-size: 0.68rem;">
+                        Tersedia
+                    </span>
+                <?php else: ?>
+                    <span class="badge bg-danger px-2 py-1" style="border-radius: 7px; font-size: 0.68rem;">
+                        Habis
+                    </span>
+                <?php endif; ?>
 
-        <?php if($isLowStock): ?>
-            <div class="position-absolute" style="top: 44px; left: 12px; z-index: 10;">
-                <span class="badge bg-warning text-dark px-2 py-1" style="border-radius: 7px; font-size: 0.68rem;">
-                    Warning Stok
-                </span>
-            </div>
-        <?php endif; ?>
+                <?php if($isLowStock): ?>
+                    <?php
+                        $showWarning = true;
+                        // Jangan tampilkan warning stok untuk user yang merupakan pelanggan (umum atau langganan)
+                        if(auth()->check() && auth()->user()->isCustomer()) {
+                            $showWarning = false;
+                        }
+                    ?>
 
-        
-        <div class="d-flex align-items-center justify-content-center bg-light mb-3"
-             style="height: 150px; border-radius: 12px; overflow: hidden;">
-              <img src="<?php echo e(\App\Helpers\StorageProxy::url($item->gambar)); ?>"
-                 class="img-fluid"
-                 alt="<?php echo e($item->nama_produk); ?>"
-                 style="max-height: 100%; object-fit: contain; mix-blend-mode: multiply;">
+                    <?php if($showWarning): ?>
+                        <span class="badge bg-warning text-dark px-2 py-1" style="border-radius: 7px; font-size: 0.68rem;">
+                            Warning Stok
+                        </span>
+                    <?php endif; ?>
+                <?php endif; ?>
+            </div>
+        </div>
+
+           
+           <div class="d-flex align-items-center justify-content-center bg-light mb-3 position-relative"
+               style="height: 150px; border-radius: 12px; overflow: hidden;">
+                <div class="w-100 h-100 d-flex align-items-center justify-content-center"
+                    style="<?php echo e($isCustomerViewer && $isOutOfStock ? 'filter: blur(3px); opacity: 0.45;' : ''); ?>">
+                   <img src="<?php echo e(\App\Helpers\StorageProxy::url($item->gambar)); ?>"
+                     class="img-fluid"
+                     alt="<?php echo e($item->nama_produk); ?>"
+                     style="max-height: 100%; object-fit: contain; mix-blend-mode: multiply;">
+                </div>
+
+                     <?php if($isCustomerViewer && $isOutOfStock): ?>
+                         <div class="position-absolute bottom-0 start-50 translate-middle-x mb-2 text-center px-3 py-2 bg-white shadow-sm"
+                              style="border-radius: 999px; z-index: 11; pointer-events: none;">
+                             <span class="fw-bold text-danger">Stok Habis</span>
+                         </div>
+                     <?php endif; ?>
         </div>
 
         <div class="card-body p-0 d-flex flex-column flex-grow-1">
@@ -56,7 +81,7 @@
 
             
             <?php if(auth()->guard()->check()): ?>
-                <?php if(auth()->user()->isInternalStaff() || auth()->user()->customer_type === 'langganan'): ?>
+                <?php if(auth()->user()->isInternalStaff()): ?>
                     <p class="mb-2 fw-semibold" style="color: #f08a24; font-size: 0.85rem;">
                         Langganan: Rp <?php echo e(number_format($item->harga_jual_langganan ?? $item->harga_jual_umum, 0, ',', '.')); ?>
 
@@ -67,13 +92,20 @@
             
             <?php if(auth()->guard()->check()): ?>
                 <?php if(auth()->user()->isCustomer()): ?>
-                    <form action="<?php echo e(route('cart.add', $item->kd_produk)); ?>" method="POST" class="add-to-cart-form mt-2">
-                        <?php echo csrf_field(); ?>
-                        <button type="submit" class="btn w-100 py-2 d-flex align-items-center justify-content-center gap-1"
-                                style="background-color: #800000; color: white; border-radius: 10px; font-weight: 600; font-size: 0.9rem;">
-                            <i class="bi bi-plus-lg"></i> Tambah
+                    <?php if($item->stok_tersedia > 0): ?>
+                        <form action="<?php echo e(route('cart.add', $item->kd_produk)); ?>" method="POST" class="add-to-cart-form mt-2">
+                            <?php echo csrf_field(); ?>
+                            <button type="submit" class="btn w-100 py-2 d-flex align-items-center justify-content-center gap-1"
+                                    style="background-color: #800000; color: white; border-radius: 10px; font-weight: 600; font-size: 0.9rem;">
+                                <i class="bi bi-plus-lg"></i> Tambah
+                            </button>
+                        </form>
+                    <?php else: ?>
+                        <button type="button" class="btn w-100 py-2 d-flex align-items-center justify-content-center gap-1" disabled
+                                style="background-color: #d9d9d9; color: #7a7a7a; border-radius: 10px; font-weight: 600; font-size: 0.9rem; cursor: not-allowed;">
+                            <i class="bi bi-x-circle"></i> Stok Habis
                         </button>
-                    </form>
+                    <?php endif; ?>
                 <?php endif; ?>
             <?php endif; ?>
         </div>

@@ -4,8 +4,20 @@
 <?php echo $__env->make('admin._header', ['activePage' => 'customers'], array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
 
 <div class="container-fluid">
-    <div class="mb-4">
-        <h4 class="fw-bold ms-0">Daftar Pelanggan (Langganan & Regular)</h4>
+    <div class="mb-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <h4 class="fw-bold ms-0 mb-0">Daftar Pelanggan (Langganan & Umum)</h4>
+
+        <form method="GET" action="<?php echo e(route('admin.customers.index')); ?>" class="ms-auto">
+            <div class="position-relative">
+                <select name="jenis" class="form-select shadow-sm"
+                        onchange="this.form.submit()"
+                        style="min-width: 160px; border-radius: 999px; border: 1px solid #e5e5e5; padding-left: 16px; padding-right: 40px; height: 42px; color: #495057; background-color: #fff;">
+                    <option value="all" <?php echo e(($customerType ?? 'all') === 'all' ? 'selected' : ''); ?>>Semua Pelanggan</option>
+                    <option value="regular" <?php echo e(($customerType ?? 'all') === 'regular' ? 'selected' : ''); ?>>Umum</option>
+                    <option value="langganan" <?php echo e(($customerType ?? 'all') === 'langganan' ? 'selected' : ''); ?>>Langganan</option>
+                </select>
+            </div>
+        </form>
     </div>
 
     <div class="card shadow-sm w-100">
@@ -26,19 +38,23 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <?php $__currentLoopData = $customers; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $c): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                        <tr>
-                            <td class="py-1 px-2 text-truncate"><?php echo e($c->id); ?></td>
-                            <td class="py-1 px-2 text-truncate"><?php echo e($c->kd_pelanggan ?? '-'); ?></td>
-                            <td class="py-1 px-2 text-truncate"><?php echo e($c->name); ?></td>
-                            <td class="py-1 px-2 text-truncate"><?php echo e($c->email); ?></td>
-                            <td class="py-1 px-2 text-truncate"><?php echo e(strtoupper($c->customer_type ?? 'regular')); ?></td>
-                            <td class="py-1 px-2 text-truncate"><?php echo e($c->phone_number ?? '-'); ?></td>
-                            <td class="py-1 px-2 text-truncate"><?php echo e($c->home_address ?? '-'); ?></td>
-                            <td class="py-1 px-2 text-truncate"><?php echo e($c->organization_name ?? '-'); ?></td>
-                            <td class="py-1 px-2"><?php echo e($c->created_at ? $c->created_at->format('d M Y') : '-'); ?></td>
-                        </tr>
-                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                        <?php $__empty_1 = true; $__currentLoopData = $customers; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $c): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
+                            <tr>
+                                <td class="py-1 px-2 text-truncate"><?php echo e($c->id); ?></td>
+                                <td class="py-1 px-2 text-truncate"><?php echo e($c->kd_pelanggan ?? '-'); ?></td>
+                                <td class="py-1 px-2 text-truncate"><?php echo e($c->name); ?></td>
+                                <td class="py-1 px-2 text-truncate"><?php echo e($c->email); ?></td>
+                                <td class="py-1 px-2 text-truncate"><?php echo e(($c->customer_type ?? 'regular') === 'langganan' ? 'Langganan' : 'Umum'); ?></td>
+                                <td class="py-1 px-2 text-truncate"><?php echo e($c->phone_number ?? '-'); ?></td>
+                                <td class="py-1 px-2 text-truncate"><?php echo e($c->home_address ?? '-'); ?></td>
+                                <td class="py-1 px-2 text-truncate"><?php echo e($c->organization_name ?? '-'); ?></td>
+                                <td class="py-1 px-2"><?php echo e($c->created_at ? $c->created_at->format('d M Y') : '-'); ?></td>
+                            </tr>
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
+                            <tr>
+                                <td colspan="9" class="text-center text-muted py-4">Tidak ada pelanggan untuk filter yang dipilih.</td>
+                            </tr>
+                        <?php endif; ?>
                     </tbody>
                 </table>
             </div>

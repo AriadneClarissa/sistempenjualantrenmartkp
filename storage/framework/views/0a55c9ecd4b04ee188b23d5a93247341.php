@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Trenmart - PT Tren Abadi Stationeri</title>
     <meta name="csrf-token" content="<?php echo e(csrf_token()); ?>">
+    
+    <link rel="preload" as="image" href="<?php echo e(asset('images/logoTrenmart.png')); ?>">
+    
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
     
@@ -30,23 +33,60 @@
         html { overflow-y: scroll; }
 
         /* --- NAVBAR --- */
-        .navbar { padding-top: 12px !important; padding-bottom: 12px !important; background-color: #ffffff !important; }
-        .navbar-brand img { height: 40px; transition: 0.3s; }
+        .navbar { 
+            padding-top: 6px !important; 
+            padding-bottom: 6px !important; 
+            background-color: #ffffff !important; 
+            position: relative; 
+        }
+        
+        /* Mengunci ruang logo agar tidak bergeser (Mencegah CLS/Kedip) */
+        .navbar-brand {
+            display: inline-flex;
+            align-items: center;
+            width: 160px !important;
+            min-width: 160px !important;
+            height: 48px;
+            padding: 0;
+            margin-right: 1rem;
+        }
+        
+        .navbar-brand img { 
+            display: block;
+            width: 160px !important;
+            height: 40px !important; 
+            object-fit: contain;
+        }
+
         .navbar-nav { margin-left: auto !important; margin-right: auto !important; }
         .nav-link { font-weight: 600; font-size: 1.05rem; color: #444 !important; padding: 8px 18px !important; transition: 0.2s; position: relative; }
         .nav-link:hover, .nav-link.active { color: var(--maroon-trenmart) !important; }
 
         @media (min-width: 992px) {
-            .navbar-brand img { height: 48px; }
+            /* Sesuaikan ruang logo di layar besar */
+            .navbar-brand { width: 180px !important; min-width: 180px !important; }
+            .navbar-brand img { width: 180px !important; height: 45px !important; }
+            
+            /* KEMBALIKAN GARIS BAWAH MERAH DI SINI */
             .nav-link.active::after {
                 content: ""; position: absolute; bottom: 2px; left: 18px; right: 18px;
                 height: 3px; background-color: var(--maroon-trenmart); border-radius: 10px;
+            }
+            
+            /* KUNCI MENU DI TENGAH LAYAR (Diperbarui agar responsif) */
+            .navbar-nav {
+                margin-left: auto !important;
+                margin-right: auto !important;
+                display: flex;
+                justify-content: center;
             }
         }
 
         /* --- SEARCH BAR --- */
         .search-bar { border-radius: 50px 0 0 50px !important; background-color: #f3f4f6 !important; border: 1px solid #e5e7eb !important; padding-left: 20px; height: 42px; width: 100%; transition: 0.3s; }
-        @media (min-width: 992px) { .search-bar { width: 220px; flex: 0 0 220px; } }
+        @media (min-width: 992px) { 
+            .search-bar { width: 100%; max-width: 220px; flex: 1 1 auto; } 
+        }
         .search-bar:focus { background-color: #fff !important; border-color: var(--maroon-trenmart) !important; box-shadow: none; outline: none; }
         .btn-search { border-radius: 0 50px 50px 0 !important; background-color: var(--maroon-trenmart) !important; color: white !important; height: 42px; border: none; padding: 0 18px; }
 
@@ -87,11 +127,6 @@
         @media (min-width: 992px) {
             .footer-divider { border-left: 1px solid rgba(255, 255, 255, 0.2); padding-left: 40px; height: 100%; }
         }
-
-        .table-jam { color: rgba(255, 255, 255, 0.9); font-size: 0.875rem; width: 100%; border-collapse: collapse; }
-        .table-jam td { padding: 2px 0; vertical-align: top; }
-        .td-hari { width: 110px; }
-        .td-pemisah { width: 15px; }
 
         .social-box { width: 40px; height: 40px; background-color: rgba(255, 255, 255, 0.1); display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; color: white; margin-right: 12px; transition: all 0.3s ease; text-decoration: none; }
         .social-box:hover { background-color: rgba(255, 255, 255, 0.25); transform: translateY(-3px); color: white; }
@@ -211,13 +246,35 @@
 
         .main-container { width: 100%; padding-right: .75rem; padding-left: .75rem; margin-right: auto; margin-left: auto; }
         .main-container.full-width-page {
-            width: calc(100vw - 1rem) !important;
-            max-width: calc(100vw - 1rem) !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            padding-left: 1.5rem !important; 
+            padding-right: 1.5rem !important; 
         }
         @media (min-width: 576px) { .main-container { max-width: 540px; } }
         @media (min-width: 768px) { .main-container { max-width: 720px; } }
         @media (min-width: 992px) { .main-container { max-width: 960px; } }
         @media (min-width: 1200px) { .main-container { max-width: 1140px; } }
+
+        /* --- KUSTOMISASI DROPDOWN ITEM --- */
+        .dropdown-menu .dropdown-item {
+            transition: background-color 0.2s ease;
+        }
+        
+        .dropdown-menu .dropdown-item:hover {
+            background-color: #f8f9fa !important; 
+            color: #212529 !important;
+        }
+
+        .dropdown-menu .dropdown-item:active, 
+        .dropdown-menu .dropdown-item:focus {
+            background-color: #e9ecef !important; /* Warna abu-abu terang, memblokir biru */
+            color: #212529 !important; 
+        }
+        .icon-nav {
+            min-width: 32px; 
+            justify-content: center;
+        }
     </style>
     <?php echo $__env->yieldPushContent('styles'); ?>
 </head>
@@ -226,7 +283,7 @@
 <nav class="navbar navbar-expand-lg bg-white sticky-top shadow-sm">
     <div class="container">
         <a class="navbar-brand" href="<?php echo e(route('beranda')); ?>">
-            <img src="<?php echo e(asset('images/logoTrenmart.png')); ?>" alt="Logo">
+            <img src="<?php echo e(asset('images/logoTrenmart.png')); ?>" alt="Logo Trenmart" loading="eager" fetchpriority="high">
         </a>
         
         <div class="d-flex d-lg-none ms-auto me-2 align-items-center">
@@ -404,11 +461,11 @@
                                                     <span class="badge rounded-pill bg-primary-subtle text-primary-emphasis border border-primary-subtle mt-1">Admin</span>
                                                 <?php elseif(auth()->user()->isCashier()): ?>
                                                     <span class="badge rounded-pill bg-warning-subtle text-warning-emphasis border border-warning-subtle mt-1">Kasir</span>
-                                        <?php elseif(auth()->user()->customer_type === 'langganan'): ?>
-                                            <span class="badge rounded-pill bg-warning-subtle text-warning-emphasis border border-warning-subtle mt-1">Pelanggan Langganan</span>
-                                        <?php else: ?>
-                                            <span class="badge rounded-pill bg-secondary-subtle text-secondary-emphasis border border-secondary-subtle mt-1">Pelanggan Umum</span>
-                                        <?php endif; ?>
+                                                <?php elseif(auth()->user()->customer_type === 'langganan'): ?>
+                                                    <span class="badge rounded-pill bg-warning-subtle text-warning-emphasis border border-warning-subtle mt-1">Pelanggan Langganan</span>
+                                                <?php else: ?>
+                                                    <span class="badge rounded-pill bg-secondary-subtle text-secondary-emphasis border border-secondary-subtle mt-1">Pelanggan Umum</span>
+                                                <?php endif; ?>
                                     </div>
                                 </li>
                                 <li><a class="dropdown-item rounded-3" href="<?php echo e(route('profile.edit')); ?>"><i class="bi bi-person me-2"></i>Profil</a></li>
@@ -439,7 +496,6 @@
 
 <?php if(auth()->guard()->check()): ?>
     <?php if(auth()->user()->isCustomer() && auth()->user()->needsProfileCompletion()): ?>
-        <!-- Profile completion modal -->
         <div class="modal fade" id="profileCompleteModal" tabindex="-1" aria-labelledby="profileCompleteModalLabel" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content">
@@ -494,12 +550,31 @@
         </div>
     </div>
 </div>
-<main class="main-container <?php echo e(isset($page) && in_array($page, ['all', 'internal', 'customers'], true) ? 'full-width-page' : ''); ?> mt-4 mb-5">
+
+<div class="modal fade" id="logoutConfirmModal" tabindex="-1" aria-labelledby="logoutConfirmModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header">
+                <h5 class="modal-title" id="logoutConfirmModalLabel">Konfirmasi Keluar</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Yakin ingin keluar dari akun?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" id="logoutConfirmNo" data-bs-dismiss="modal">Batal</button>
+                <button type="button" class="btn btn-danger" id="logoutConfirmYes">Ya, Keluar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<main class="main-container <?php echo e(isset($page) && in_array($page, ['all', 'internal', 'customers', 'payment'], true) ? 'full-width-page' : ''); ?> mt-4 mb-5">
     <?php echo $__env->yieldContent('content'); ?>
 </main>
 
 <footer class="main-footer">
-    <div class="container">
+    <div class="container-fluid" style="width: 92%; max-width: 1600px;">
         <div class="row gy-4">
             <div class="col-lg-4">
                 <h5>Hubungi Kami</h5>
@@ -515,27 +590,27 @@
                 </div>
             </div>
 
-            <div class="col-lg-4 footer-divider">
-                <h5>Jam Operasional</h5>
-                <div class="footer-info-item">
-                    <i class="bi bi-clock"></i>
-                    <table class="table-jam">
-                        <tr>
-                            <td class="td-hari">Senin - Jumat</td>
-                            <td class="td-pemisah">:</td>
-                            <td>08.00 - 21.00</td>
-                        </tr>
-                        <tr>
-                            <td class="td-hari">Sabtu</td>
-                            <td class="td-pemisah">:</td>
-                            <td>08.00 - 20.00</td>
-                        </tr>
-                        <tr>
-                            <td class="td-hari">Minggu</td>
-                            <td class="td-pemisah">:</td>
-                            <td>09.00 - 20.00</td>
-                        </tr>
-                    </table>
+            <div class="col-lg-4 footer-divider d-flex justify-content-lg-center">
+                <div class="d-flex flex-column" style="width: 100%; max-width: 250px;">
+                    <div class="d-flex align-items-center mb-3">
+                        <i class="bi bi-clock me-2" style="font-size: 1.1rem; color: rgba(255, 255, 255, 0.8);"></i>
+                        <h5 class="mb-0">Jam Operasional</h5>
+                    </div>
+                    
+                    <div class="d-flex flex-column gap-2 small">
+                        <div class="d-flex justify-content-between align-items-center border-bottom border-white border-opacity-25 pb-2">
+                            <span class="opacity-90">Senin - Jumat</span>
+                            <span class="fw-medium text-white">08.00 - 21.00</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center border-bottom border-white border-opacity-25 pb-2">
+                            <span class="opacity-90">Sabtu</span>
+                            <span class="fw-medium text-white">08.00 - 20.00</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center pb-2">
+                            <span class="opacity-90">Minggu</span>
+                            <span class="fw-medium text-white">09.00 - 20.00</span>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -613,6 +688,65 @@ window.showFlashToast = window.showFlashToast || function(type, title, body) {
 };
 
 document.addEventListener('DOMContentLoaded', function() {
+    const logoutModalEl = document.getElementById('logoutConfirmModal');
+    const logoutConfirmYes = document.getElementById('logoutConfirmYes');
+    const logoutConfirmNo = document.getElementById('logoutConfirmNo');
+    const logoutModal = logoutModalEl ? new bootstrap.Modal(logoutModalEl) : null;
+    let pendingLogoutForm = null;
+
+    const resetPendingLogout = function() {
+        pendingLogoutForm = null;
+    };
+
+    if (logoutConfirmYes) {
+        logoutConfirmYes.addEventListener('click', function() {
+            if (!pendingLogoutForm) return;
+
+            pendingLogoutForm.dataset.logoutConfirmed = '1';
+            pendingLogoutForm.submit();
+            resetPendingLogout();
+        });
+    }
+
+    if (logoutConfirmNo) {
+        logoutConfirmNo.addEventListener('click', resetPendingLogout);
+    }
+
+    if (logoutModalEl) {
+        logoutModalEl.addEventListener('hidden.bs.modal', resetPendingLogout);
+    }
+
+    // Konfirmasi keluar akun untuk semua form logout di halaman yang memakai layout ini.
+    document.addEventListener('submit', function(e) {
+        const form = e.target;
+        if (!(form instanceof HTMLFormElement)) return;
+
+        const action = (form.getAttribute('action') || '').toLowerCase();
+        if (!action.includes('/logout')) return;
+
+        if (form.dataset.logoutConfirmed === '1') {
+            return;
+        }
+
+        e.preventDefault();
+        pendingLogoutForm = form;
+
+        if (logoutModal) {
+            logoutModal.show();
+            return;
+        }
+
+        // Fallback jika komponen modal tidak tersedia.
+        const confirmed = window.confirm('Yakin ingin keluar dari akun?');
+        if (confirmed) {
+            form.dataset.logoutConfirmed = '1';
+            form.submit();
+            return;
+        }
+
+        resetPendingLogout();
+    });
+
     // Expose global function to update cart badges across the layout
     window.updateCartBadge = function(count) {
         const els = document.querySelectorAll('.cart-count');

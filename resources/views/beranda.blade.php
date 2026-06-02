@@ -296,8 +296,8 @@
                                         Rp {{ number_format($b->bundling_price, 0, ',', '.') }}
                                     </h4>
                                     
-                                    {{-- Tombol Tambah (hanya untuk pelanggan login) --}}
-                                    @if(Auth::check() && Auth::user()->isCustomer())
+                                    {{-- Tombol Tambah (untuk semua user yang sudah login, kecuali owner) --}}
+                                    @if(Auth::check() && !Auth::user()->isOwner())
                                         @if($bundlingIsOut)
                                             <span class="btn btn-secondary rounded-pill px-3 py-2 disabled" style="pointer-events: none; opacity: .65; position: relative; z-index: 2;">
                                                 <i class="bi bi-x-circle me-1"></i> Stok Habis
