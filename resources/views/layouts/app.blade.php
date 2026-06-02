@@ -34,10 +34,10 @@
 
         /* --- NAVBAR --- */
         .navbar { 
-            padding-top: 12px !important; 
-            padding-bottom: 12px !important; 
+            padding-top: 6px !important; 
+            padding-bottom: 6px !important; 
             background-color: #ffffff !important; 
-            position: relative; /* Tambahan untuk wadah absolute */
+            position: relative; 
         }
         
         /* Mengunci ruang logo agar tidak bergeser (Mencegah CLS/Kedip) */
@@ -73,19 +73,20 @@
                 height: 3px; background-color: var(--maroon-trenmart); border-radius: 10px;
             }
             
-            /* KUNCI MENU DI TENGAH LAYAR */
+            /* KUNCI MENU DI TENGAH LAYAR (Diperbarui agar responsif) */
             .navbar-nav {
-                position: absolute !important;
-                left: 50% !important;
-                transform: translateX(-50%) !important;
-                margin: 0 !important;
-                width: max-content; 
+                margin-left: auto !important;
+                margin-right: auto !important;
+                display: flex;
+                justify-content: center;
             }
         }
 
         /* --- SEARCH BAR --- */
         .search-bar { border-radius: 50px 0 0 50px !important; background-color: #f3f4f6 !important; border: 1px solid #e5e7eb !important; padding-left: 20px; height: 42px; width: 100%; transition: 0.3s; }
-        @media (min-width: 992px) { .search-bar { width: 220px; flex: 0 0 220px; } }
+        @media (min-width: 992px) { 
+            .search-bar { width: 100%; max-width: 220px; flex: 1 1 auto; } 
+        }
         .search-bar:focus { background-color: #fff !important; border-color: var(--maroon-trenmart) !important; box-shadow: none; outline: none; }
         .btn-search { border-radius: 0 50px 50px 0 !important; background-color: var(--maroon-trenmart) !important; color: white !important; height: 42px; border: none; padding: 0 18px; }
 
