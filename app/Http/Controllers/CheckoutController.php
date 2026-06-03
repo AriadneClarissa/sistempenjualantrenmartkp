@@ -22,17 +22,41 @@ class CheckoutController extends Controller
         $user_id = Auth::id();
         
         // 1. Ambil item keranjang milik user
-        $cartItems = Keranjang::where('user_id', $user_id)->get();
+        $cartItems = Keranjang::with(['produk', 'bundling'])->where('user_id', $user_id)->get();
 
         // Jika keranjang kosong, balikkan ke halaman keranjang
         if ($cartItems->isEmpty()) {
             return redirect()->route('cart.index')->with('error', 'Keranjang Anda kosong.');
         }
 
-        // 2. Hitung Total (Logic sesuai diskusi kita sebelumnya)
+        // 2. VALIDASI KEAMANAN: Cek apakah ada barang bermasalah sebelum masuk checkout
         $total = 0;
         foreach ($cartItems as $item) {
-            $harga = $item->bundling_id 
+            $isBundling = $item->bundling_id != null && $item->bundling;
+            
+            if ($isBundling) {
+                // Asumsi tabel bundling menggunakan is_active, jika menggunakan status silakan sesuaikan
+                $isActive = $item->bundling->is_active ?? true;
+                $maxStock = $item->bundling->availableStock();
+                $nama = $item->bundling->name ?? 'Paket Bundling';
+            } else {
+                // Berdasarkan ProdukController, menggunakan kolom 'status' dengan nilai 'aktif'
+                $isActive = $item->produk->status === 'aktif';
+                $maxStock = $item->produk->stok_tersedia ?? 0;
+                $nama = $item->produk->nama_produk ?? 'Produk';
+            }
+
+            // Tolak jika nonaktif atau stok kurang dari yang diminta
+            if (!$isActive) {
+                return redirect()->route('cart.index')->with('error', "Produk '{$nama}' saat ini dinonaktifkan. Silakan hapus dari keranjang Anda.");
+            }
+
+            if ($maxStock < $item->jumlah) {
+                return redirect()->route('cart.index')->with('error', "Stok '{$nama}' tidak mencukupi (Sisa: {$maxStock}). Silakan kurangi jumlah atau hapus dari keranjang.");
+            }
+
+            // Hitung total jika aman
+            $harga = $isBundling 
                      ? $item->bundling->bundling_price 
                      : ($item->harga_at_time ?? $item->produk->harga_jual_umum);
             $total += $harga * $item->jumlah;
@@ -89,12 +113,32 @@ class CheckoutController extends Controller
                 return redirect()->route('cart.index')->with('error', 'Keranjang Anda kosong.');
             }
 
-            // Hitung Subtotal
+            // Hitung Subtotal SEKALIGUS Validasi Ulang (Benteng terakhir sebelum masuk database)
             $subtotal = 0;
             foreach ($cartItems as $item) {
-                $harga = $item->bundling_id
-                    ? $item->bundling->bundling_price
-                    : ($item->harga_at_time ?? $item->produk->harga_jual_umum);
+                $isBundling = $item->bundling_id != null && $item->bundling;
+                
+                if ($isBundling) {
+                    $isActive = $item->bundling->is_active ?? true;
+                    $maxStock = $item->bundling->availableStock();
+                    $nama = $item->bundling->name ?? 'Paket Bundling';
+                    $harga = $item->bundling->bundling_price;
+                } else {
+                    $isActive = $item->produk->status === 'aktif';
+                    $maxStock = $item->produk->stok_tersedia ?? 0;
+                    $nama = $item->produk->nama_produk ?? 'Produk';
+                    $harga = $item->harga_at_time ?? $item->produk->harga_jual_umum;
+                }
+
+                // Cek Validasi
+                if (!$isActive) {
+                    return redirect()->route('cart.index')->with('error', "Pesanan dibatalkan. Produk '{$nama}' baru saja dinonaktifkan.");
+                }
+
+                if ($maxStock < $item->jumlah) {
+                    return redirect()->route('cart.index')->with('error', "Pesanan dibatalkan. Stok '{$nama}' baru saja habis dibeli orang lain (Sisa: {$maxStock}).");
+                }
+
                 $subtotal += $harga * $item->jumlah;
             }
 
@@ -137,7 +181,9 @@ class CheckoutController extends Controller
                 }
 
                 $order->load('items.produk');
-                $order->deductStockForCompletedOrder();
+                
+                // Method ini diharapkan mengurangkan stok di database agar tidak ada minus stok
+                $order->deductStockForCompletedOrder(); 
 
                 return $order;
             });
@@ -152,7 +198,6 @@ class CheckoutController extends Controller
     }
 
     // HALAMAN UPLOAD BUKTI (Setelah buat order)
-  
     public function uploadProof($orderId)
     {
         $order = Order::with(['paymentMethod', 'items'])->findOrFail($orderId);
@@ -184,7 +229,7 @@ class CheckoutController extends Controller
                 'payment_status' => 'waiting_confirmation',
             ]);
 
-            // BARU HAPUS KERANJANG setelah payment proof sukses diunggah
+            // HAPUS KERANJANG setelah payment proof sukses diunggah
             Keranjang::where('user_id', $user->id)->delete();
 
             return redirect()->route('pesanan.show', $order->id)
@@ -195,7 +240,6 @@ class CheckoutController extends Controller
     }
 
     // HALAMAN TUNGGU VERIFIKASI
-    
     public function waiting($orderId)
     {
         $order = Order::findOrFail($orderId);

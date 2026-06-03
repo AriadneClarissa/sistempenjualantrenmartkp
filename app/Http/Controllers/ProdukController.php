@@ -63,10 +63,7 @@ class ProdukController extends Controller
                 ->latest()
                 ->get();
 
-            // Inisialisasi collection kosong
             $bundling_warnings = collect();
-
-            // Inisialisasi chart data
             $chartLabels = [];
             $chartData = [];
             $totalRevenue = 0;
@@ -81,7 +78,6 @@ class ProdukController extends Controller
 
                 // Jika owner, tampilkan grafik penjualan
                 if (Auth::user()->isOwner()) {
-                    // Fetch sales data for the last 30 days
                     $thirtyDaysAgo = Carbon::now()->subDays(30);
                     $salesData = Order::where('created_at', '>=', $thirtyDaysAgo)
                         ->selectRaw('DATE(created_at) as date, SUM(total) as revenue, COUNT(*) as order_count')
@@ -180,7 +176,6 @@ class ProdukController extends Controller
 
         $produk = $query->latest()->get();
 
-        // PENTING: Memproses harga agar tidak muncul Rp 0 di halaman katalog
         foreach ($produk as $item) {
             $this->setHargaTampil($item);
         }
@@ -193,10 +188,8 @@ class ProdukController extends Controller
      */
     private function setHargaTampil($item)
     {
-        // Default harga menggunakan harga jual umum
         $item->harga_tampil = $item->harga_jual_umum ?? 0;
 
-        // Jika user login dan tipenya 'langganan', gunakan harga langganan
         if (Auth::check() && Auth::user()->customer_type === 'langganan') {
             $item->harga_tampil = $item->harga_jual_langganan ?? $item->harga_jual_umum;
         }
@@ -250,7 +243,6 @@ class ProdukController extends Controller
     {
         abort_unless(Auth::check() && Auth::user()->isAdmin(), 403);
 
-        // 1. Validasi Input
         $request->validate([
             'kd_produk'       => 'required|unique:produk,kd_produk',
             'nama_produk'     => 'required|string|max:255',
@@ -261,7 +253,6 @@ class ProdukController extends Controller
             'files.*'         => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
         ]);
 
-        // 2. Siapkan data awal
         $stok_minimal = $this->resolveStokMinimalBySatuan($request);
 
         $data = [
@@ -288,16 +279,12 @@ class ProdukController extends Controller
             $data['stok_minimal'] = $stok_minimal;
         }
 
-        // 3. Logika Upload Gambar Utama ('gambar') jika ada
         if ($request->hasFile('gambar')) {
             $data['gambar'] = $this->uploadProductImageToCloudinary($request->file('gambar'));
         }
 
-        // 4. Logika Upload Banyak Foto Tambahan ('files') jika ada
         if ($request->hasFile('files')) {
             $files = $request->file('files');
-            
-            // Pemetaan urutan file ke kolom database Trenmart
             $columns = [0 => 'gambar', 1 => 'foto_2', 2 => 'foto_3'];
 
             foreach ($files as $index => $file) {
@@ -313,7 +300,6 @@ class ProdukController extends Controller
             }
         }
 
-        // 5. Eksekusi Simpan ke Database
         $produk = Produk::create($data);
 
         try {
@@ -329,14 +315,12 @@ class ProdukController extends Controller
             report($e);
         }
 
-        // 6. Redirect sesuai origin (Beranda atau Index Produk)
         $route = ($request->origin == 'beranda') ? 'beranda' : 'produk.index';
         return redirect()->route($route)->with('success', 'Produk berhasil ditambahkan!');
     }
 
     public function produkIndex(Request $request)
     {
-        // Join satuan to allow ordering by satuan.stok_minimal when produk.stok_minimal is not set
         $query = Produk::with(['merk', 'kategori', 'satuan'])
              ->leftJoin('satuan', 'produk.kd_satuan', '=', 'satuan.kd_satuan')
              ->select('produk.*');
@@ -353,7 +337,6 @@ class ProdukController extends Controller
             $query->where('kd_merk', $request->merk);
         }
 
-        // Prioritaskan produk yang stoknya di bawah stok_minimal agar muncul paling atas
         $produk = $query->orderByRaw("(produk.stok_tersedia <= COALESCE(produk.stok_minimal, satuan.stok_minimal, 0)) DESC")
              ->orderBy('produk.created_at', 'desc')
              ->get();
@@ -423,7 +406,6 @@ class ProdukController extends Controller
                 $updateData['stok_minimal'] = $stok_minimal;
             }
 
-            // Jika user mengganti gambar utama lewat input satuan ('gambar')
             if ($request->hasFile('gambar')) {
                 if ($produk->gambar) { 
                     MediaStorage::delete($produk->gambar); 
@@ -431,7 +413,6 @@ class ProdukController extends Controller
                 $updateData['gambar'] = $this->uploadProductImageToCloudinary($request->file('gambar'));
             }
 
-            // Jika user menggunakan multiple upload 'files'
             if ($request->hasFile('files')) {
                 $files = $request->file('files');
                 $columns = [0 => 'gambar', 1 => 'foto_2', 2 => 'foto_3'];
