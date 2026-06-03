@@ -17,9 +17,14 @@
 
     /* Cards */
     .card-custom { border-radius: 15px; border: none; box-shadow: 0 2px 12px rgba(0,0,0,0.05); background: white; margin-bottom: 20px; }
-    .product-img { width: 85px; height: 85px; object-fit: cover; border-radius: 12px; background: #f1f1f1; }
+    .product-img { width: 85px; height: 85px; object-fit: cover; border-radius: 12px; background: #f1f1f1; transition: 0.3s; }
     
-    /* Qty Control (Diperbarui menyerupai gambar) */
+    /* Hover Effect untuk Produk yang bisa diklik */
+    .product-link { text-decoration: none; color: inherit; transition: 0.2s; }
+    .product-link:hover .hover-text-accent { color: var(--accent-red) !important; }
+    .product-link:hover .product-img { transform: scale(1.03); }
+
+    /* Qty Control */
     .qty-container { 
         border: 1px solid #eee; 
         border-radius: 10px; 
@@ -122,7 +127,6 @@
         </div>
     </div>
 
-    {{-- Tampilkan Alert jika ada pesan error dari Controller --}}
     @if(session('error'))
         <div class="alert alert-danger alert-dismissible fade show" role="alert">
             <i class="bi bi-exclamation-triangle-fill me-2"></i> {{ session('error') }}
@@ -153,52 +157,61 @@
                 <div class="d-flex align-items-center py-3 border-bottom {{ $loop->last ? 'border-0' : '' }}">
                     @php
                         $isBundling = $item->bundling_id != null && $item->bundling;
-                        // Dapatkan max stok spesifik untuk input validasi
                         $maxStock = $isBundling 
                             ? $item->bundling->availableStock() 
                             : ($item->produk->stok_tersedia ?? 0);
                         $stokHabis = $maxStock <= 0;
                     @endphp
                     
-                    {{-- LOGIKA PEMISAHAN TAMPILAN BUNDLING & REGULER --}}
+                    {{-- AREA SEBELAH KIRI (BISA DIKLIK) --}}
                     @if($isBundling)
-                        @php
-                            $gambarBundling = null;
-                            if($item->bundling->items && $item->bundling->items->count() > 0) {
-                                $produkPertama = $item->bundling->items->first()->produk;
-                                $gambarBundling = $produkPertama ? $produkPertama->gambar : null;
-                            }
-                        @endphp
-                        <img src="{{ \App\Helpers\StorageProxy::url($gambarBundling ?? 'images/no-image.png') }}" class="product-img me-3" style="object-fit: cover;">
-                        
-                        <div class="flex-grow-1">
-                            <div class="d-flex align-items-center gap-2 flex-wrap mb-1">
-                                <h6 class="fw-bold mb-0 {{ $stokHabis ? 'text-muted' : 'text-danger' }}">{{ $item->bundling->name }}</h6>
-                                @if($stokHabis)
-                                    <span class="stock-out-badge"><i class="bi bi-exclamation-circle"></i> Habis</span>
-                                @endif
+                        {{-- GANTI route('bundling.detail') DENGAN ROUTE ASLI ANDA --}}
+                        <a href="{{ route('bundling.detail', $item->bundling_id) }}" class="product-link d-flex align-items-center flex-grow-1">
+                            @php
+                                $gambarBundling = null;
+                                if($item->bundling->items && $item->bundling->items->count() > 0) {
+                                    $produkPertama = $item->bundling->items->first()->produk;
+                                    $gambarBundling = $produkPertama ? $produkPertama->gambar : null;
+                                }
+                            @endphp
+                            <img src="{{ \App\Helpers\StorageProxy::url($gambarBundling ?? 'images/no-image.png') }}" class="product-img me-3" style="object-fit: cover;">
+                            
+                            <div class="flex-grow-1">
+                                <div class="d-flex align-items-center gap-2 flex-wrap mb-1">
+                                    <h6 class="fw-bold mb-0 hover-text-accent text-dark {{ $stokHabis ? 'text-muted' : '' }}">{{ $item->bundling->name }}</h6>
+                                    @if($stokHabis)
+                                        <span class="stock-out-badge"><i class="bi bi-exclamation-circle"></i> Habis</span>
+                                    @endif
+                                </div>
+                                <p class="text-muted small mb-0">Paket Bundling Hemat</p>
+                                {{-- KETERANGAN SISA STOK --}}
+                                <p class="text-muted mb-1" style="font-size: 0.75rem;">Sisa stok: {{ $maxStock }}</p>
+                                <h6 class="text-accent fw-bold mb-0">Rp {{ number_format($item->harga_at_time, 0, ',', '.') }}</h6>
                             </div>
-                            <p class="text-muted small mb-1">Paket Bundling Hemat</p>
-                            <h6 class="text-accent fw-bold mb-0">Rp {{ number_format($item->harga_at_time, 0, ',', '.') }}</h6>
-                        </div>
+                        </a>
                     @else
-                        <img src="{{ \App\Helpers\StorageProxy::url($item->produk->gambar ?? 'images/no-image.png') }}" class="product-img me-3">
-                        
-                        <div class="flex-grow-1">
-                            <div class="d-flex align-items-center gap-2 flex-wrap mb-1">
-                                <h6 class="fw-bold mb-0 {{ $stokHabis ? 'text-muted' : '' }}">{{ $item->produk->nama_produk }}</h6>
-                                @if($stokHabis)
-                                    <span class="stock-out-badge"><i class="bi bi-exclamation-circle"></i> Habis</span>
-                                @endif
+                        {{-- GANTI route('produk.detail') DENGAN ROUTE ASLI ANDA --}}
+                        <a href="{{ route('produk.detail', $item->produk->kd_produk) }}" class="product-link d-flex align-items-center flex-grow-1">
+                            <img src="{{ \App\Helpers\StorageProxy::url($item->produk->gambar ?? 'images/no-image.png') }}" class="product-img me-3">
+                            
+                            <div class="flex-grow-1">
+                                <div class="d-flex align-items-center gap-2 flex-wrap mb-1">
+                                    <h6 class="fw-bold mb-0 hover-text-accent text-dark {{ $stokHabis ? 'text-muted' : '' }}">{{ $item->produk->nama_produk }}</h6>
+                                    @if($stokHabis)
+                                        <span class="stock-out-badge"><i class="bi bi-exclamation-circle"></i> Habis</span>
+                                    @endif
+                                </div>
+                                <p class="text-muted small mb-0">{{ $item->produk->merk->nama_merk ?? 'Trenmart' }}</p>
+                                {{-- KETERANGAN SISA STOK --}}
+                                <p class="text-muted mb-1" style="font-size: 0.75rem;">Sisa stok: {{ $maxStock }}</p>
+                                <h6 class="text-accent fw-bold mb-0">Rp {{ number_format($item->harga_at_time, 0, ',', '.') }}</h6>
                             </div>
-                            <p class="text-muted small mb-1">{{ $item->produk->merk->nama_merk ?? 'Trenmart' }}</p>
-                            <h6 class="text-accent fw-bold mb-0">Rp {{ number_format($item->harga_at_time, 0, ',', '.') }}</h6>
-                        </div>
+                        </a>
                     @endif
 
-                    <div class="text-end">
+                    {{-- AREA SEBELAH KANAN (QTY & HAPUS) --}}
+                    <div class="text-end ms-3">
                         @unless($stokHabis)
-                            {{-- Form input manual dengan tombol minus dan plus --}}
                             <form action="{{ route('cart.update', $item->id) }}" method="POST" class="qty-container mb-2 qty-form">
                                 @csrf
                                 @method('PUT')
@@ -310,11 +323,10 @@ document.addEventListener('DOMContentLoaded', function() {
         const maxStock = parseInt(input.getAttribute('data-max'), 10);
         let lastValidValue = parseInt(input.value, 10) || 1;
 
-        // Fungsi Validasi & Submit
         const validateAndSubmit = (newValue) => {
             if (newValue > maxStock) {
                 alert('Produk tidak dapat melebihi stok yang ada (Sisa stok: ' + maxStock + ').');
-                input.value = lastValidValue; // Kembalikan ke angka aman sebelumnya
+                input.value = lastValidValue; 
             } else if (newValue < 1) {
                 input.value = 1;
                 if (lastValidValue !== 1) form.requestSubmit();
@@ -324,7 +336,6 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         };
 
-        // Event: Saat User Mengetik Langsung dan Tekan Enter
         input.addEventListener('keydown', function(event) {
             if (event.key === 'Enter') {
                 event.preventDefault();
@@ -332,14 +343,12 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
 
-        // Event: Saat User Klik di Luar Kolom Input (Blur/Change)
         input.addEventListener('change', function() {
             if (input.value !== '') {
                 validateAndSubmit(parseInt(input.value));
             }
         });
 
-        // Event: Tombol Minus Ditekan
         if (btnMinus) {
             btnMinus.addEventListener('click', function() {
                 let currentValue = parseInt(input.value) || 1;
@@ -349,7 +358,6 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }
 
-        // Event: Tombol Plus Ditekan
         if (btnPlus) {
             btnPlus.addEventListener('click', function() {
                 let currentValue = parseInt(input.value) || 1;
