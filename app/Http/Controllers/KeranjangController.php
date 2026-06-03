@@ -22,7 +22,6 @@ class KeranjangController extends Controller
 
         $backUrl = session('cart_back_url', route('katalog'));
 
-        // PERBAIKAN 1: Tambahkan 'bundling' di eager loading agar data paket ikut terpanggil
         $items = Keranjang::with(['produk.merk', 'bundling'])
                             ->where('user_id', Auth::id())
                             ->get();
@@ -30,18 +29,14 @@ class KeranjangController extends Controller
         $total = 0;
         foreach ($items as $item) {
             
-            // PERBAIKAN 2: Pisahkan pengecekan harga untuk Bundling dan Produk Reguler
             if ($item->bundling_id != null && $item->bundling) {
-                // JIKA INI PAKET BUNDLING (Ambil harga dari tabel bundling)
                 $harga = $item->bundling->bundling_price; 
             } else {
-                // JIKA INI PRODUK REGULER (Cek apakah user langganan atau umum)
                 $harga = (Auth::user()->customer_type === 'langganan') 
                           ? ($item->produk->harga_jual_langganan ?? $item->produk->harga_jual_umum) 
                           : $item->produk->harga_jual_umum;
             }
             
-            // Simpan harga ke atribut sementara untuk ditampilkan di Blade
             $item->harga_at_time = $harga;
             $total += $harga * $item->jumlah;
         }
@@ -54,11 +49,9 @@ class KeranjangController extends Controller
      */
     public function store(Request $request, $id)
     {
-        // Ambil tipe dari route atau request body supaya tombol bundling dan form biasa sama-sama terbaca.
         $type = $request->route('type') ?? $request->input('type', 'reguler');
 
         if ($type === 'bundling') {
-            // 1a. Validasi Bundling
             $bundling = \App\Models\Bundling::with('items.produk')->findOrFail($id);
             $bundlingItems = $bundling->items()->with('produk')->get();
 
@@ -76,7 +69,6 @@ class KeranjangController extends Controller
             $kdProdukValue = $bundlingItems->first()->product_id;
             $bundlingIdValue = $id;
         } else {
-            // 1b. Validasi Produk Reguler
             $produk = Produk::where('kd_produk', $id)->firstOrFail();
             $stokTersedia = $produk->stok_tersedia;
             $identifierColumn = 'kd_produk';
@@ -88,7 +80,6 @@ class KeranjangController extends Controller
             }
         }
 
-        // 2. Cek apakah barang sudah ada di keranjang user
         $itemExist = Keranjang::where('user_id', Auth::id())
                         ->when($type === 'bundling', function($q) use ($id) {
                             return $q->where('bundling_id', $id);
@@ -105,7 +96,6 @@ class KeranjangController extends Controller
                 return $this->errorResponse($request, 'Stok tidak mencukupi.');
             }
         } else {
-            // 3. Buat record baru
             Keranjang::create([
                 'user_id'   => Auth::id(),
                 'kd_produk' => $kdProdukValue,
@@ -123,7 +113,6 @@ class KeranjangController extends Controller
         return back()->with('success', 'Berhasil ditambahkan ke keranjang!');
     }
 
-    // Helper untuk handle error response
     private function errorResponse($request, $message) {
         if ($request->wantsJson() || $request->ajax()) {
             return response()->json(['success' => false, 'message' => $message], 422);
@@ -136,7 +125,6 @@ class KeranjangController extends Controller
      */
     public function destroy($id)
     {
-        // Hapus berdasarkan ID primary key keranjang dan pastikan milik user yang login
         Keranjang::where('id', $id)
                   ->where('user_id', Auth::id())
                   ->delete();
@@ -155,7 +143,7 @@ class KeranjangController extends Controller
     }
 
     /**
-     * Update jumlah (Opsional: Jika kamu ingin tambah tombol +/- di halaman keranjang)
+     * Update jumlah dari halaman keranjang
      */
     public function update(Request $request, $id)
     {
@@ -172,7 +160,6 @@ class KeranjangController extends Controller
 
         if ($quantity <= 0) {
             $item->delete();
-
             return back()->with('success', 'Item berhasil dihapus dari keranjang.');
         }
 
@@ -184,12 +171,12 @@ class KeranjangController extends Controller
 
         if ($maxStock <= 0) {
             $item->delete();
-
             return back()->with('error', 'Stok produk sudah habis, item dihapus dari keranjang.');
         }
 
+        // PERUBAHAN UTAMA: Tampilkan error alih-alih mereset secara paksa
         if ($quantity > $maxStock) {
-            $quantity = $maxStock;
+            return back()->with('error', 'Kuantitas produk tidak dapat melebihi stok yang ada (Sisa stok: ' . $maxStock . ').');
         }
 
         $item->update(['jumlah' => $quantity]);
