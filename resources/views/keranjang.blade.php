@@ -20,10 +20,13 @@
     .product-img { width: 85px; height: 85px; object-fit: cover; border-radius: 12px; background: #f1f1f1; }
     
     /* Qty Control */
-    .qty-container { border: 1px solid #eee; border-radius: 10px; padding: 2px; background: #fff; display: inline-flex; }
-    .qty-input { width: 40px; text-align: center; border: none; font-weight: 700; background: transparent; outline: none; }
-    .btn-qty { border: none; background: transparent; width: 30px; height: 30px; border-radius: 8px; font-weight: bold; transition: 0.2s; cursor: pointer; }
-    .btn-qty:hover { background: #fceaea; color: var(--maroon-trenmart); }
+    .qty-container { border: 1px solid #eee; border-radius: 10px; padding: 2px 10px; background: #fff; display: inline-flex; align-items: center; gap: 8px; }
+    .qty-input { width: 68px; text-align: center; border: none; font-weight: 700; background: transparent; outline: none; appearance: textfield; }
+    .qty-input::-webkit-outer-spin-button,
+    .qty-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+    .qty-save { border: none; background: #f8f9fa; color: #666; width: 32px; height: 32px; border-radius: 8px; font-weight: bold; transition: 0.2s; cursor: pointer; }
+    .qty-save:hover { background: #fceaea; color: var(--maroon-trenmart); }
+    .qty-save:disabled { opacity: 0.55; cursor: not-allowed; }
 
     .stock-out-badge {
         display: inline-flex;
@@ -158,12 +161,20 @@
 
                     <div class="text-end">
                         @unless($stokHabis)
-                            <form action="{{ route('cart.update', $item->id) }}" method="POST" class="qty-container mb-2">
+                            <form action="{{ route('cart.update', $item->id) }}" method="POST" class="qty-container mb-2 qty-form">
                                 @csrf
                                 @method('PUT')
-                                <button class="btn-qty" type="submit" name="action" value="decrease">-</button>
-                                <input type="text" class="qty-input" value="{{ $item->jumlah }}" readonly>
-                                <button class="btn-qty" type="submit" name="action" value="increase">+</button>
+                                <input type="number"
+                                       name="quantity"
+                                       class="qty-input"
+                                       value="{{ $item->jumlah }}"
+                                       min="1"
+                                       step="1"
+                                       inputmode="numeric"
+                                       aria-label="Jumlah produk">
+                                <button class="qty-save" type="submit" title="Simpan jumlah">
+                                    <i class="bi bi-check2"></i>
+                                </button>
                             </form>
                         @endunless
                         <div class="fw-bold d-block">Rp {{ number_format($item->harga_at_time * $item->jumlah, 0, ',', '.') }}</div>
@@ -252,6 +263,24 @@ document.addEventListener('DOMContentLoaded', function() {
             // ignore and allow default
         }
         // otherwise, proceed normally
+    });
+
+    document.querySelectorAll('.qty-form').forEach(function(form) {
+        const input = form.querySelector('.qty-input');
+        if (!input) return;
+
+        input.addEventListener('keydown', function(event) {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                form.requestSubmit();
+            }
+        });
+
+        input.addEventListener('change', function() {
+            if (input.value !== '') {
+                form.requestSubmit();
+            }
+        });
     });
 });
 </script>

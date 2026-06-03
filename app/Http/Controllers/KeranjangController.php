@@ -159,20 +159,40 @@ class KeranjangController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $item = Keranjang::where('id', $id)->where('user_id', Auth::id())->firstOrFail();
+        $item = Keranjang::with(['produk', 'bundling.items.produk'])
+            ->where('id', $id)
+            ->where('user_id', Auth::id())
+            ->firstOrFail();
 
-        $action = $request->input('action');
+        $validated = $request->validate([
+            'quantity' => ['required', 'integer', 'min:0'],
+        ]);
 
-        if ($action == 'increase') {
-            $item->increment('jumlah');
-        } elseif ($action == 'decrease') {
-            if ($item->jumlah <= 1) {
-                $item->delete();
-                return back()->with('success', 'Item berhasil dihapus dari keranjang.');
-            }
+        $quantity = (int) $validated['quantity'];
 
-            $item->decrement('jumlah');
+        if ($quantity <= 0) {
+            $item->delete();
+
+            return back()->with('success', 'Item berhasil dihapus dari keranjang.');
         }
+
+        if ($item->bundling_id != null && $item->bundling) {
+            $maxStock = (int) $item->bundling->availableStock();
+        } else {
+            $maxStock = (int) (($item->produk->stok_tersedia ?? 0));
+        }
+
+        if ($maxStock <= 0) {
+            $item->delete();
+
+            return back()->with('error', 'Stok produk sudah habis, item dihapus dari keranjang.');
+        }
+
+        if ($quantity > $maxStock) {
+            $quantity = $maxStock;
+        }
+
+        $item->update(['jumlah' => $quantity]);
 
         return back()->with('success', 'Jumlah item berhasil diperbarui.');
     }
