@@ -27,21 +27,48 @@ class KeranjangController extends Controller
                             ->get();
         
         $total = 0;
+        $hasInvalidItem = false; // Penanda jika ada barang bermasalah di keranjang
+
         foreach ($items as $item) {
+            $isBundling = $item->bundling_id != null && $item->bundling;
             
-            if ($item->bundling_id != null && $item->bundling) {
-                $harga = $item->bundling->bundling_price; 
+            // 1. Cek Status Aktif (Catatan: Sesuaikan 'is_active' dengan nama kolom status di database Anda)
+            // Jika kolom tersebut tidak ada, Anda bisa menghapus pengecekan $isActive ini atau membuat nilainya selalu true.
+            if ($isBundling) {
+                $isActive = $item->bundling->is_active ?? true;
             } else {
-                $harga = (Auth::user()->customer_type === 'langganan') 
-                          ? ($item->produk->harga_jual_langganan ?? $item->produk->harga_jual_umum) 
-                          : $item->produk->harga_jual_umum;
+                $isActive = $item->produk->is_active ?? true;
             }
             
-            $item->harga_at_time = $harga;
-            $total += $harga * $item->jumlah;
+            // 2. Cek Stok Habis
+            $maxStock = $isBundling 
+                ? $item->bundling->availableStock() 
+                : ($item->produk->stok_tersedia ?? 0);
+            $isHabis = $maxStock <= 0;
+
+            // Jika produk dinonaktifkan ATAU stok habis
+            if (!$isActive || $isHabis) {
+                $hasInvalidItem = true;
+                $item->is_invalid = true;
+                $item->invalid_reason = !$isActive ? 'nonaktif' : 'habis';
+                $item->harga_at_time = 0; // Harga tidak dihitung ke total bayar
+            } else {
+                $item->is_invalid = false;
+                
+                if ($isBundling) {
+                    $harga = $item->bundling->bundling_price; 
+                } else {
+                    $harga = (Auth::user()->customer_type === 'langganan') 
+                              ? ($item->produk->harga_jual_langganan ?? $item->produk->harga_jual_umum) 
+                              : $item->produk->harga_jual_umum;
+                }
+                
+                $item->harga_at_time = $harga;
+                $total += $harga * $item->jumlah;
+            }
         }
 
-        return view('keranjang', compact('items', 'total', 'backUrl'));
+        return view('keranjang', compact('items', 'total', 'backUrl', 'hasInvalidItem'));
     }
 
     /**
@@ -53,6 +80,12 @@ class KeranjangController extends Controller
 
         if ($type === 'bundling') {
             $bundling = \App\Models\Bundling::with('items.produk')->findOrFail($id);
+            
+            // Pengecekan produk aktif
+            if (isset($bundling->is_active) && !$bundling->is_active) {
+                return $this->errorResponse($request, 'Paket bundling saat ini tidak tersedia atau dinonaktifkan.');
+            }
+
             $bundlingItems = $bundling->items()->with('produk')->get();
 
             if ($bundlingItems->isEmpty()) {
@@ -70,6 +103,12 @@ class KeranjangController extends Controller
             $bundlingIdValue = $id;
         } else {
             $produk = Produk::where('kd_produk', $id)->firstOrFail();
+            
+            // Pengecekan produk aktif
+            if (isset($produk->is_active) && !$produk->is_active) {
+                return $this->errorResponse($request, 'Produk saat ini tidak tersedia atau dinonaktifkan.');
+            }
+
             $stokTersedia = $produk->stok_tersedia;
             $identifierColumn = 'kd_produk';
             $kdProdukValue = $id;
@@ -174,7 +213,6 @@ class KeranjangController extends Controller
             return back()->with('error', 'Stok produk sudah habis, item dihapus dari keranjang.');
         }
 
-        // PERUBAHAN UTAMA: Tampilkan error alih-alih mereset secara paksa
         if ($quantity > $maxStock) {
             return back()->with('error', 'Kuantitas produk tidak dapat melebihi stok yang ada (Sisa stok: ' . $maxStock . ').');
         }

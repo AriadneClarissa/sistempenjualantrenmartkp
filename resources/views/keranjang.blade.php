@@ -62,7 +62,6 @@
         cursor: pointer; 
     }
     .qty-btn:hover { background: #f8f9fa; color: var(--maroon-trenmart); }
-    .qty-btn:disabled { opacity: 0.3; cursor: not-allowed; }
 
     .stock-out-badge {
         display: inline-flex;
@@ -74,6 +73,18 @@
         color: #c5163e;
         font-size: 0.72rem;
         font-weight: 700;
+    }
+    .badge-disabled {
+        background: #e9ecef;
+        color: #6c757d;
+    }
+
+    /* Tampilan barang bermasalah */
+    .item-invalid {
+        opacity: 0.6;
+        background-color: #fafafa;
+        border-radius: 10px;
+        padding: 10px;
     }
 
     /* Sidebar Sticky */
@@ -106,8 +117,6 @@
     }
     .btn-checkout:hover { background: #c5163e; transform: translateY(-2px); }
 
-    /* Utility */
-    .text-maroon { color: var(--maroon-trenmart); }
     .text-accent { color: var(--accent-red); }
     .btn-link-custom { text-decoration: none; font-weight: 600; font-size: 0.85rem; }
 </style>
@@ -139,7 +148,6 @@
         {{-- KOLOM KIRI: DAFTAR BARANG --}}
         <div class="col-lg-8">
             <div class="card card-custom p-4">
-                {{-- JUMLAH ITEM & HAPUS SEMUA --}}
                 <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-2">
                     <h6 class="fw-bold mb-0">Produk ({{ count($items) }} item)</h6>
                     @if(count($items) > 0)
@@ -154,19 +162,18 @@
                 </div>
 
                 @forelse($items as $item)
-                <div class="d-flex align-items-center py-3 border-bottom {{ $loop->last ? 'border-0' : '' }}">
-                    @php
-                        $isBundling = $item->bundling_id != null && $item->bundling;
-                        $maxStock = $isBundling 
-                            ? $item->bundling->availableStock() 
-                            : ($item->produk->stok_tersedia ?? 0);
-                        $stokHabis = $maxStock <= 0;
-                    @endphp
+                @php
+                    $isBundling = $item->bundling_id != null && $item->bundling;
+                    $maxStock = $isBundling 
+                        ? $item->bundling->availableStock() 
+                        : ($item->produk->stok_tersedia ?? 0);
+                @endphp
+
+                <div class="d-flex align-items-center py-3 border-bottom {{ $loop->last ? 'border-0' : '' }} {{ $item->is_invalid ? 'item-invalid' : '' }}">
                     
-                    {{-- AREA SEBELAH KIRI (BISA DIKLIK) --}}
+                    {{-- AREA SEBELAH KIRI (INFO PRODUK) --}}
                     @if($isBundling)
-                        {{-- GANTI route('bundling.detail') DENGAN ROUTE ASLI ANDA --}}
-                        <a href="{{ route('bundling.detail', $item->bundling_id) }}" class="product-link d-flex align-items-center flex-grow-1">
+                        <a href="{{ route('bundling.detail', $item->bundling_id) }}" class="product-link d-flex align-items-center flex-grow-1" style="{{ $item->is_invalid ? 'pointer-events: none;' : '' }}">
                             @php
                                 $gambarBundling = null;
                                 if($item->bundling->items && $item->bundling->items->count() > 0) {
@@ -174,44 +181,57 @@
                                     $gambarBundling = $produkPertama ? $produkPertama->gambar : null;
                                 }
                             @endphp
-                            <img src="{{ \App\Helpers\StorageProxy::url($gambarBundling ?? 'images/no-image.png') }}" class="product-img me-3" style="object-fit: cover;">
+                            <img src="{{ \App\Helpers\StorageProxy::url($gambarBundling ?? 'images/no-image.png') }}" class="product-img me-3">
                             
                             <div class="flex-grow-1">
                                 <div class="d-flex align-items-center gap-2 flex-wrap mb-1">
-                                    <h6 class="fw-bold mb-0 hover-text-accent text-dark {{ $stokHabis ? 'text-muted' : '' }}">{{ $item->bundling->name }}</h6>
-                                    @if($stokHabis)
-                                        <span class="stock-out-badge"><i class="bi bi-exclamation-circle"></i> Habis</span>
+                                    <h6 class="fw-bold mb-0 hover-text-accent text-dark">{{ $item->bundling->name }}</h6>
+                                    @if($item->is_invalid)
+                                        @if($item->invalid_reason == 'nonaktif')
+                                            <span class="stock-out-badge badge-disabled"><i class="bi bi-slash-circle"></i> Dinonaktifkan</span>
+                                        @else
+                                            <span class="stock-out-badge"><i class="bi bi-exclamation-circle"></i> Stok Habis</span>
+                                        @endif
                                     @endif
                                 </div>
                                 <p class="text-muted small mb-0">Paket Bundling Hemat</p>
-                                {{-- KETERANGAN SISA STOK --}}
-                                <p class="text-muted mb-1" style="font-size: 0.75rem;">Sisa stok: {{ $maxStock }}</p>
-                                <h6 class="text-accent fw-bold mb-0">Rp {{ number_format($item->harga_at_time, 0, ',', '.') }}</h6>
+                                @unless($item->is_invalid)
+                                    <p class="text-muted mb-1" style="font-size: 0.75rem;">Sisa stok: {{ $maxStock }}</p>
+                                @endunless
+                                <h6 class="text-accent fw-bold mb-0">
+                                    {{ $item->is_invalid ? 'Tidak Tersedia' : 'Rp ' . number_format($item->harga_at_time, 0, ',', '.') }}
+                                </h6>
                             </div>
                         </a>
                     @else
-                        {{-- GANTI route('produk.detail') DENGAN ROUTE ASLI ANDA --}}
-                        <a href="{{ route('produk.detail', $item->produk->kd_produk) }}" class="product-link d-flex align-items-center flex-grow-1">
+                        <a href="{{ route('produk.detail', $item->produk->kd_produk) }}" class="product-link d-flex align-items-center flex-grow-1" style="{{ $item->is_invalid ? 'pointer-events: none;' : '' }}">
                             <img src="{{ \App\Helpers\StorageProxy::url($item->produk->gambar ?? 'images/no-image.png') }}" class="product-img me-3">
                             
                             <div class="flex-grow-1">
                                 <div class="d-flex align-items-center gap-2 flex-wrap mb-1">
-                                    <h6 class="fw-bold mb-0 hover-text-accent text-dark {{ $stokHabis ? 'text-muted' : '' }}">{{ $item->produk->nama_produk }}</h6>
-                                    @if($stokHabis)
-                                        <span class="stock-out-badge"><i class="bi bi-exclamation-circle"></i> Habis</span>
+                                    <h6 class="fw-bold mb-0 hover-text-accent text-dark">{{ $item->produk->nama_produk }}</h6>
+                                    @if($item->is_invalid)
+                                        @if($item->invalid_reason == 'nonaktif')
+                                            <span class="stock-out-badge badge-disabled"><i class="bi bi-slash-circle"></i> Dinonaktifkan</span>
+                                        @else
+                                            <span class="stock-out-badge"><i class="bi bi-exclamation-circle"></i> Stok Habis</span>
+                                        @endif
                                     @endif
                                 </div>
                                 <p class="text-muted small mb-0">{{ $item->produk->merk->nama_merk ?? 'Trenmart' }}</p>
-                                {{-- KETERANGAN SISA STOK --}}
-                                <p class="text-muted mb-1" style="font-size: 0.75rem;">Sisa stok: {{ $maxStock }}</p>
-                                <h6 class="text-accent fw-bold mb-0">Rp {{ number_format($item->harga_at_time, 0, ',', '.') }}</h6>
+                                @unless($item->is_invalid)
+                                    <p class="text-muted mb-1" style="font-size: 0.75rem;">Sisa stok: {{ $maxStock }}</p>
+                                @endunless
+                                <h6 class="text-accent fw-bold mb-0">
+                                    {{ $item->is_invalid ? 'Tidak Tersedia' : 'Rp ' . number_format($item->harga_at_time, 0, ',', '.') }}
+                                </h6>
                             </div>
                         </a>
                     @endif
 
                     {{-- AREA SEBELAH KANAN (QTY & HAPUS) --}}
                     <div class="text-end ms-3">
-                        @unless($stokHabis)
+                        @if(!$item->is_invalid)
                             <form action="{{ route('cart.update', $item->id) }}" method="POST" class="qty-container mb-2 qty-form">
                                 @csrf
                                 @method('PUT')
@@ -224,17 +244,20 @@
                                        max="{{ $maxStock }}"
                                        step="1"
                                        inputmode="numeric"
-                                       data-max="{{ $maxStock }}"
-                                       aria-label="Jumlah produk">
+                                       data-max="{{ $maxStock }}">
                                 <button type="button" class="qty-btn btn-plus">&plus;</button>
                             </form>
-                        @endunless
-                        <div class="fw-bold d-block">Rp {{ number_format($item->harga_at_time * $item->jumlah, 0, ',', '.') }}</div>
+                            <div class="fw-bold d-block">Rp {{ number_format($item->harga_at_time * $item->jumlah, 0, ',', '.') }}</div>
+                        @else
+                            {{-- Teks peringatan jika barang bermasalah --}}
+                            <div class="text-danger small fw-bold mb-2">Harap Hapus Item <i class="bi bi-arrow-down"></i></div>
+                        @endif
+
                         <form action="{{ route('cart.remove', $item->id) }}" method="POST" class="m-0 mt-1">
                             @csrf
                             @method('DELETE')
                             <button type="submit" class="btn btn-link p-0 text-muted small shadow-none" onclick="return confirm('Hapus produk ini dari keranjang?');">
-                                <i class="bi bi-trash"></i>
+                                <i class="bi bi-trash fs-5"></i>
                             </button>
                         </form>
                     </div>
@@ -252,17 +275,19 @@
                 
                 <div id="items-list">
                     @foreach($items as $item)
-                    <div class="d-flex justify-content-between mb-2 small text-muted">
-                        <span class="text-truncate" style="max-width: 160px;">
-                            @if($item->bundling_id != null && $item->bundling)
-                                {{ $item->bundling->name }}
-                            @else
-                                {{ $item->produk->nama_produk }}
-                            @endif
-                            ×{{ $item->jumlah }}
-                        </span>
-                        <span>Rp {{ number_format($item->harga_at_time * $item->jumlah, 0, ',', '.') }}</span>
-                    </div>
+                        @if(!$item->is_invalid)
+                        <div class="d-flex justify-content-between mb-2 small text-muted">
+                            <span class="text-truncate" style="max-width: 160px;">
+                                @if($item->bundling_id != null && $item->bundling)
+                                    {{ $item->bundling->name }}
+                                @else
+                                    {{ $item->produk->nama_produk }}
+                                @endif
+                                ×{{ $item->jumlah }}
+                            </span>
+                            <span>Rp {{ number_format($item->harga_at_time * $item->jumlah, 0, ',', '.') }}</span>
+                        </div>
+                        @endif
                     @endforeach
                 </div>
                 
@@ -282,12 +307,20 @@
                     <h4 class="fw-bold text-accent mb-0" id="total-label">Rp {{ number_format($total, 0, ',', '.') }}</h4>
                 </div>
 
-                @if(count($items) > 0)
-                <a href="{{ route('checkout.index') }}" id="btnProceedCheckout" class="btn-checkout shadow-sm">
-                    Lanjut ke Pembayaran <i class="bi bi-chevron-right ms-2"></i>
-                </a>
+                {{-- CEK APAKAH ADA BARANG BERMASALAH --}}
+                @if($hasInvalidItem)
+                    <div class="alert alert-warning small py-2 mb-3">
+                        <i class="bi bi-exclamation-triangle-fill me-1"></i> Hapus produk yang tidak tersedia untuk melanjutkan ke pembayaran.
+                    </div>
+                    <button class="btn btn-secondary w-100 py-3 fw-bold border-0 opacity-50" disabled style="border-radius:12px;">
+                        Lanjut ke Pembayaran <i class="bi bi-chevron-right ms-2"></i>
+                    </button>
+                @elseif(count($items) > 0)
+                    <a href="{{ route('checkout.index') }}" id="btnProceedCheckout" class="btn-checkout shadow-sm">
+                        Lanjut ke Pembayaran <i class="bi bi-chevron-right ms-2"></i>
+                    </a>
                 @else
-                <button class="btn btn-secondary w-100 py-3 fw-bold border-0 opacity-50" disabled style="border-radius:12px;">Keranjang Kosong</button>
+                    <button class="btn btn-secondary w-100 py-3 fw-bold border-0 opacity-50" disabled style="border-radius:12px;">Keranjang Kosong</button>
                 @endif
             </div>
         </div>
@@ -312,7 +345,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Handle form kuantitas dengan validasi Frontend
     document.querySelectorAll('.qty-form').forEach(function(form) {
         const input = form.querySelector('.qty-input');
         const btnMinus = form.querySelector('.btn-minus');
