@@ -27,31 +27,29 @@ class KeranjangController extends Controller
                             ->get();
         
         $total = 0;
-        $hasInvalidItem = false; // Penanda jika ada barang bermasalah di keranjang
+        $hasInvalidItem = false; // Penanda untuk memunculkan alert dan mengunci tombol bayar
 
         foreach ($items as $item) {
             $isBundling = $item->bundling_id != null && $item->bundling;
             
-            // 1. Cek Status Aktif (Catatan: Sesuaikan 'is_active' dengan nama kolom status di database Anda)
-            // Jika kolom tersebut tidak ada, Anda bisa menghapus pengecekan $isActive ini atau membuat nilainya selalu true.
+            // 1. Cek Status (Sesuai dengan logika ProdukController)
             if ($isBundling) {
                 $isActive = $item->bundling->is_active ?? true;
+                $maxStock = $item->bundling->availableStock();
             } else {
-                $isActive = $item->produk->is_active ?? true;
+                $isActive = $item->produk->status === 'aktif';
+                $maxStock = $item->produk->stok_tersedia ?? 0;
             }
             
-            // 2. Cek Stok Habis
-            $maxStock = $isBundling 
-                ? $item->bundling->availableStock() 
-                : ($item->produk->stok_tersedia ?? 0);
+            // 2. Cek Stok
             $isHabis = $maxStock <= 0;
 
-            // Jika produk dinonaktifkan ATAU stok habis
+            // 3. LOGIKA PEMICU TAMPILAN BERMASALAH
             if (!$isActive || $isHabis) {
                 $hasInvalidItem = true;
                 $item->is_invalid = true;
                 $item->invalid_reason = !$isActive ? 'nonaktif' : 'habis';
-                $item->harga_at_time = 0; // Harga tidak dihitung ke total bayar
+                $item->harga_at_time = 0; // Jangan tambahkan ke total tagihan
             } else {
                 $item->is_invalid = false;
                 
@@ -81,7 +79,6 @@ class KeranjangController extends Controller
         if ($type === 'bundling') {
             $bundling = \App\Models\Bundling::with('items.produk')->findOrFail($id);
             
-            // Pengecekan produk aktif
             if (isset($bundling->is_active) && !$bundling->is_active) {
                 return $this->errorResponse($request, 'Paket bundling saat ini tidak tersedia atau dinonaktifkan.');
             }
@@ -104,8 +101,7 @@ class KeranjangController extends Controller
         } else {
             $produk = Produk::where('kd_produk', $id)->firstOrFail();
             
-            // Pengecekan produk aktif
-            if (isset($produk->is_active) && !$produk->is_active) {
+            if ($produk->status !== 'aktif') {
                 return $this->errorResponse($request, 'Produk saat ini tidak tersedia atau dinonaktifkan.');
             }
 
