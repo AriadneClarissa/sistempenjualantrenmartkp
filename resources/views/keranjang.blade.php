@@ -9,22 +9,18 @@
 
     body { overflow-x: hidden; }
 
-    /* Layout Wrapper */
     .cart-wrapper { 
         display: flex; 
         align-items: flex-start !important; 
     }
 
-    /* Cards */
     .card-custom { border-radius: 15px; border: none; box-shadow: 0 2px 12px rgba(0,0,0,0.05); background: white; margin-bottom: 20px; }
     .product-img { width: 85px; height: 85px; object-fit: cover; border-radius: 12px; background: #f1f1f1; transition: 0.3s; }
     
-    /* Hover Effect untuk Produk yang bisa diklik */
     .product-link { text-decoration: none; color: inherit; transition: 0.2s; }
     .product-link:hover .hover-text-accent { color: var(--accent-red) !important; }
     .product-link:hover .product-img { transform: scale(1.03); }
 
-    /* Qty Control */
     .qty-container { 
         border: 1px solid #eee; 
         border-radius: 10px; 
@@ -67,11 +63,11 @@
         display: inline-flex;
         align-items: center;
         gap: 4px;
-        padding: 3px 10px;
-        border-radius: 999px;
+        padding: 4px 10px;
+        border-radius: 6px;
         background: #ffe5e5;
         color: #c5163e;
-        font-size: 0.72rem;
+        font-size: 0.75rem;
         font-weight: 700;
     }
     .badge-disabled {
@@ -79,15 +75,15 @@
         color: #6c757d;
     }
 
-    /* Tampilan barang bermasalah */
+    /* Efek visual jika barang bermasalah */
     .item-invalid {
-        opacity: 0.6;
-        background-color: #fafafa;
+        opacity: 0.55;
+        background-color: #fcfcfc;
         border-radius: 10px;
         padding: 10px;
+        position: relative;
     }
 
-    /* Sidebar Sticky */
     .summary-card { 
         background: white; 
         border-radius: 18px; 
@@ -100,7 +96,6 @@
         will-change: transform; 
     }
 
-    /* Button Bayar */
     .btn-checkout { 
         background: var(--accent-red); 
         color: white !important; 
@@ -116,6 +111,13 @@
         text-decoration: none;
     }
     .btn-checkout:hover { background: #c5163e; transform: translateY(-2px); }
+    
+    .btn-checkout-disabled {
+        background: #d6d6d6 !important;
+        color: #888 !important;
+        cursor: not-allowed;
+        transform: none !important;
+    }
 
     .text-accent { color: var(--accent-red); }
     .btn-link-custom { text-decoration: none; font-weight: 600; font-size: 0.85rem; }
@@ -130,11 +132,23 @@
             <i class="bi bi-chevron-left"></i> Kembali ke Belanja
         </a>
         <div class="d-flex align-items-center mt-1">
-            <i class="bi bi-cart3 text-black-custom fs-2 me-3"></i> <div>
+            <i class="bi bi-cart3 text-black-custom fs-2 me-3"></i> 
+            <div>
                 <h3 class="fw-bold mb-0">Keranjang Belanja</h3>
             </div>
         </div>
     </div>
+
+    {{-- ALERT UTAMA JIKA ADA BARANG BERMASALAH (Langsung Muncul di Atas) --}}
+    @if(isset($hasInvalidItem) && $hasInvalidItem)
+        <div class="alert alert-danger d-flex align-items-center shadow-sm border-0 mb-4" role="alert" style="border-radius: 12px;">
+            <i class="bi bi-exclamation-triangle-fill fs-4 me-3"></i>
+            <div>
+                <strong>Perhatian!</strong> Ada produk di keranjang Anda yang saat ini <strong>Dinonaktifkan</strong> atau <strong>Stoknya Habis</strong>. 
+                Anda harus menghapus produk tersebut dari keranjang sebelum dapat melanjutkan pembayaran.
+            </div>
+        </div>
+    @endif
 
     @if(session('error'))
         <div class="alert alert-danger alert-dismissible fade show" role="alert">
@@ -186,18 +200,22 @@
                             <div class="flex-grow-1">
                                 <div class="d-flex align-items-center gap-2 flex-wrap mb-1">
                                     <h6 class="fw-bold mb-0 hover-text-accent text-dark">{{ $item->bundling->name }}</h6>
-                                    @if($item->is_invalid)
-                                        @if($item->invalid_reason == 'nonaktif')
-                                            <span class="stock-out-badge badge-disabled"><i class="bi bi-slash-circle"></i> Dinonaktifkan</span>
-                                        @else
-                                            <span class="stock-out-badge"><i class="bi bi-exclamation-circle"></i> Stok Habis</span>
-                                        @endif
-                                    @endif
                                 </div>
-                                <p class="text-muted small mb-0">Paket Bundling Hemat</p>
-                                @unless($item->is_invalid)
+                                <p class="text-muted small mb-1">Paket Bundling Hemat</p>
+                                
+                                {{-- LABEL KHUSUS BARANG BERMASALAH --}}
+                                @if($item->is_invalid)
+                                    <div class="mb-1 mt-1">
+                                        @if($item->invalid_reason == 'nonaktif')
+                                            <span class="stock-out-badge badge-disabled"><i class="bi bi-slash-circle"></i> Produk Dinonaktifkan</span>
+                                        @else
+                                            <span class="stock-out-badge"><i class="bi bi-exclamation-circle"></i> Stok Habis Dibeli</span>
+                                        @endif
+                                    </div>
+                                @else
                                     <p class="text-muted mb-1" style="font-size: 0.75rem;">Sisa stok: {{ $maxStock }}</p>
-                                @endunless
+                                @endif
+                                
                                 <h6 class="text-accent fw-bold mb-0">
                                     {{ $item->is_invalid ? 'Tidak Tersedia' : 'Rp ' . number_format($item->harga_at_time, 0, ',', '.') }}
                                 </h6>
@@ -210,18 +228,22 @@
                             <div class="flex-grow-1">
                                 <div class="d-flex align-items-center gap-2 flex-wrap mb-1">
                                     <h6 class="fw-bold mb-0 hover-text-accent text-dark">{{ $item->produk->nama_produk }}</h6>
-                                    @if($item->is_invalid)
-                                        @if($item->invalid_reason == 'nonaktif')
-                                            <span class="stock-out-badge badge-disabled"><i class="bi bi-slash-circle"></i> Dinonaktifkan</span>
-                                        @else
-                                            <span class="stock-out-badge"><i class="bi bi-exclamation-circle"></i> Stok Habis</span>
-                                        @endif
-                                    @endif
                                 </div>
-                                <p class="text-muted small mb-0">{{ $item->produk->merk->nama_merk ?? 'Trenmart' }}</p>
-                                @unless($item->is_invalid)
+                                <p class="text-muted small mb-1">{{ $item->produk->merk->nama_merk ?? 'Trenmart' }}</p>
+                                
+                                {{-- LABEL KHUSUS BARANG BERMASALAH --}}
+                                @if($item->is_invalid)
+                                    <div class="mb-1 mt-1">
+                                        @if($item->invalid_reason == 'nonaktif')
+                                            <span class="stock-out-badge badge-disabled"><i class="bi bi-slash-circle"></i> Produk Dinonaktifkan</span>
+                                        @else
+                                            <span class="stock-out-badge"><i class="bi bi-exclamation-circle"></i> Stok Habis Dibeli</span>
+                                        @endif
+                                    </div>
+                                @else
                                     <p class="text-muted mb-1" style="font-size: 0.75rem;">Sisa stok: {{ $maxStock }}</p>
-                                @endunless
+                                @endif
+                                
                                 <h6 class="text-accent fw-bold mb-0">
                                     {{ $item->is_invalid ? 'Tidak Tersedia' : 'Rp ' . number_format($item->harga_at_time, 0, ',', '.') }}
                                 </h6>
@@ -232,24 +254,17 @@
                     {{-- AREA SEBELAH KANAN (QTY & HAPUS) --}}
                     <div class="text-end ms-3">
                         @if(!$item->is_invalid)
+                            {{-- Jika normal, tampilkan kontrol kuantitas --}}
                             <form action="{{ route('cart.update', $item->id) }}" method="POST" class="qty-container mb-2 qty-form">
                                 @csrf
                                 @method('PUT')
                                 <button type="button" class="qty-btn btn-minus">&minus;</button>
-                                <input type="number"
-                                       name="quantity"
-                                       class="qty-input"
-                                       value="{{ $item->jumlah }}"
-                                       min="1"
-                                       max="{{ $maxStock }}"
-                                       step="1"
-                                       inputmode="numeric"
-                                       data-max="{{ $maxStock }}">
+                                <input type="number" name="quantity" class="qty-input" value="{{ $item->jumlah }}" min="1" max="{{ $maxStock }}" step="1" inputmode="numeric" data-max="{{ $maxStock }}">
                                 <button type="button" class="qty-btn btn-plus">&plus;</button>
                             </form>
                             <div class="fw-bold d-block">Rp {{ number_format($item->harga_at_time * $item->jumlah, 0, ',', '.') }}</div>
                         @else
-                            {{-- Teks peringatan jika barang bermasalah --}}
+                            {{-- Jika bermasalah, paksa pelanggan menghapus --}}
                             <div class="text-danger small fw-bold mb-2">Harap Hapus Item <i class="bi bi-arrow-down"></i></div>
                         @endif
 
@@ -307,19 +322,22 @@
                     <h4 class="fw-bold text-accent mb-0" id="total-label">Rp {{ number_format($total, 0, ',', '.') }}</h4>
                 </div>
 
-                {{-- CEK APAKAH ADA BARANG BERMASALAH --}}
-                @if($hasInvalidItem)
-                    <div class="alert alert-warning small py-2 mb-3">
-                        <i class="bi bi-exclamation-triangle-fill me-1"></i> Hapus produk yang tidak tersedia untuk melanjutkan ke pembayaran.
-                    </div>
-                    <button class="btn btn-secondary w-100 py-3 fw-bold border-0 opacity-50" disabled style="border-radius:12px;">
-                        Lanjut ke Pembayaran <i class="bi bi-chevron-right ms-2"></i>
+                {{-- LOGIKA TOMBOL BAYAR (TERKUNCI ATAU BISA DIKLIK) --}}
+                @if(isset($hasInvalidItem) && $hasInvalidItem)
+                    {{-- TERKUNCI KARENA ADA BARANG BERMASALAH --}}
+                    <button class="btn btn-checkout btn-checkout-disabled shadow-sm" disabled>
+                        Lanjut ke Pembayaran <i class="bi bi-lock-fill ms-2"></i>
                     </button>
+                    <div class="text-center text-danger small mt-2 fw-bold">
+                        Hapus produk bermasalah untuk melanjutkan
+                    </div>
                 @elseif(count($items) > 0)
-                    <a href="{{ route('checkout.index') }}" id="btnProceedCheckout" class="btn-checkout shadow-sm">
+                    {{-- AMAN BISA DIKLIK --}}
+                    <a href="{{ route('checkout.index') }}" id="btnProceedCheckout" class="btn btn-checkout shadow-sm">
                         Lanjut ke Pembayaran <i class="bi bi-chevron-right ms-2"></i>
                     </a>
                 @else
+                    {{-- KOSONG --}}
                     <button class="btn btn-secondary w-100 py-3 fw-bold border-0 opacity-50" disabled style="border-radius:12px;">Keranjang Kosong</button>
                 @endif
             </div>
