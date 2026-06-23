@@ -22,6 +22,19 @@ class SatuanController extends Controller
         // 2. Format menjadi Kapital Awal Kata
         $nama_format = ucwords(strtolower($request->nama_satuan));
 
+        // Cek apakah satuan dengan nama sama sudah ada (case-insensitive)
+        $exists = Satuan::whereRaw('LOWER(nama_satuan) = ?', [strtolower($nama_format)])->exists();
+        if ($exists) {
+            if ($request->ajax() || $request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Satuan sudah terdaftar.'
+                ], 409);
+            }
+
+            return redirect()->back()->with('error', 'Satuan sudah terdaftar.');
+        }
+
         // 3. Simpan ke Database
         $satuan = Satuan::create([
             'kd_satuan' => Str::slug($nama_format), 

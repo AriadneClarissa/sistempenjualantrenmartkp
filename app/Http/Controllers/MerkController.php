@@ -22,6 +22,19 @@ class MerkController extends Controller
         // 2. Format menjadi Kapital Awal Kata
         $nama_format = ucwords(strtolower($request->nama_merk));
 
+        // Cek apakah merk dengan nama sama sudah ada (case-insensitive)
+        $exists = Merk::whereRaw('LOWER(nama_merk) = ?', [strtolower($nama_format)])->exists();
+        if ($exists) {
+            if ($request->ajax() || $request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Merk sudah terdaftar.'
+                ], 409);
+            }
+
+            return redirect()->back()->with('error', 'Merk sudah terdaftar.');
+        }
+
         // 3. Simpan ke Database
         $merk = Merk::create([
             'kd_merk' => Str::slug($nama_format), 
