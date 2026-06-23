@@ -700,12 +700,47 @@ document.addEventListener('DOMContentLoaded', function() {
         pendingLogoutForm = null;
     };
 
+    // Perform logout via fetch and use location.replace to avoid adding a history entry
+    async function performLogoutFetch(form) {
+        try {
+            const action = form.getAttribute('action') || window.location.pathname;
+            const method = (form.getAttribute('method') || 'POST').toUpperCase();
+            const tokenEl = document.querySelector('meta[name="csrf-token"]');
+            const csrf = tokenEl ? tokenEl.getAttribute('content') : (form.querySelector('input[name="_token"]') ? form.querySelector('input[name="_token"]').value : null);
+
+            const formData = new FormData(form);
+            const body = new URLSearchParams();
+            for (const pair of formData.entries()) body.append(pair[0], pair[1]);
+
+            const resp = await fetch(action, {
+                method: method,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRF-TOKEN': csrf
+                },
+                body: body,
+                credentials: 'same-origin',
+                redirect: 'follow'
+            });
+
+            if (resp.redirected && resp.url) {
+                window.location.replace(resp.url);
+            } else {
+                // Default to login route
+                window.location.replace('{{ route("login") }}');
+            }
+        } catch (e) {
+            // If fetch fails, fallback to normal submit
+            try { form.submit(); } catch (_) { window.location.replace('{{ route("login") }}'); }
+        }
+    }
+
     if (logoutConfirmYes) {
         logoutConfirmYes.addEventListener('click', function() {
             if (!pendingLogoutForm) return;
 
             pendingLogoutForm.dataset.logoutConfirmed = '1';
-            pendingLogoutForm.submit();
+            performLogoutFetch(pendingLogoutForm);
             resetPendingLogout();
         });
     }
@@ -742,7 +777,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const confirmed = window.confirm('Yakin ingin keluar dari akun?');
         if (confirmed) {
             form.dataset.logoutConfirmed = '1';
-            form.submit();
+            performLogoutFetch(form);
             return;
         }
 
