@@ -56,7 +56,7 @@
                         <p class="text-muted small mb-0">Kelola stok produk dan pengaturan tampilan beranda</p>
                     </div>
                     <div class="col-md-6 text-center text-md-end mt-3 mt-md-0">
-                        <div class="d-flex align-items-center justify-content-center justify-content-md-end flex-wrap" style="gap:12px;">
+                        <div class="d-flex align-items-center justify-content-center justify-content-md-end flex-wrap flex-md-nowrap" style="gap:12px;">
                             <a href="{{ route('bundling.create', ['source' => 'beranda']) }}" class="btn btn-success shadow-sm admin-quick-btn">
                                 <i class="bi bi-plus-lg me-2"></i> Tambah Bundling
                             </a>
