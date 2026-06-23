@@ -134,16 +134,22 @@
         background-color: transparent !important;
     }
 
-    /* Make admin tables scrollable and show a thin scrollbar (applies to admin pages that include this header) */
+    /* Make admin tables horizontally scrollable and show a thin horizontal scrollbar */
     .table-responsive {
-        max-height: 420px;
-        overflow: auto;
+        overflow-x: auto;
+        overflow-y: hidden;
         padding-bottom: 6px; /* space for thin scrollbar */
         border-radius: 6px;
     }
     .table-responsive .table {
         margin-bottom: 0; /* avoid extra gap below table inside scroll container */
+        white-space: nowrap;
     }
+    .table-responsive .table th,
+    .table-responsive .table td {
+        white-space: nowrap;
+    }
+    /* Thin horizontal scrollbar for WebKit */
     .table-responsive::-webkit-scrollbar {
         height: 6px;
     }
