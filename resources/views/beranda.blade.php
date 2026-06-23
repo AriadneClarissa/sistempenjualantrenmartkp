@@ -6,8 +6,8 @@
     <style>
         .admin-quick-btn {
             border-radius: 999px;
-            padding: 0.55rem 1.05rem;
-            min-height: 44px;
+            padding: 0.45rem 0.9rem;
+            min-height: 40px;
             display: inline-flex;
             align-items: center;
             justify-content: center;
@@ -42,7 +42,7 @@
     @auth
             @if(auth()->user()->isAdmin())
         <div class="card shadow-sm mb-5 admin-panel-card border-0 bg-white">
-            <div class="card-body p-4">
+            <div class="card-body p-4" style="min-height:72px;">
                 <div class="row align-items-center">
                     <div class="col-md-6 text-center text-md-start">
                         <h5 class="fw-bold mb-1">
@@ -56,7 +56,7 @@
                         <p class="text-muted small mb-0">Kelola stok produk dan pengaturan tampilan beranda</p>
                     </div>
                     <div class="col-md-6 text-center text-md-end mt-3 mt-md-0">
-                        <div class="d-flex align-items-center justify-content-center justify-content-md-end" style="gap:12px;">
+                        <div class="d-flex align-items-center justify-content-center justify-content-md-end flex-wrap" style="gap:12px;">
                             <a href="{{ route('bundling.create', ['source' => 'beranda']) }}" class="btn btn-success shadow-sm admin-quick-btn">
                                 <i class="bi bi-plus-lg me-2"></i> Tambah Bundling
                             </a>
@@ -69,7 +69,7 @@
 
                             @if(auth()->user()->isOwner())
                                 <a href="{{ route('admin.logs.index') }}" class="btn btn-secondary shadow-sm admin-quick-btn">
-                                    <i class="bi bi-journal-text me-2"></i> Lihat Log Aktivitas
+                                    <i class="bi bi-journal-text me-2"></i> Log Aktivitas
                                 </a>
                             @endif
                         </div>
