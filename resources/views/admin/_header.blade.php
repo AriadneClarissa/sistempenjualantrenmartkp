@@ -143,13 +143,30 @@
     }
     .table-responsive .table {
         margin-bottom: 0; /* avoid extra gap below table inside scroll container */
-        white-space: nowrap;
+        table-layout: auto !important; /* allow columns to size naturally so headers can wrap */
     }
-    .table-responsive .table th,
+    .table-responsive .table th {
+        white-space: normal; /* allow header labels to wrap instead of overflowing */
+        overflow-wrap: break-word;
+        word-break: break-word;
+    }
     .table-responsive .table td {
-        white-space: nowrap;
+        white-space: nowrap; /* keep data cells on single line and show ellipsis */
         overflow: hidden;
         text-overflow: ellipsis;
+        max-width: 220px;
+    }
+
+    /* Slightly reduce table font and padding on medium screens to improve fit */
+    @media (max-width: 992px) {
+        .table-responsive .table {
+            font-size: 0.92rem;
+        }
+        .table-responsive .table td,
+        .table-responsive .table th {
+            padding-top: 0.45rem;
+            padding-bottom: 0.45rem;
+        }
     }
     /* Thin horizontal scrollbar for WebKit */
     .table-responsive::-webkit-scrollbar {
