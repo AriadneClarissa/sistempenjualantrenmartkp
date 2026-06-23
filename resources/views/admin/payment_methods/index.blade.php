@@ -127,7 +127,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
             </div>
             <div class="modal-body" id="confirmDeleteBody">
-                Apakah Anda yakin ingin menghapus rekening tersebut?
+                Apakah Anda yakin ingin menghapus rekening?
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
@@ -154,7 +154,7 @@ document.addEventListener('DOMContentLoaded', function() {
             var number = form.dataset.number || '-';
             var body = document.getElementById('confirmDeleteBody');
             if (body) {
-                body.textContent = 'Hapus ' + name + ' - ' + number + '?';
+                body.textContent = 'Apakah Anda yakin ingin menghapus rekening data-name="' + name + '" data-number="' + number + '"?';
             }
             bsModal.show();
         });
