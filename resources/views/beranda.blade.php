@@ -19,16 +19,6 @@
         .admin-quick-btn i {
             font-size: 0.95rem;
         }
-
-        /* pindahkan Log Aktivitas ke baris baru untuk viewport sempit */
-        @media (max-width: 1199.98px) {
-            .log-activity-btn {
-                flex: 0 0 100% !important;
-                display: flex !important;
-                justify-content: flex-end !important;
-                margin-top: 0.5rem !important;
-            }
-        }
     </style>
     
     {{-- 1. Banner Utama --}}
@@ -67,20 +57,24 @@
                     </div>
                     <div class="col-md-6 text-center text-md-end mt-3 mt-md-0">
                         <div class="d-flex align-items-center justify-content-center justify-content-md-end flex-xl-nowrap" style="gap:12px;">
-                            <a href="{{ route('bundling.create', ['source' => 'beranda']) }}" class="btn btn-success shadow-sm admin-quick-btn">
-                                <i class="bi bi-plus-lg me-2"></i> Tambah Bundling
-                            </a>
-
-                            @if(auth()->user()->isOwner())
-                            <button id="btnOpenReports" class="btn btn-primary shadow-sm admin-quick-btn">
-                                <i class="bi bi-file-earmark-text me-2"></i> Laporan Penjualan
-                            </button>
-                            @endif
-
-                            @if(auth()->user()->isOwner())
-                                <a href="{{ route('admin.logs.index') }}" class="btn btn-secondary shadow-sm admin-quick-btn log-activity-btn">
-                                    <i class="bi bi-journal-text me-2"></i> Log Aktivitas
+                            <div class="d-flex align-items-center" id="mainQuickBtns" style="gap:12px;">
+                                <a href="{{ route('bundling.create', ['source' => 'beranda']) }}" class="btn btn-success shadow-sm admin-quick-btn">
+                                    <i class="bi bi-plus-lg me-2"></i> Tambah Bundling
                                 </a>
+
+                                @if(auth()->user()->isOwner())
+                                <button id="btnOpenReports" class="btn btn-primary shadow-sm admin-quick-btn">
+                                    <i class="bi bi-file-earmark-text me-2"></i> Laporan Penjualan
+                                </button>
+                                @endif
+                            </div>
+
+                            @if(auth()->user()->isOwner())
+                                <div class="log-activity-wrapper" style="margin-left:12px;">
+                                    <a href="{{ route('admin.logs.index') }}" class="btn btn-secondary shadow-sm admin-quick-btn log-activity-btn">
+                                        <i class="bi bi-journal-text me-2"></i> Log Aktivitas
+                                    </a>
+                                </div>
                             @endif
                         </div>
                     </div>
