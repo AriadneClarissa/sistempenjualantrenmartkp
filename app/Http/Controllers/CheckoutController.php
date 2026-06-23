@@ -188,6 +188,13 @@ class CheckoutController extends Controller
                 return $order;
             });
 
+            // Clear the user's cart immediately after order creation to prevent duplicate orders
+            try {
+                Keranjang::where('user_id', $user->id)->delete();
+            } catch (\Throwable $e) {
+                report($e);
+            }
+
             $this->notifyOrderRecipients($order, $user->name ?? 'Pelanggan');
 
             return redirect()->route('checkout.upload_proof', $order->id)->with('success', 'Pesanan berhasil dibuat. Silakan unggah bukti pembayaran.');

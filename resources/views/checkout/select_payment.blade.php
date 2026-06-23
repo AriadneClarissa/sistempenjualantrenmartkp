@@ -354,6 +354,13 @@
             return;
         }
 
+        // Disable submit button to prevent double-click/double-submit
+        const btn = document.querySelector('.btn-checkout-custom');
+        if (btn) {
+            btn.disabled = true;
+            btn.classList.add('disabled');
+            btn.innerHTML = 'Memproses...';
+        }
         form.submit();
     }
 

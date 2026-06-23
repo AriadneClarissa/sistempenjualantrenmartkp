@@ -8,6 +8,7 @@ use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\URL; 
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Middleware\PreventBackHistory;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -77,5 +78,12 @@ class AppServiceProvider extends ServiceProvider
 
             $view->with(compact('notificationUnreadCount', 'recentNotifications', 'bundling_warnings'));
         });
+
+        // Push PreventBackHistory middleware to the web group so responses include no-cache headers
+        try {
+            $this->app['router']->pushMiddlewareToGroup('web', PreventBackHistory::class);
+        } catch (\Throwable $e) {
+            // If router not available (e.g., during certain artisan commands), ignore
+        }
     }
 }
