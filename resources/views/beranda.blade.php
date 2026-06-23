@@ -19,16 +19,6 @@
         .admin-quick-btn i {
             font-size: 0.95rem;
         }
-        /* Untuk layar setengah (<= 1199px), pindahkan tombol Log Aktivitas ke baris baru */
-        .log-activity-btn { }
-        @media (max-width: 1199.98px) {
-            .log-activity-btn {
-                flex: 0 0 100%;
-                display: flex;
-                justify-content: flex-end;
-                margin-top: 0.5rem;
-            }
-        }
     </style>
     
     {{-- 1. Banner Utama --}}
@@ -66,7 +56,7 @@
                         <p class="text-muted small mb-0">Kelola stok produk dan pengaturan tampilan beranda</p>
                     </div>
                     <div class="col-md-6 text-center text-md-end mt-3 mt-md-0">
-                        <div class="d-flex align-items-center justify-content-center justify-content-md-end flex-lg-nowrap" style="gap:12px;">
+                        <div class="d-flex align-items-center justify-content-center justify-content-md-end flex-wrap" style="gap:12px;">
                             <a href="{{ route('bundling.create', ['source' => 'beranda']) }}" class="btn btn-success shadow-sm admin-quick-btn">
                                 <i class="bi bi-plus-lg me-2"></i> Tambah Bundling
                             </a>
@@ -78,7 +68,7 @@
                             @endif
 
                             @if(auth()->user()->isOwner())
-                                <a href="{{ route('admin.logs.index') }}" class="btn btn-secondary shadow-sm admin-quick-btn log-activity-btn">
+                                <a href="{{ route('admin.logs.index') }}" class="btn btn-secondary shadow-sm admin-quick-btn">
                                     <i class="bi bi-journal-text me-2"></i> Log Aktivitas
                                 </a>
                             @endif
