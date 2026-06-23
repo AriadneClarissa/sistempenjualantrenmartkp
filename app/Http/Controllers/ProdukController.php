@@ -79,12 +79,22 @@ class ProdukController extends Controller
                     ->groupBy('date')
                     ->orderBy('date')
                     ->get();
-                // Convert to format for chart
+                // Also gather all-completed dataset for comparison
+                $salesDataAllCompleted = Order::where('order_status', 'completed')
+                    ->whereBetween(DB::raw('COALESCE(completed_at, stock_deducted_at, updated_at)'), [$periodStart, $periodEnd])
+                    ->selectRaw('DATE(COALESCE(completed_at, stock_deducted_at, updated_at)) as date, SUM(total) as revenue, COUNT(*) as order_count')
+                    ->groupBy('date')
+                    ->orderBy('date')
+                    ->get();
+
+                // Convert to format for chart (both series)
                 for ($i = 29; $i >= 0; $i--) {
                     $date = Carbon::now()->subDays($i)->format('Y-m-d');
                     $chartLabels[] = Carbon::now()->subDays($i)->format('d/m');
-                    $revenue = $salesData->firstWhere('date', $date)?->revenue ?? 0;
-                    $chartData[] = floatval($revenue);
+                    $revenueConfirmed = $salesData->firstWhere('date', $date)?->revenue ?? 0;
+                    $revenueAll = $salesDataAllCompleted->firstWhere('date', $date)?->revenue ?? 0;
+                    $chartData[] = floatval($revenueConfirmed);
+                    $chartDataAllCompleted[] = floatval($revenueAll);
                 }
                 // Calculate metrics (match report: only completed + confirmed within completed timestamp window)
                 $totalRevenue = Order::where('order_status', 'completed')

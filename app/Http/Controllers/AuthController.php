@@ -396,15 +396,25 @@ class AuthController extends Controller
             ->groupBy('date')
             ->orderBy('date')
             ->get();
+        // Also prepare a dataset for ALL completed (regardless of payment_status) to compare
+        $salesDataAllCompleted = Order::where('order_status', 'completed')
+            ->whereBetween(DB::raw('COALESCE(completed_at, stock_deducted_at, updated_at)'), [$periodStart, $periodEnd])
+            ->selectRaw('DATE(COALESCE(completed_at, stock_deducted_at, updated_at)) as date, SUM(total) as revenue, COUNT(*) as order_count')
+            ->groupBy('date')
+            ->orderBy('date')
+            ->get();
 
-        // Convert to format for chart
+        // Convert to format for chart (both series)
         $chartLabels = [];
-        $chartData = [];
+        $chartDataConfirmed = [];
+        $chartDataAllCompleted = [];
         for ($i = 29; $i >= 0; $i--) {
             $date = Carbon::now()->subDays($i)->format('Y-m-d');
             $chartLabels[] = Carbon::now()->subDays($i)->format('d/m');
-            $revenue = $salesData->firstWhere('date', $date)?->revenue ?? 0;
-            $chartData[] = floatval($revenue);
+            $revenueConfirmed = $salesData->firstWhere('date', $date)?->revenue ?? 0;
+            $revenueAll = $salesDataAllCompleted->firstWhere('date', $date)?->revenue ?? 0;
+            $chartDataConfirmed[] = floatval($revenueConfirmed);
+            $chartDataAllCompleted[] = floatval($revenueAll);
         }
 
         // Calculate metrics — match report: only completed + confirmed within completed timestamp window
