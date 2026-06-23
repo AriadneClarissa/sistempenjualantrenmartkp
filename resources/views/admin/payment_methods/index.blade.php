@@ -154,7 +154,7 @@ document.addEventListener('DOMContentLoaded', function() {
             var number = form.dataset.number || '-';
             var body = document.getElementById('confirmDeleteBody');
             if (body) {
-                body.textContent = 'Apakah Anda yakin ingin menghapus rekening ' + name + '-' + number + '?';
+                body.textContent = 'Apakah Anda yakin ingin menghapus rekening ' + name + ' - ' + number + '?';
             }
             bsModal.show();
         });
