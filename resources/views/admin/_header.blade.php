@@ -146,9 +146,8 @@
         table-layout: auto !important; /* allow columns to size naturally so headers can wrap */
     }
     .table-responsive .table th {
-        white-space: normal; /* allow header labels to wrap instead of overflowing */
-        overflow-wrap: break-word;
-        word-break: break-word;
+        white-space: nowrap; /* keep header labels on a single line */
+        overflow: visible; /* allow header to extend and trigger horizontal scroll */
     }
     .table-responsive .table td {
         white-space: nowrap; /* keep data cells on single line and show ellipsis */
