@@ -21,27 +21,34 @@
                             <h3 class="fw-bold text-primary mb-0">Rp {{ number_format($totalRevenue, 0, ',', '.') }}</h3>
                         </div>
                         <i class="bi bi-cash-coin text-primary fs-4"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-4">
-            <div class="card shadow-sm border-0">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-start">
-                        <div>
-                            <p class="text-muted mb-1">Total Pesanan</p>
-                            <h3 class="fw-bold text-success mb-0">{{ $totalOrders }}</h3>
-                        </div>
-                        <i class="bi bi-bag-check text-success fs-4"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-4">
-            <div class="card shadow-sm border-0">
+                                <tr>
+                                    <td>
+                                        @php $skey = strtolower($status); @endphp
+                                        @switch($skey)
+                                            @case('pending')
+                                                <span class="badge bg-warning-subtle text-warning-emphasis">Menunggu</span>
+                                                @break
+                                            @case('processing')
+                                                <span class="badge bg-info-subtle text-info-emphasis">Diproses</span>
+                                                @break
+                                            @case('completed')
+                                                <span class="badge bg-success-subtle text-success-emphasis">Selesai</span>
+                                                @break
+                                            @case('payment_rejected')
+                                                <span class="badge bg-danger-subtle text-danger-emphasis">Ditolak</span>
+                                                @break
+                                            @case('new')
+                                                <span class="badge bg-secondary-subtle text-secondary-emphasis">Baru</span>
+                                                @break
+                                            @case('cancelled')
+                                                <span class="badge bg-danger-subtle text-danger-emphasis">Dibatalkan</span>
+                                                @break
+                                            @default
+                                                <span class="badge bg-secondary-subtle text-secondary-emphasis">{{ ucfirst(str_replace('_',' ', $skey)) }}</span>
+                                        @endswitch
+                                    </td>
+                                    <td class="text-end fw-bold">{{ $count }}</td>
+                                </tr>
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-start">
                         <div>

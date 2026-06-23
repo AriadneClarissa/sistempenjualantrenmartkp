@@ -423,14 +423,15 @@ class AuthController extends Controller
 
         // Friendly labels for chart/legend
         $statusLabels = $statusBreakdown->keys()->map(function ($s) {
-            return match ($s) {
+            $k = strtolower($s);
+            return match ($k) {
                 'pending' => 'Menunggu',
                 'processing' => 'Diproses',
                 'completed' => 'Selesai',
                 'cancelled' => 'Dibatalkan',
                 'payment_rejected' => 'Ditolak',
                 'new' => 'Baru',
-                default => ucfirst(str_replace('_', ' ', $s)),
+                default => ucfirst(str_replace('_', ' ', $k)),
             };
         })->toArray();
 
