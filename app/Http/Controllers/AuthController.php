@@ -391,6 +391,7 @@ class AuthController extends Controller
         $validStatusesForRevenue = ['processing', 'ready_to_ship', 'completed'];
         $salesData = Order::where('created_at', '>=', $thirtyDaysAgo)
             ->whereIn('order_status', $validStatusesForRevenue)
+            ->where('payment_status', 'confirmed')
             ->selectRaw('DATE(created_at) as date, SUM(total) as revenue, COUNT(*) as order_count')
             ->groupBy('date')
             ->orderBy('date')
@@ -409,10 +410,12 @@ class AuthController extends Controller
         // Calculate metrics — revenue only from accepted/processing/ready_to_ship/completed orders
         $totalRevenue = Order::where('created_at', '>=', $thirtyDaysAgo)
             ->whereIn('order_status', $validStatusesForRevenue)
+            ->where('payment_status', 'confirmed')
             ->sum('total');
         $totalOrders = Order::where('created_at', '>=', $thirtyDaysAgo)->count();
         $revenueOrdersCount = Order::where('created_at', '>=', $thirtyDaysAgo)
             ->whereIn('order_status', $validStatusesForRevenue)
+            ->where('payment_status', 'confirmed')
             ->count();
         $averageOrderValue = $revenueOrdersCount > 0 ? round($totalRevenue / $revenueOrdersCount, 2) : 0;
 
