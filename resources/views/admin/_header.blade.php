@@ -80,7 +80,8 @@
         }
     }
     
-    @media (max-width: 1600px) {
+    /* Keep horizontal scroll for medium/large screens; only stack on smaller devices */
+    @media (max-width: 992px) {
         .admin-header > .container-fluid > .d-flex {
             flex-wrap: wrap;
         }
