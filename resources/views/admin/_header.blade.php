@@ -148,6 +148,8 @@
     .table-responsive .table th,
     .table-responsive .table td {
         white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
     /* Thin horizontal scrollbar for WebKit */
     .table-responsive::-webkit-scrollbar {
