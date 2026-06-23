@@ -40,15 +40,15 @@
                     <tbody>
                         @forelse($customers as $c)
                             <tr>
-                                <td class="py-1 px-2 text-truncate">{{ $c->id }}</td>
-                                <td class="py-1 px-2 text-truncate">{{ $c->kd_pelanggan ?? '-' }}</td>
-                                <td class="py-1 px-2 text-truncate">{{ $c->name }}</td>
-                                <td class="py-1 px-2 text-truncate">{{ $c->email }}</td>
-                                <td class="py-1 px-2 text-truncate">{{ ($c->customer_type ?? 'regular') === 'langganan' ? 'Langganan' : 'Umum' }}</td>
-                                <td class="py-1 px-2 text-truncate">{{ $c->phone_number ?? '-' }}</td>
-                                <td class="py-1 px-2 text-truncate">{{ $c->home_address ?? '-' }}</td>
-                                <td class="py-1 px-2 text-truncate">{{ $c->organization_name ?? '-' }}</td>
-                                <td class="py-1 px-2">{{ $c->created_at ? $c->created_at->format('d M Y') : '-' }}</td>
+                                    <td class="py-1 px-2"><div class="text-truncate" style="max-width:60px">{{ $c->id }}</div></td>
+                                    <td class="py-1 px-2"><div class="text-truncate" style="max-width:120px">{{ $c->kd_pelanggan ?? '-' }}</div></td>
+                                    <td class="py-1 px-2"><div class="text-truncate" style="max-width:160px">{{ $c->name }}</div></td>
+                                    <td class="py-1 px-2"><div class="text-truncate" style="max-width:280px">{{ $c->email }}</div></td>
+                                    <td class="py-1 px-2"><div class="text-truncate" style="max-width:120px">{{ ($c->customer_type ?? 'regular') === 'langganan' ? 'Langganan' : 'Umum' }}</div></td>
+                                    <td class="py-1 px-2"><div class="text-truncate" style="max-width:140px">{{ $c->phone_number ?? '-' }}</div></td>
+                                    <td class="py-1 px-2"><div class="text-truncate" style="max-width:220px">{{ $c->home_address ?? '-' }}</div></td>
+                                    <td class="py-1 px-2"><div class="text-truncate" style="max-width:140px">{{ $c->organization_name ?? '-' }}</div></td>
+                                    <td class="py-1 px-2"><div class="text-truncate" style="max-width:100px">{{ $c->created_at ? $c->created_at->format('d M Y') : '-' }}</div></td>
                             </tr>
                         @empty
                             <tr>

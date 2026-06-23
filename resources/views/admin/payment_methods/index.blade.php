@@ -80,7 +80,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     <div class="card shadow-sm w-100">
         <div class="card-body p-3">
-            <div class="table-responsive">
+            <div class="table-responsive" style="overflow-x:auto; overflow-y:hidden; white-space:nowrap;">
                 <table class="table table-hover table-bordered align-middle w-100 mb-0" style="font-size: 0.95rem; table-layout: fixed;">
                     <thead class="table-light">
                         <tr>
@@ -94,10 +94,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     <tbody>
                         @forelse($methods as $index => $m)
                         <tr>
-                            <td class="py-1 px-2 text-truncate">{{ $index + 1 }}</td>
-                            <td class="py-1 px-2 text-truncate">{{ $m->name }}</td>
-                            <td class="py-1 px-2 text-truncate">{{ $m->account_name ?? '-' }}</td>
-                            <td class="py-1 px-2 text-truncate">{{ $m->account_number ?? '-' }}</td>
+                            <td class="py-1 px-2"><div class="text-truncate" style="max-width:60px">{{ $index + 1 }}</div></td>
+                            <td class="py-1 px-2"><div class="text-truncate" style="max-width:220px">{{ $m->name }}</div></td>
+                            <td class="py-1 px-2"><div class="text-truncate" style="max-width:260px">{{ $m->account_name ?? '-' }}</div></td>
+                            <td class="py-1 px-2"><div class="text-truncate" style="max-width:220px">{{ $m->account_number ?? '-' }}</div></td>
                             <td class="py-1 px-2 text-truncate">
                                 <form action="{{ route('admin.payment_methods.destroy', $m->id) }}" method="POST" class="m-0 form-delete-payment" data-name="{{ $m->name }}" data-number="{{ $m->account_number ?? '-' }}">
                                     @csrf 

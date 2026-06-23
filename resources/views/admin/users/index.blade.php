@@ -36,21 +36,21 @@
                     <tbody>
                         @foreach($users as $u)
                         <tr>
-                            <td class="py-1 px-2 text-truncate">{{ $u->id }}</td>
+                            <td class="py-1 px-2"><div class="text-truncate" style="max-width:60px">{{ $u->id }}</div></td>
                             @if($page !== 'internal')
-                                <td class="py-1 px-2 text-truncate">{{ $u->kd_pelanggan ?? '-' }}</td>
+                                <td class="py-1 px-2"><div class="text-truncate" style="max-width:120px">{{ $u->kd_pelanggan ?? '-' }}</div></td>
                             @endif
-                            <td class="py-1 px-2 text-truncate">{{ $u->name }}</td>
-                            <td class="py-1 px-2 text-truncate">{{ $u->email }}</td>
-                            <td class="py-1 px-2 text-truncate">{{ $u->roleLabel() }}</td>
+                            <td class="py-1 px-2"><div class="text-truncate" style="max-width:160px">{{ $u->name }}</div></td>
+                            <td class="py-1 px-2"><div class="text-truncate" style="max-width:280px">{{ $u->email }}</div></td>
+                            <td class="py-1 px-2"><div class="text-truncate" style="max-width:120px">{{ $u->roleLabel() }}</div></td>
                             @if($page !== 'internal')
-                                <td class="py-1 px-2 text-truncate">
+                                <td class="py-1 px-2"><div class="text-truncate" style="max-width:120px">
                                     @if(method_exists($u, 'isCustomer') ? $u->isCustomer() : ($u->role === 'customer'))
                                         {{ $u->customer_type === 'langganan' ? 'Langganan' : 'Umum' }}
                                     @else
                                         -
                                     @endif
-                                </td>
+                                </div></td>
                             @endif
                             @if($page === 'internal')
                                 <td class="py-1 px-2">
