@@ -79,7 +79,10 @@ class ProdukController extends Controller
                 // Jika owner, tampilkan grafik penjualan
                 if (Auth::user()->isOwner()) {
                     $thirtyDaysAgo = Carbon::now()->subDays(30);
+                    $validStatusesForRevenue = ['processing','ready_to_ship','completed'];
                     $salesData = Order::where('created_at', '>=', $thirtyDaysAgo)
+                        ->whereIn('order_status', $validStatusesForRevenue)
+                        ->where('payment_status', 'confirmed')
                         ->selectRaw('DATE(created_at) as date, SUM(total) as revenue, COUNT(*) as order_count')
                         ->groupBy('date')
                         ->orderBy('date')
@@ -93,10 +96,17 @@ class ProdukController extends Controller
                         $chartData[] = floatval($revenue);
                     }
 
-                    // Calculate metrics
-                    $totalRevenue = Order::where('created_at', '>=', $thirtyDaysAgo)->sum('total');
+                    // Calculate metrics (only orders with confirmed payment and accepted statuses)
+                    $totalRevenue = Order::where('created_at', '>=', $thirtyDaysAgo)
+                        ->whereIn('order_status', $validStatusesForRevenue)
+                        ->where('payment_status', 'confirmed')
+                        ->sum('total');
                     $totalOrders = Order::where('created_at', '>=', $thirtyDaysAgo)->count();
-                    $averageOrderValue = $totalOrders > 0 ? round($totalRevenue / $totalOrders, 2) : 0;
+                    $revenueOrdersCount = Order::where('created_at', '>=', $thirtyDaysAgo)
+                        ->whereIn('order_status', $validStatusesForRevenue)
+                        ->where('payment_status', 'confirmed')
+                        ->count();
+                    $averageOrderValue = $revenueOrdersCount > 0 ? round($totalRevenue / $revenueOrdersCount, 2) : 0;
 
                     // Order status breakdown
                     $statusBreakdown = Order::selectRaw('order_status, COUNT(*) as count')
