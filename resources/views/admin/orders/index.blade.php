@@ -57,7 +57,10 @@
                                 @elseif($order->order_status === 'payment_rejected')
                                     <span class="badge bg-danger">Pembayaran Ditolak</span>
                                 @else
-                                    <span class="badge bg-secondary">{{ ucfirst(str_replace('_', ' ', $order->order_status ?? 'new')) }}</span>
+                                    @php
+                                        $statusLabel = $order->order_status === 'new' ? 'Baru' : ucfirst(str_replace('_', ' ', $order->order_status ?? 'new'));
+                                    @endphp
+                                    <span class="badge bg-secondary">{{ $statusLabel }}</span>
                                 @endif
                             </td>
                             <td>

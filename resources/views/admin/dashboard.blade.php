@@ -45,7 +45,7 @@
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-start">
                         <div>
-                            <p class="text-muted mb-1">Rata-rata Pesanan</p>
+                            <p class="text-muted mb-1">Rata-Rata Pesanan</p>
                             <h3 class="fw-bold text-info mb-0">Rp {{ number_format($averageOrderValue, 0, ',', '.') }}</h3>
                         </div>
                         <i class="bi bi-graph-up text-info fs-4"></i>
@@ -99,6 +99,12 @@
                                                 @break
                                             @case('completed')
                                                 <span class="badge bg-success-subtle text-success-emphasis">Selesai</span>
+                                                @break
+                                            @case('payment_rejected')
+                                                <span class="badge bg-danger-subtle text-danger-emphasis">Ditolak</span>
+                                                @break
+                                            @case('new')
+                                                <span class="badge bg-secondary-subtle text-secondary-emphasis">Baru</span>
                                                 @break
                                             @case('cancelled')
                                                 <span class="badge bg-danger-subtle text-danger-emphasis">Dibatalkan</span>
@@ -191,7 +197,7 @@
     const statusChart = new Chart(statusCtx, {
         type: 'doughnut',
         data: {
-            labels: @json(array_map('ucfirst', $statusBreakdown->keys()->toArray())),
+            labels: @json($statusLabels ?? array_map('ucfirst', $statusBreakdown->keys()->toArray())),
             datasets: [{
                 data: @json($statusBreakdown->values()->toArray()),
                 backgroundColor: colors,

@@ -65,7 +65,10 @@
                                 @elseif($order->order_status === 'payment_rejected')
                                     Pembayaran Ditolak
                                 @else
-                                    {{ ucfirst(str_replace('_', ' ', $order->order_status ?? 'new')) }}
+                                    @php
+                                        $statusLabel = $order->order_status === 'new' ? 'Baru' : ucfirst(str_replace('_', ' ', $order->order_status ?? 'new'));
+                                    @endphp
+                                    {{ $statusLabel }}
                                 @endif
                             </p>
                         </div>

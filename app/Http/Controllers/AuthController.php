@@ -387,7 +387,10 @@ class AuthController extends Controller
 
         // Fetch sales data for the last 30 days
         $thirtyDaysAgo = Carbon::now()->subDays(30);
+        // Only count revenue from orders that are accepted/processing/ready_to_ship/completed
+        $validStatusesForRevenue = ['processing', 'ready_to_ship', 'completed'];
         $salesData = Order::where('created_at', '>=', $thirtyDaysAgo)
+            ->whereIn('order_status', $validStatusesForRevenue)
             ->selectRaw('DATE(created_at) as date, SUM(total) as revenue, COUNT(*) as order_count')
             ->groupBy('date')
             ->orderBy('date')
@@ -403,15 +406,33 @@ class AuthController extends Controller
             $chartData[] = floatval($revenue);
         }
 
-        // Calculate metrics
-        $totalRevenue = Order::where('created_at', '>=', $thirtyDaysAgo)->sum('total');
+        // Calculate metrics — revenue only from accepted/processing/ready_to_ship/completed orders
+        $totalRevenue = Order::where('created_at', '>=', $thirtyDaysAgo)
+            ->whereIn('order_status', $validStatusesForRevenue)
+            ->sum('total');
         $totalOrders = Order::where('created_at', '>=', $thirtyDaysAgo)->count();
-        $averageOrderValue = $totalOrders > 0 ? round($totalRevenue / $totalOrders, 2) : 0;
+        $revenueOrdersCount = Order::where('created_at', '>=', $thirtyDaysAgo)
+            ->whereIn('order_status', $validStatusesForRevenue)
+            ->count();
+        $averageOrderValue = $revenueOrdersCount > 0 ? round($totalRevenue / $revenueOrdersCount, 2) : 0;
 
         // Order status breakdown
         $statusBreakdown = Order::selectRaw('order_status, COUNT(*) as count')
             ->groupBy('order_status')
             ->pluck('count', 'order_status');
+
+        // Friendly labels for chart/legend
+        $statusLabels = $statusBreakdown->keys()->map(function ($s) {
+            return match ($s) {
+                'pending' => 'Menunggu',
+                'processing' => 'Diproses',
+                'completed' => 'Selesai',
+                'cancelled' => 'Dibatalkan',
+                'payment_rejected' => 'Ditolak',
+                'new' => 'Baru',
+                default => ucfirst(str_replace('_', ' ', $s)),
+            };
+        })->toArray();
 
         $pendingUsers = User::where('customer_type', 'langganan')
                             ->where('is_approved', false)

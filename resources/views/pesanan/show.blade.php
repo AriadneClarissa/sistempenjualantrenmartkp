@@ -180,7 +180,13 @@
             </div>
             <div class="text-end">
                 <div class="status-pill status-pill--info d-block mt-2" style="justify-content:center;">
-                    {{ $order->order_status === 'processing' ? 'Diproses' : ($order->order_status === 'ready_to_ship' ? 'Siap Dikirim' : ($order->order_status === 'completed' ? 'Selesai' : ($order->order_status === 'payment_rejected' ? 'Pembayaran Ditolak' : ucfirst(str_replace('_',' ', $order->order_status ?? 'new'))))) }}
+                    @php
+                        if ($order->order_status === 'processing') echo 'Diproses';
+                        elseif ($order->order_status === 'ready_to_ship') echo 'Siap Dikirim';
+                        elseif ($order->order_status === 'completed') echo 'Selesai';
+                        elseif ($order->order_status === 'payment_rejected') echo 'Pembayaran Ditolak';
+                        else echo ($order->order_status === 'new' ? 'Baru' : ucfirst(str_replace('_', ' ', $order->order_status ?? 'new')));
+                    @endphp
                 </div>
                 <div class="fw-bold mt-2">Rp {{ number_format($order->total,0,',','.') }}</div>
                 @if($order->payment_status === 'confirmed' && $order->order_status === 'ready_to_ship')
