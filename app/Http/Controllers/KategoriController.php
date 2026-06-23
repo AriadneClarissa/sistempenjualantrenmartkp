@@ -12,6 +12,8 @@ class KategoriController extends Controller
     {
         $request->validate([
             'nama_kategori' => 'required|string|max:255',
+        ], [
+            'nama_kategori.unique' => 'Nama kategori sudah terdaftar.'
         ]);
 
         $nama_format = ucwords(strtolower($request->nama_kategori));
