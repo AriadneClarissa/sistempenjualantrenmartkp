@@ -106,7 +106,13 @@ class ProdukController extends Controller
                         ->whereIn('order_status', $validStatusesForRevenue)
                         ->where('payment_status', 'confirmed')
                         ->count();
-                    $averageOrderValue = $revenueOrdersCount > 0 ? round($totalRevenue / $revenueOrdersCount, 2) : 0;
+
+                    // Average should be totalRevenue / completed confirmed orders
+                    $completedConfirmedCount = Order::where('created_at', '>=', $thirtyDaysAgo)
+                        ->where('order_status', 'completed')
+                        ->where('payment_status', 'confirmed')
+                        ->count();
+                    $averageOrderValue = $completedConfirmedCount > 0 ? round($totalRevenue / $completedConfirmedCount, 2) : 0;
 
                     // Order status breakdown
                     $statusBreakdown = Order::selectRaw('order_status, COUNT(*) as count')

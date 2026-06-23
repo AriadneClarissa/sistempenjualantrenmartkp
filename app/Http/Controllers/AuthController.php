@@ -418,13 +418,19 @@ class AuthController extends Controller
             ->where('payment_status', 'confirmed')
             ->count();
 
+        // For average order value, use only completed orders that have confirmed payment
+        $completedConfirmedCount = Order::where('created_at', '>=', $thirtyDaysAgo)
+            ->where('order_status', 'completed')
+            ->where('payment_status', 'confirmed')
+            ->count();
+
         // Orders that contribute to revenue (for debug / inspection)
         $revenueOrders = Order::where('created_at', '>=', $thirtyDaysAgo)
             ->whereIn('order_status', $validStatusesForRevenue)
             ->where('payment_status', 'confirmed')
             ->orderBy('created_at', 'desc')
             ->get();
-        $averageOrderValue = $revenueOrdersCount > 0 ? round($totalRevenue / $revenueOrdersCount, 2) : 0;
+        $averageOrderValue = $completedConfirmedCount > 0 ? round($totalRevenue / $completedConfirmedCount, 2) : 0;
 
         // Order status breakdown
         $statusBreakdown = Order::selectRaw('order_status, COUNT(*) as count')
