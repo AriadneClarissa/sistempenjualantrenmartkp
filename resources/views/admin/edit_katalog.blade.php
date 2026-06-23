@@ -696,14 +696,33 @@ $(document).ready(function() {
     // AJAX Tambah Merk
     $('#formTambahMerk').on('submit', function(e) {
         e.preventDefault();
-        $.post("{{ route('merk.store') }}", $(this).serialize(), function(res) {
-            if(res.success) {
-                $('#containerListMerk').prepend(`<div class="list-group-item d-flex justify-content-between align-items-center bg-light item-merk" data-search="${res.data.nama_merk.toLowerCase()}"><span class="nama-merk-text">${res.data.nama_merk}</span><i class="bi bi-eye-fill text-primary"></i></div>`);
-                $('select[name="merk"]').append(`<option value="${res.data.kd_merk}">${res.data.nama_merk}</option>`);
-                $('#inputNamaMerk').val('');
-                if (window.showFlashToast) showFlashToast('success', 'Berhasil', 'Merk ditambahkan.');
-            }
-        });
+        $.post("{{ route('merk.store') }}", $(this).serialize())
+            .done(function(res) {
+                if(res.success) {
+                    const merkItem = $('<div>', {
+                        class: 'list-group-item d-flex justify-content-between align-items-center bg-light item-merk',
+                        'data-search': res.data.nama_merk.toLowerCase()
+                    });
+                    $('<span>', { class: 'nama-merk-text' }).text(res.data.nama_merk).appendTo(merkItem);
+
+                    const tombolVisibilitas = $('<button>', {
+                        type: 'button',
+                        class: 'btn btn-sm btn-white border btn-toggle-visible',
+                        'data-id': res.data.kd_merk
+                    });
+                    $('<i>', { class: 'bi bi-eye-fill text-primary' }).appendTo(tombolVisibilitas);
+                    merkItem.append(tombolVisibilitas);
+
+                    $('#containerListMerk').prepend(merkItem);
+                    $('select[name="merk"]').append(`<option value="${res.data.kd_merk}">${res.data.nama_merk}</option>`);
+                    $('#inputNamaMerk').val('');
+                    if (window.showFlashToast) showFlashToast('success', 'Berhasil', 'Merk ditambahkan.');
+                }
+            })
+            .fail(function(xhr) {
+                const pesan = xhr.responseJSON?.message || (xhr.responseJSON?.errors?.nama_merk ? xhr.responseJSON.errors.nama_merk[0] : 'Merk gagal ditambahkan. Coba lagi.');
+                if (window.showFlashToast) showFlashToast('error', 'Gagal', pesan);
+            });
     });
 
     // AJAX Tambah Satuan
