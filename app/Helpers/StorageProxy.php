@@ -27,6 +27,17 @@ class StorageProxy
 
         $mediaDisk = (string) config('filesystems.media_disk', 'public');
         if ($mediaDisk !== 'public') {
+            // If using Cloudinary but credentials are missing/invalid, avoid calling the adapter
+            if ($mediaDisk === 'cloudinary') {
+                $cloudName = env('CLOUDINARY_CLOUD_NAME');
+                $apiKey = env('CLOUDINARY_API_KEY');
+                $apiSecret = env('CLOUDINARY_API_SECRET');
+                if (empty($cloudName) || empty($apiKey) || empty($apiSecret)) {
+                    // don't attempt Cloudinary calls when credentials missing, return placeholder
+                    return asset('images/no-image.png');
+                }
+            }
+
             try {
                 return Storage::disk($mediaDisk)->url($path);
             } catch (\Throwable $e) {
