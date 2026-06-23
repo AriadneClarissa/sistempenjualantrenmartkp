@@ -11,6 +11,7 @@
     </div>
 
     <!-- Key Metrics -->
+    @if(auth()->user() && auth()->user()->isOwner())
     <div class="row g-3 mb-4">
         <div class="col-md-4">
             <div class="card shadow-sm border-0">
@@ -61,8 +62,10 @@
             </div>
         </div>
     </div>
+    @endif
 
     <!-- Sales Chart -->
+    @if(auth()->user() && auth()->user()->isOwner())
     <div class="row mb-4">
         <div class="col-12">
             <div class="card shadow-sm border-0">
@@ -75,6 +78,7 @@
             </div>
         </div>
     </div>
+    @endif
 
     @if(request()->query('revenue_debug') && auth()->user() && auth()->user()->isAdmin())
     <div class="row mb-4">
@@ -125,7 +129,7 @@
     @endif
 
     <!-- Status Breakdown -->
-    @if($statusBreakdown->isNotEmpty())
+    @if(auth()->user() && auth()->user()->isOwner() && $statusBreakdown->isNotEmpty())
     <div class="row mb-4">
         <div class="col-md-6">
             <div class="card shadow-sm border-0">

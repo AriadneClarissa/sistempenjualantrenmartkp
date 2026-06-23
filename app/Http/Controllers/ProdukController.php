@@ -99,6 +99,13 @@ class ProdukController extends Controller
                 $averageOrderValue = $revenueOrdersCount > 0 ? round($totalRevenue / $revenueOrdersCount, 2) : 0;
             $statusBreakdown = collect();
 
+            // Populate status breakdown for owner or admin so the Status + Pie chart render
+            if (Auth::check() && (Auth::user()->isAdmin() || Auth::user()->isOwner())) {
+                $statusBreakdown = Order::selectRaw('order_status, COUNT(*) as count')
+                    ->groupBy('order_status')
+                    ->pluck('count', 'order_status');
+            }
+
             if (Auth::check() && Auth::user()->isAdmin()) {
                 $bundling_warnings = $bundling->filter(function($b) {
                     return $b->hasPriceDivergence();
