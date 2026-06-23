@@ -16,6 +16,19 @@ class KategoriController extends Controller
 
         $nama_format = ucwords(strtolower($request->nama_kategori));
 
+        // Jika nama kategori sudah ada (case-insensitive), kembalikan pesan yang jelas
+        $exists = Kategori::whereRaw('LOWER(nama_kategori) = ?', [strtolower($nama_format)])->exists();
+        if ($exists) {
+            if ($request->ajax() || $request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Kategori sudah terdaftar.'
+                ], 409);
+            }
+
+            return redirect()->back()->with('error', 'Kategori sudah terdaftar.');
+        }
+
         try {
             $baseSlug = Str::slug($nama_format);
             $slug = $baseSlug;
