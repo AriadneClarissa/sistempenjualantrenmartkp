@@ -133,6 +133,35 @@
         border-color: #adb5bd;
         background-color: transparent !important;
     }
+
+    /* Make admin tables scrollable and show a thin scrollbar (applies to admin pages that include this header) */
+    .table-responsive {
+        max-height: 420px;
+        overflow: auto;
+        padding-bottom: 6px; /* space for thin scrollbar */
+        border-radius: 6px;
+    }
+    .table-responsive .table {
+        margin-bottom: 0; /* avoid extra gap below table inside scroll container */
+    }
+    .table-responsive::-webkit-scrollbar {
+        height: 6px;
+    }
+    .table-responsive::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    .table-responsive::-webkit-scrollbar-thumb {
+        background: rgba(0,0,0,0.12);
+        border-radius: 6px;
+    }
+    .table-responsive::-webkit-scrollbar-thumb:hover {
+        background: rgba(0,0,0,0.18);
+    }
+    /* Firefox */
+    .table-responsive {
+        scrollbar-width: thin;
+        scrollbar-color: rgba(0,0,0,0.12) transparent;
+    }
 </style>
 
 <div class="admin-header py-3 mb-4">
