@@ -15,7 +15,7 @@ class SatuanController extends Controller
     {
         // 1. Validasi Input
         $request->validate([
-            'nama_satuan' => 'required|string|max:255|unique:satuan,nama_satuan',
+            'nama_satuan' => 'required|string|max:255',
             'stok_minimal' => 'required|integer|min:0',
         ]);
 
