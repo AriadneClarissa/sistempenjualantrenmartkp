@@ -209,34 +209,20 @@
         type: 'line',
             data: {
                 labels: @json($chartLabels),
-                datasets: [
-                    {
-                        label: 'Pendapatan (confirmed+completed)',
-                        data: @json($chartData),
-                        borderColor: '#0d6efd',
-                        backgroundColor: 'rgba(13, 110, 253, 0.12)',
-                        borderWidth: 2,
-                        fill: true,
-                        tension: 0.4,
-                        pointRadius: 5,
-                        pointBackgroundColor: '#0d6efd',
-                        pointBorderColor: '#fff',
-                        pointBorderWidth: 2,
-                        pointHoverRadius: 7
-                    },
-                    {
-                        label: 'Pendapatan (all completed)',
-                        data: @json($chartDataAllCompleted ?? []),
-                        borderColor: '#6c757d',
-                        backgroundColor: 'rgba(108,117,125,0.06)',
-                        borderWidth: 1.5,
-                        borderDash: [6,4],
-                        fill: false,
-                        tension: 0.2,
-                        pointRadius: 3,
-                        pointBackgroundColor: '#6c757d'
-                    }
-                ]
+                datasets: [{
+                    label: 'Pendapatan (Rp)',
+                    data: @json($chartData),
+                    borderColor: '#0d6efd',
+                    backgroundColor: 'rgba(13, 110, 253, 0.1)',
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 5,
+                    pointBackgroundColor: '#0d6efd',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2,
+                    pointHoverRadius: 7
+                }]
             },
         options: {
             responsive: true,
