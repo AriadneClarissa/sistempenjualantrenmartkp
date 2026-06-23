@@ -375,7 +375,7 @@ class AuthController extends Controller
     /**
      * 7. ADMIN FEATURES
      */
-    public function adminDashboard()
+    public function adminDashboard(Request $request)
     {
         /** @var \App\Models\User $user */
         $user = Auth::user();
@@ -417,6 +417,13 @@ class AuthController extends Controller
             ->whereIn('order_status', $validStatusesForRevenue)
             ->where('payment_status', 'confirmed')
             ->count();
+
+        // Orders that contribute to revenue (for debug / inspection)
+        $revenueOrders = Order::where('created_at', '>=', $thirtyDaysAgo)
+            ->whereIn('order_status', $validStatusesForRevenue)
+            ->where('payment_status', 'confirmed')
+            ->orderBy('created_at', 'desc')
+            ->get();
         $averageOrderValue = $revenueOrdersCount > 0 ? round($totalRevenue / $revenueOrdersCount, 2) : 0;
 
         // Order status breakdown
