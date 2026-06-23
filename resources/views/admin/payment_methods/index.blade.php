@@ -14,15 +14,15 @@
             <div class="row g-2">
                 <div class="col-md-3">
                     <input id="inputPaymentName" name="name" class="form-control" placeholder="Nama metode (Misal: BCA)" required>
-                    <div class="invalid-feedback d-none text-danger">wajib diisi</div>
+                    <div class="invalid-feedback d-none text-danger">Wajib diisi.</div>
                 </div>
                 <div class="col-md-3">
                     <input id="inputAccountName" name="account_name" class="form-control" placeholder="Pemilik rekening" required>
-                    <div class="invalid-feedback d-none text-danger">wajib diisi</div>
+                    <div class="invalid-feedback d-none text-danger">Wajib diisi.</div>
                 </div>
                 <div class="col-md-3">
                     <input id="inputAccountNumber" name="account_number" class="form-control" placeholder="No. rekening" required>
-                    <div class="invalid-feedback d-none text-danger">wajib diisi</div>
+                    <div class="invalid-feedback d-none text-danger">Wajib diisi.</div>
                 </div>
                 <div class="col-md-3">
                     <button type="submit" class="btn btn-primary px-4">Tambah</button>
@@ -99,7 +99,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             <td class="py-1 px-2 text-truncate">{{ $m->account_name ?? '-' }}</td>
                             <td class="py-1 px-2 text-truncate">{{ $m->account_number ?? '-' }}</td>
                             <td class="py-1 px-2 text-truncate">
-                                <form action="{{ route('admin.payment_methods.destroy', $m->id) }}" method="POST" class="m-0">
+                                <form action="{{ route('admin.payment_methods.destroy', $m->id) }}" method="POST" class="m-0 form-delete-payment" data-name="{{ $m->name }}" data-number="{{ $m->account_number ?? '-' }}">
                                     @csrf 
                                     @method('DELETE')
                                     <button type="submit" class="btn btn-sm btn-danger px-3 py-0">Hapus</button>
@@ -117,4 +117,57 @@ document.addEventListener('DOMContentLoaded', function() {
         </div>
     </div>
 </div>
+
+<!-- Modal Konfirmasi Hapus -->
+<div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Konfirmasi Hapus</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+            </div>
+            <div class="modal-body" id="confirmDeleteBody">
+                Apakah Anda yakin ingin menghapus rekening tersebut?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                <button type="button" class="btn btn-danger" id="confirmDeleteButton">Yakin</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var formToDelete = null;
+    var modalEl = document.getElementById('confirmDeleteModal');
+    if (!modalEl) return;
+    var bsModal = new bootstrap.Modal(modalEl);
+
+    document.querySelectorAll('.form-delete-payment').forEach(function(form) {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            formToDelete = form;
+            // Set modal body text with method name and number
+            var name = form.dataset.name || '';
+            var number = form.dataset.number || '-';
+            var body = document.getElementById('confirmDeleteBody');
+            if (body) {
+                body.textContent = 'Hapus ' + name + ' - ' + number + '?';
+            }
+            bsModal.show();
+        });
+    });
+
+    document.getElementById('confirmDeleteButton').addEventListener('click', function() {
+        if (formToDelete) {
+            formToDelete.submit();
+            formToDelete = null;
+            bsModal.hide();
+        }
+    });
+});
+</script>
+@endpush
 @endsection
