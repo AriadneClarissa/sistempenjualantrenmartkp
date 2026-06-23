@@ -674,7 +674,6 @@
 </script>
 @endif
 </body>
-@stack('scripts')
 <script>
 // Ensure toast helper is always available (not only when server-side flash exists)
 window.showFlashToast = window.showFlashToast || function(type, title, body) {
