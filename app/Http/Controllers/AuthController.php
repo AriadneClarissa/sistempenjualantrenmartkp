@@ -418,10 +418,10 @@ class AuthController extends Controller
             ->whereBetween(DB::raw('COALESCE(completed_at, stock_deducted_at, updated_at)'), [$periodStart, $periodEnd])
             ->count();
 
-        // For average order value, use only completed orders that have confirmed payment
-        $completedConfirmedCount = Order::where('created_at', '>=', $thirtyDaysAgo)
-            ->where('order_status', 'completed')
+        // For average order value, use only completed orders that have confirmed payment within the same period window
+        $completedConfirmedCount = Order::where('order_status', 'completed')
             ->where('payment_status', 'confirmed')
+            ->whereBetween(DB::raw('COALESCE(completed_at, stock_deducted_at, updated_at)'), [$periodStart, $periodEnd])
             ->count();
 
         // Orders that contribute to revenue (for debug / inspection) — completed + confirmed
