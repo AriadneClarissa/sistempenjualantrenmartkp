@@ -385,14 +385,14 @@ class AuthController extends Controller
             abort(403); 
         }
 
-        // Fetch sales data for the last 30 days
-        $thirtyDaysAgo = Carbon::now()->subDays(30);
-        // Only count revenue from orders that are accepted/processing/ready_to_ship/completed
-        $validStatusesForRevenue = ['processing', 'ready_to_ship', 'completed'];
-        $salesData = Order::where('created_at', '>=', $thirtyDaysAgo)
-            ->whereIn('order_status', $validStatusesForRevenue)
+        // Fetch sales data for the last 30 days (match report: only completed + confirmed,
+        // using completed timestamp semantics)
+        $periodStart = Carbon::now()->subDays(30)->startOfDay();
+        $periodEnd = Carbon::now()->endOfDay();
+        $salesData = Order::where('order_status', 'completed')
             ->where('payment_status', 'confirmed')
-            ->selectRaw('DATE(created_at) as date, SUM(total) as revenue, COUNT(*) as order_count')
+            ->whereBetween(DB::raw('COALESCE(completed_at, stock_deducted_at, updated_at)'), [$periodStart, $periodEnd])
+            ->selectRaw('DATE(COALESCE(completed_at, stock_deducted_at, updated_at)) as date, SUM(total) as revenue, COUNT(*) as order_count')
             ->groupBy('date')
             ->orderBy('date')
             ->get();
@@ -407,15 +407,15 @@ class AuthController extends Controller
             $chartData[] = floatval($revenue);
         }
 
-        // Calculate metrics — revenue only from accepted/processing/ready_to_ship/completed orders
-        $totalRevenue = Order::where('created_at', '>=', $thirtyDaysAgo)
-            ->whereIn('order_status', $validStatusesForRevenue)
+        // Calculate metrics — match report: only completed + confirmed within completed timestamp window
+        $totalRevenue = Order::where('order_status', 'completed')
             ->where('payment_status', 'confirmed')
+            ->whereBetween(DB::raw('COALESCE(completed_at, stock_deducted_at, updated_at)'), [$periodStart, $periodEnd])
             ->sum('total');
-        $totalOrders = Order::where('created_at', '>=', $thirtyDaysAgo)->count();
-        $revenueOrdersCount = Order::where('created_at', '>=', $thirtyDaysAgo)
-            ->whereIn('order_status', $validStatusesForRevenue)
+        $totalOrders = Order::whereBetween('created_at', [$periodStart, $periodEnd])->count();
+        $revenueOrdersCount = Order::where('order_status', 'completed')
             ->where('payment_status', 'confirmed')
+            ->whereBetween(DB::raw('COALESCE(completed_at, stock_deducted_at, updated_at)'), [$periodStart, $periodEnd])
             ->count();
 
         // For average order value, use only completed orders that have confirmed payment
@@ -424,11 +424,11 @@ class AuthController extends Controller
             ->where('payment_status', 'confirmed')
             ->count();
 
-        // Orders that contribute to revenue (for debug / inspection)
-        $revenueOrders = Order::where('created_at', '>=', $thirtyDaysAgo)
-            ->whereIn('order_status', $validStatusesForRevenue)
+        // Orders that contribute to revenue (for debug / inspection) — completed + confirmed
+        $revenueOrders = Order::where('order_status', 'completed')
             ->where('payment_status', 'confirmed')
-            ->orderBy('created_at', 'desc')
+            ->whereBetween(DB::raw('COALESCE(completed_at, stock_deducted_at, updated_at)'), [$periodStart, $periodEnd])
+            ->orderBy('completed_at', 'desc')
             ->get();
         $averageOrderValue = $completedConfirmedCount > 0 ? round($totalRevenue / $completedConfirmedCount, 2) : 0;
 

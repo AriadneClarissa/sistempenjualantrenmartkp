@@ -66,9 +66,37 @@ class ProdukController extends Controller
             $bundling_warnings = collect();
             $chartLabels = [];
             $chartData = [];
-            $totalRevenue = 0;
-            $totalOrders = 0;
-            $averageOrderValue = 0;
+                $totalRevenue = 0;
+                $totalOrders = 0;
+                $averageOrderValue = 0;
+                
+                $periodStart = Carbon::now()->subDays(30)->startOfDay();
+                $periodEnd = Carbon::now()->endOfDay();
+                $salesData = Order::where('order_status', 'completed')
+                    ->where('payment_status', 'confirmed')
+                    ->whereBetween(DB::raw('COALESCE(completed_at, stock_deducted_at, updated_at)'), [$periodStart, $periodEnd])
+                    ->selectRaw('DATE(COALESCE(completed_at, stock_deducted_at, updated_at)) as date, SUM(total) as revenue, COUNT(*) as order_count')
+                    ->groupBy('date')
+                    ->orderBy('date')
+                    ->get();
+                // Convert to format for chart
+                for ($i = 29; $i >= 0; $i--) {
+                    $date = Carbon::now()->subDays($i)->format('Y-m-d');
+                    $chartLabels[] = Carbon::now()->subDays($i)->format('d/m');
+                    $revenue = $salesData->firstWhere('date', $date)?->revenue ?? 0;
+                    $chartData[] = floatval($revenue);
+                }
+                // Calculate metrics (match report: only completed + confirmed within completed timestamp window)
+                $totalRevenue = Order::where('order_status', 'completed')
+                    ->where('payment_status', 'confirmed')
+                    ->whereBetween(DB::raw('COALESCE(completed_at, stock_deducted_at, updated_at)'), [$periodStart, $periodEnd])
+                    ->sum('total');
+                $totalOrders = Order::whereBetween('created_at', [$periodStart, $periodEnd])->count();
+                $revenueOrdersCount = Order::where('order_status', 'completed')
+                    ->where('payment_status', 'confirmed')
+                    ->whereBetween(DB::raw('COALESCE(completed_at, stock_deducted_at, updated_at)'), [$periodStart, $periodEnd])
+                    ->count();
+                $averageOrderValue = $revenueOrdersCount > 0 ? round($totalRevenue / $revenueOrdersCount, 2) : 0;
             $statusBreakdown = collect();
 
             if (Auth::check() && Auth::user()->isAdmin()) {
@@ -78,46 +106,7 @@ class ProdukController extends Controller
 
                 // Jika owner, tampilkan grafik penjualan
                 if (Auth::user()->isOwner()) {
-                    $thirtyDaysAgo = Carbon::now()->subDays(30);
-                    $validStatusesForRevenue = ['processing','ready_to_ship','completed'];
-                    $salesData = Order::where('created_at', '>=', $thirtyDaysAgo)
-                        ->whereIn('order_status', $validStatusesForRevenue)
-                        ->where('payment_status', 'confirmed')
-                        ->selectRaw('DATE(created_at) as date, SUM(total) as revenue, COUNT(*) as order_count')
-                        ->groupBy('date')
-                        ->orderBy('date')
-                        ->get();
-
-                    // Convert to format for chart
-                    for ($i = 29; $i >= 0; $i--) {
-                        $date = Carbon::now()->subDays($i)->format('Y-m-d');
-                        $chartLabels[] = Carbon::now()->subDays($i)->format('d/m');
-                        $revenue = $salesData->firstWhere('date', $date)?->revenue ?? 0;
-                        $chartData[] = floatval($revenue);
-                    }
-
-                    // Calculate metrics (only orders with confirmed payment and accepted statuses)
-                    $totalRevenue = Order::where('created_at', '>=', $thirtyDaysAgo)
-                        ->whereIn('order_status', $validStatusesForRevenue)
-                        ->where('payment_status', 'confirmed')
-                        ->sum('total');
-                    $totalOrders = Order::where('created_at', '>=', $thirtyDaysAgo)->count();
-                    $revenueOrdersCount = Order::where('created_at', '>=', $thirtyDaysAgo)
-                        ->whereIn('order_status', $validStatusesForRevenue)
-                        ->where('payment_status', 'confirmed')
-                        ->count();
-
-                    // Average should be totalRevenue / completed confirmed orders
-                    $completedConfirmedCount = Order::where('created_at', '>=', $thirtyDaysAgo)
-                        ->where('order_status', 'completed')
-                        ->where('payment_status', 'confirmed')
-                        ->count();
-                    $averageOrderValue = $completedConfirmedCount > 0 ? round($totalRevenue / $completedConfirmedCount, 2) : 0;
-
-                    // Order status breakdown
-                    $statusBreakdown = Order::selectRaw('order_status, COUNT(*) as count')
-                        ->groupBy('order_status')
-                        ->pluck('count', 'order_status');
+                    // Owner: chart/data already prepared above using completed+confirmed within completed timestamp window
                 }
             }
         } catch (\Throwable $e) {
