@@ -154,6 +154,7 @@ class ProdukController extends Controller
             'bundling_warnings',
             'chartLabels',
             'chartData',
+            'chartDataAllCompleted',
             'totalRevenue',
             'totalOrders',
             'averageOrderValue',

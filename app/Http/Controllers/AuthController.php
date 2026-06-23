@@ -442,6 +442,9 @@ class AuthController extends Controller
             ->get();
         $averageOrderValue = $completedConfirmedCount > 0 ? round($totalRevenue / $completedConfirmedCount, 2) : 0;
 
+        // For views expect a generic name `$chartData` (confirmed series)
+        $chartData = $chartDataConfirmed;
+
         // Order status breakdown
         $statusBreakdown = Order::selectRaw('order_status, COUNT(*) as count')
             ->groupBy('order_status')
@@ -473,6 +476,7 @@ class AuthController extends Controller
             'methods',
             'chartLabels',
             'chartData',
+            'chartDataAllCompleted',
             'totalRevenue',
             'totalOrders',
             'averageOrderValue',
