@@ -9,17 +9,20 @@
     </div>
 
     <div class="mb-4">
-        <form action="{{ route('admin.payment_methods.store') }}" method="POST">
+        <form id="formTambahMetode" action="{{ route('admin.payment_methods.store') }}" method="POST" novalidate>
             @csrf
             <div class="row g-2">
                 <div class="col-md-3">
-                    <input name="name" class="form-control" placeholder="Nama metode (Misal: BCA)" required>
+                    <input id="inputPaymentName" name="name" class="form-control" placeholder="Nama metode (Misal: BCA)" required>
+                    <div class="invalid-feedback d-none text-danger">wajib diisi</div>
                 </div>
                 <div class="col-md-3">
-                    <input name="account_name" class="form-control" placeholder="Pemilik rekening">
+                    <input id="inputAccountName" name="account_name" class="form-control" placeholder="Pemilik rekening" required>
+                    <div class="invalid-feedback d-none text-danger">wajib diisi</div>
                 </div>
                 <div class="col-md-3">
-                    <input name="account_number" class="form-control" placeholder="No. rekening">
+                    <input id="inputAccountNumber" name="account_number" class="form-control" placeholder="No. rekening" required>
+                    <div class="invalid-feedback d-none text-danger">wajib diisi</div>
                 </div>
                 <div class="col-md-3">
                     <button type="submit" class="btn btn-primary px-4">Tambah</button>
@@ -27,6 +30,53 @@
             </div>
         </form>
     </div>
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('formTambahMetode');
+    const inputs = [
+        document.getElementById('inputPaymentName'),
+        document.getElementById('inputAccountName'),
+        document.getElementById('inputAccountNumber')
+    ];
+
+    function showInvalid(input) {
+        input.classList.add('is-invalid');
+        const fb = input.parentElement.querySelector('.invalid-feedback');
+        if (fb) fb.classList.remove('d-none');
+    }
+
+    function clearInvalid(input) {
+        input.classList.remove('is-invalid');
+        const fb = input.parentElement.querySelector('.invalid-feedback');
+        if (fb) fb.classList.add('d-none');
+    }
+
+    inputs.forEach(i => {
+        i.addEventListener('input', function() { clearInvalid(i); });
+    });
+
+    form.addEventListener('submit', function(e) {
+        let hasError = false;
+        inputs.forEach(function(input) {
+            if (!input.value || input.value.trim() === '') {
+                showInvalid(input);
+                hasError = true;
+            }
+        });
+
+        if (hasError) {
+            e.preventDefault();
+            e.stopPropagation();
+            return false;
+        }
+
+        return true; // allow submission
+    });
+});
+</script>
+@endpush
 
     <div class="card shadow-sm w-100">
         <div class="card-body p-3">

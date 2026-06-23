@@ -22,8 +22,8 @@ class AdminPaymentMethodController extends Controller
     {
         $request->validate([
             'name' => 'required|string',
-            'account_name' => 'nullable|string',
-            'account_number' => 'nullable|string',
+            'account_name' => 'required|string',
+            'account_number' => 'required|string',
             'is_active' => 'nullable|boolean'
         ]);
 
