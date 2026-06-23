@@ -16,43 +16,21 @@ class MerkController extends Controller
         // 1. Validasi Input
         $request->validate([
             // Tambahkan unique agar tidak ada merk ganda
-            'nama_merk' => 'required|string|max:255|unique:merk,nama_merk',
-        ], [
-            'nama_merk.unique' => 'Nama merk sudah terdaftar.'
+            'nama_merk' => 'required|string|max:255',
         ]);
 
         // 2. Format menjadi Kapital Awal Kata
         $nama_format = ucwords(strtolower($request->nama_merk));
 
-        // 3. Simpan ke Database (pastikan kd_merk unik)
-        try {
-            $baseSlug = Str::slug($nama_format);
-            $slug = $baseSlug;
-            $i = 1;
-            while (Merk::where('kd_merk', $slug)->exists()) {
-                $slug = $baseSlug . '-' . $i;
-                $i++;
-            }
+        // 3. Simpan ke Database
+        $merk = Merk::create([
+            'kd_merk' => Str::slug($nama_format), 
+            'nama_merk' => $nama_format,
+            'is_hidden' => false // Default tampil
+        ]);
 
-            $merk = Merk::create([
-                'kd_merk' => $slug,
-                'nama_merk' => $nama_format,
-                'is_hidden' => false // Default tampil
-            ]);
-        } catch (\Exception $e) {
-            // Jika request AJAX atau mengharapkan JSON, kembalikan JSON error yang jelas
-            if ($request->expectsJson() || $request->ajax()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Server Error: ' . $e->getMessage()
-                ], 500);
-            }
-
-            return redirect()->back()->with('error', 'Terjadi kesalahan saat menyimpan merk.');
-        }
-
-        // 4. Jika permintaan AJAX atau mengharapkan JSON, kembalikan JSON sukses
-        if ($request->expectsJson() || $request->ajax()) {
+        // 4. Cek Jika Permintaan via AJAX (Untuk fitur instan di modal)
+        if ($request->ajax()) {
             return response()->json([
                 'success' => true,
                 'message' => 'Merk ' . $nama_format . ' berhasil ditambahkan!',

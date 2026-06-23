@@ -696,13 +696,9 @@ $(document).ready(function() {
     // AJAX Tambah Merk
     $('#formTambahMerk').on('submit', function(e) {
         e.preventDefault();
-        $.ajax({
-            url: "{{ route('merk.store') }}",
-            method: 'POST',
-            data: $(this).serialize(),
-            dataType: 'json',
-            success: function(res) {
-                if (res.success) {
+        $.post("{{ route('merk.store') }}", $(this).serialize())
+            .done(function(res) {
+                if(res.success) {
                     const merkItem = $('<div>', {
                         class: 'list-group-item d-flex justify-content-between align-items-center bg-light item-merk',
                         'data-search': res.data.nama_merk.toLowerCase()
@@ -721,21 +717,12 @@ $(document).ready(function() {
                     $('select[name="merk"]').append(`<option value="${res.data.kd_merk}">${res.data.nama_merk}</option>`);
                     $('#inputNamaMerk').val('');
                     if (window.showFlashToast) showFlashToast('success', 'Berhasil', 'Merk ditambahkan.');
-                } else {
-                    const msg = res.message || 'Merk gagal ditambahkan.';
-                    if (window.showFlashToast) showFlashToast('error', 'Gagal', msg);
                 }
-            },
-            error: function(xhr) {
-                let pesan = 'Server Error';
-                try {
-                    const json = JSON.parse(xhr.responseText);
-                    pesan = json.message || (json.errors && json.errors.nama_merk ? json.errors.nama_merk[0] : pesan);
-                } catch (err) {}
-
+            })
+            .fail(function(xhr) {
+                const pesan = xhr.responseJSON?.message || (xhr.responseJSON?.errors?.nama_merk ? xhr.responseJSON.errors.nama_merk[0] : 'Merk gagal ditambahkan. Coba lagi.');
                 if (window.showFlashToast) showFlashToast('error', 'Gagal', pesan);
-            }
-        });
+            });
     });
 
     // AJAX Tambah Satuan
