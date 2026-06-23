@@ -3,6 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <!-- Prevent client-side caching to reduce chance of showing protected pages from cache -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
     <title>Trenmart - PT Tren Abadi Stationeri</title>
     <meta name="csrf-token" content="{{ csrf_token() }}">
     
@@ -878,6 +882,27 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 });
+
+// Prevent bfcache/back-button showing authenticated pages after logout
+window.addEventListener('pageshow', function(event) {
+    // If page was restored from bfcache, reload from server to ensure auth state is current
+    if (event.persisted) {
+        try {
+            window.location.reload();
+        } catch (e) {
+            // ignore
+        }
+    }
+});
+
+// Also force reload on history navigation (back/forward) so server enforces auth/role
+window.onpopstate = function(event) {
+    try {
+        window.location.reload();
+    } catch (e) {
+        // ignore
+    }
+};
 
 // Small helper for validating WA input inside modal (converts +62/62 to 08, strips non-digits, limits length)
 function validateWAForModal(input) {
