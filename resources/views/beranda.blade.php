@@ -139,6 +139,64 @@
                         <canvas id="salesChart" height="80"></canvas>
                     </div>
                 </div>
+
+                @if(request()->query('revenue_debug') && auth()->user() && auth()->user()->isOwner())
+                @php
+                    $thirtyDaysAgo = \Carbon\Carbon::now()->subDays(30);
+                    $validStatusesForRevenue = ['processing','ready_to_ship','completed'];
+                    $revenueOrders = \App\Models\Order::where('created_at', '>=', $thirtyDaysAgo)
+                        ->whereIn('order_status', $validStatusesForRevenue)
+                        ->where('payment_status', 'confirmed')
+                        ->orderBy('created_at', 'desc')
+                        ->get();
+                    $debugTotal = $revenueOrders->sum('total');
+                @endphp
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <div class="card shadow-sm border-0">
+                            <div class="card-header bg-white border-bottom">
+                                <h5 class="card-title mb-0 fw-bold">DEBUG: Pesanan yang termasuk dalam Total Pendapatan (30 hari)</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-sm table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th>No. Pesanan</th>
+                                                <th>Tanggal</th>
+                                                <th>Status Pesanan</th>
+                                                <th>Status Pembayaran</th>
+                                                <th class="text-end">Total</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach($revenueOrders as $ro)
+                                            <tr>
+                                                <td><strong>#{{ $ro->order_number }}</strong></td>
+                                                <td>{{ $ro->created_at->format('d M Y H:i') }}</td>
+                                                <td>{{ ucfirst(str_replace('_',' ', $ro->order_status)) }}</td>
+                                                <td>{{ ucfirst($ro->payment_status) }}</td>
+                                                <td class="text-end">Rp {{ number_format($ro->total,0,',','.') }}</td>
+                                            </tr>
+                                            @endforeach
+                                        </tbody>
+                                        <tfoot>
+                                            <tr>
+                                                <th colspan="4" class="text-end">Sub total (diterima & terkonfirmasi)</th>
+                                                <th class="text-end">Rp {{ number_format($debugTotal,0,',','.') }}</th>
+                                            </tr>
+                                            <tr>
+                                                <th colspan="4" class="text-end">Jumlah pesanan dihitung</th>
+                                                <th class="text-end">{{ $revenueOrders->count() }}</th>
+                                            </tr>
+                                        </tfoot>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                @endif
             </div>
         </div>
 
