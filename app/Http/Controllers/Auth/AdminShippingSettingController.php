@@ -23,7 +23,9 @@ class AdminShippingSettingController extends Controller
         abort_unless(Auth::check() && Auth::user()->role === 'admin', 403);
 
         $request->validate([
-            'flat_rate' => 'required|integer|min:0',
+            'flat_rate' => 'required|integer|min:1',
+        ], [
+            'flat_rate.min' => 'Tarif ongkir harus bernilai minimal 1 (tidak boleh 0 atau negatif).'
         ]);
 
         $payload = [];
