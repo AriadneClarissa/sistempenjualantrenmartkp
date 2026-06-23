@@ -27,22 +27,31 @@
         width: auto;
         max-width: 100%;
         overflow-x: auto;
-        padding-bottom: 2px; /* Dikecilkan karena scrollbar akan dihilangkan */
+        padding-bottom: 6px; /* space for thin scrollbar */
         -webkit-overflow-scrolling: touch;
-        
-        /* PAKSA SEMBUNYIKAN SCROLLBAR (Firefox/IE/Edge) */
-        scrollbar-width: none !important; 
-        -ms-overflow-style: none !important; 
+
+        /* show a thin scrollbar in Firefox */
+        scrollbar-width: thin;
+        scrollbar-color: rgba(0,0,0,0.15) transparent;
     }
 
-    /* PAKSA SEMBUNYIKAN SCROLLBAR (Chrome/Safari/Opera/Edge WebKit) */
+    /* Thin horizontal scrollbar for WebKit browsers */
     .admin-header-actions::-webkit-scrollbar,
     .custom-scrollbar::-webkit-scrollbar {
-        display: none !important;
-        width: 0 !important;
-        height: 0 !important;
-        background: transparent !important;
-        -webkit-appearance: none !important;
+        height: 6px;
+    }
+    .admin-header-actions::-webkit-scrollbar-track,
+    .custom-scrollbar::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    .admin-header-actions::-webkit-scrollbar-thumb,
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: rgba(0,0,0,0.12);
+        border-radius: 6px;
+    }
+    .admin-header-actions::-webkit-scrollbar-thumb:hover,
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+        background: rgba(0,0,0,0.2);
     }
     
     .admin-header > .container-fluid > .d-flex {
